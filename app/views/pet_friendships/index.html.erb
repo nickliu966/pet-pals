@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Pet friendships" %>
+
+<h1>Pet friendships</h1>
+
+<div id="pet_friendships">
+  <% @pet_friendships.each do |pet_friendship| %>
+    <%= render pet_friendship %>
+    <p>
+      <%= link_to "Show this pet friendship", pet_friendship %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New pet friendship", new_pet_friendship_path %>
