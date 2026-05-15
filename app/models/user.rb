@@ -75,6 +75,10 @@ class User < ApplicationRecord
            through: :walk_participants,
            source: :walk_event
 
+  has_many :friended_by_users,
+        through: :accepted_received_user_friendships,
+        source: :requester
+
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
 

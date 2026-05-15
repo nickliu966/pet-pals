@@ -80,6 +80,10 @@ class Pet < ApplicationRecord
            through: :walk_participants,
            source: :walk_event
 
+  has_many :friended_by_pets,
+         through: :accepted_received_pet_friendships,
+         source: :requester_pet
+
   validates :name, presence: true
   validates :species, presence: true
 
