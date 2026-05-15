@@ -1,0 +1,11 @@
+<div class="card">
+  <% if pet.image_url.present? %>
+    <%= image_tag pet.image_url, class: "card-img-top", style: "height: 220px; object-fit: cover;" %>
+  <% end %>
+
+  <div class="card-body">
+    <h3><%= link_to pet.name, pet_path(pet) %></h3>
+    <p><%= pet.species %> · <%= pet.breed %></p>
+    <p>Owner: <%= link_to pet.user.name, user_path(pet.user) %></p>
+  </div>
+</div>

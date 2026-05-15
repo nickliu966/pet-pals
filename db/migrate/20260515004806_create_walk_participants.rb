@@ -4,7 +4,7 @@ class CreateWalkParticipants < ActiveRecord::Migration[8.0]
       t.references :walk_event, null: false, foreign_key: true
       t.references :user, null: false, foreign_key: true
       t.references :pet, null: false, foreign_key: true
-      t.integer :status
+      t.string :status, null: false, default: "joined"
       t.datetime :joined_at
 
       t.timestamps

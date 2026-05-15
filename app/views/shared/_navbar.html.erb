@@ -1,0 +1,13 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary mb-4">
+  <div class="container">
+    <%= link_to "PetPals", root_path, class: "navbar-brand" %>
+
+    <div class="navbar-nav">
+      <%= link_to "Feed", posts_path, class: "nav-link" %>
+      <%= link_to "Pets", pets_path, class: "nav-link" %>
+      <%= link_to "Walks", walk_events_path, class: "nav-link" %>
+      <%= link_to "Owner Friends", user_friendships_path, class: "nav-link" %>
+      <%= link_to "Pet Friends", pet_friendships_path, class: "nav-link" %>
+    </div>
+  </div>
+</nav>

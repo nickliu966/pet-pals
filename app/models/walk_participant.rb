@@ -4,7 +4,7 @@
 #
 #  id            :bigint           not null, primary key
 #  joined_at     :datetime
-#  status        :integer
+#  status        :string           default("joined"), not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  pet_id        :bigint           not null
@@ -27,4 +27,46 @@ class WalkParticipant < ApplicationRecord
   belongs_to :walk_event
   belongs_to :user
   belongs_to :pet
+
+  enum :status, {
+    joined: "joined",
+    cancelled: "cancelled",
+    attended: "attended",
+    no_show: "no_show"
+  }
+
+  validates :pet_id,
+            uniqueness: {
+              scope: :walk_event_id,
+              message: "has already joined this walk"
+            }
+
+  validate :pet_must_belong_to_user
+  validate :walk_must_be_joinable
+
+  before_validation :set_defaults
+
+  private
+
+  def set_defaults
+    self.status ||= "joined"
+    self.joined_at ||= Time.current
+  end
+
+  def pet_must_belong_to_user
+    return if pet.nil? || user.nil?
+
+    unless pet.user_id == user.id
+      errors.add(:pet, "must belong to the joining user")
+    end
+  end
+
+  def walk_must_be_joinable
+    return if walk_event.nil? || user.nil? || pet.nil?
+    return if status != "joined"
+
+    unless walk_event.joinable_by?(user, pet)
+      errors.add(:walk_event, "is not available to this user and pet")
+    end
+  end
 end

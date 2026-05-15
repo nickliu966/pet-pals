@@ -4,7 +4,7 @@ class CreatePetFriendships < ActiveRecord::Migration[8.0]
       t.integer :requester_pet_id
       t.integer :receiver_pet_id
       t.integer :requested_by_user_id
-      t.integer :status
+      t.string :status, null: false, default: "pending"
       t.datetime :accepted_at
 
       t.timestamps

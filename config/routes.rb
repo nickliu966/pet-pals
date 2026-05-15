@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  root "posts#index"
+
   resources :walk_participants
   resources :walk_events
   resources :likes

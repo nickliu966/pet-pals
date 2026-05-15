@@ -3,7 +3,7 @@ class CreateUserFriendships < ActiveRecord::Migration[8.0]
     create_table :user_friendships do |t|
       t.integer :requester_id
       t.integer :receiver_id
-      t.integer :status
+      t.string :status, null: false, default: "pending"
       t.datetime :accepted_at
 
       t.timestamps

@@ -4,6 +4,7 @@
 #
 #  id         :bigint           not null, primary key
 #  body       :text
+#  image_url  :string
 #  visibility :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -22,5 +23,24 @@
 #
 class Post < ApplicationRecord
   belongs_to :user
-  belongs_to :pet
+  belongs_to :pet, optional: true
+
+  has_many :comments, dependent: :destroy
+
+  has_many :likes, dependent: :destroy
+
+  has_many :fans,
+           through: :likes,
+           source: :fan
+
+  enum :visibility, {
+    everyone: "everyone",
+    user_friends_only: "user_friends_only",
+    pet_friends_only: "pet_friends_only",
+    friends_of_either: "friends_of_either"
+  }
+
+  validates :body, presence: true
+
+  scope :default_order, -> { order(created_at: :desc) }
 end

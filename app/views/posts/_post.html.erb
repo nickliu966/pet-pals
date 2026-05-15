@@ -1,22 +1,21 @@
 <div id="<%= dom_id post %>">
-  <p>
-    <strong>User:</strong>
-    <%= post.user_id %>
-  </p>
+  <article class="card mb-3">
+    <% if post.image_url.present? %>
+      <%= image_tag post.image_url, class: "card-img-top", style: "max-height: 400px; object-fit: cover;" %>
+    <% end %>
 
-  <p>
-    <strong>Pet:</strong>
-    <%= post.pet_id %>
-  </p>
+    <div class="card-body">
+      <p>
+        <strong><%= link_to post.user.name, user_path(post.user) %></strong>
 
-  <p>
-    <strong>Body:</strong>
-    <%= post.body %>
-  </p>
+        <% if post.pet.present? %>
+          with <%= link_to post.pet.name, pet_path(post.pet) %>
+        <% end %>
+      </p>
 
-  <p>
-    <strong>Visibility:</strong>
-    <%= post.visibility %>
-  </p>
+      <p><%= post.body %></p>
 
+      <small><%= time_ago_in_words(post.created_at) %> ago</small>
+    </div>
+  </article>
 </div>
