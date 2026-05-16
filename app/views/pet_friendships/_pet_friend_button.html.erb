@@ -1,0 +1,27 @@
+<% my_pets = current_user.pets.where.not(id: pet.id) %>
+
+<% if my_pets.any? %>
+  <% my_pet = my_pets.first %>
+  <% friendship = my_pet.sent_pet_friendships.find_by(receiver_pet: pet) %>
+
+  <% if friendship.present? %>
+    <% if friendship.pending? %>
+      <%= button_to "Requested",
+            pet_friendship_path(friendship),
+            method: :delete,
+            class: "btn btn-outline-primary rounded-pill" %>
+    <% elsif friendship.accepted? %>
+      <%= button_to "Pet Friends",
+            pet_friendship_path(friendship),
+            method: :delete,
+            class: "btn btn-primary rounded-pill" %>
+    <% end %>
+  <% else %>
+    <%= form_with(model: PetFriendship.new) do |form| %>
+      <%= form.hidden_field :requester_pet_id, value: my_pet.id %>
+      <%= form.hidden_field :receiver_pet_id, value: pet.id %>
+
+      <%= form.submit "Add to friend zone", class: "btn btn-primary rounded-pill" %>
+    <% end %>
+  <% end %>
+<% end %>

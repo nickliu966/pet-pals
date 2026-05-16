@@ -1,62 +1,43 @@
-<div id="<%= dom_id walk_event %>">
-  <p>
-    <strong>Host user:</strong>
-    <%= walk_event.host_user_id %>
-  </p>
+<div id="<%= dom_id(walk_event) %>" class="p-3">
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <div>
+      <h5 class="mb-1">
+        <%= link_to walk_event.title, walk_event_path(walk_event), class: "text-decoration-none" %>
+      </h5>
 
-  <p>
-    <strong>Host pet:</strong>
-    <%= walk_event.host_pet_id %>
-  </p>
+      <div class="text-muted">
+        Hosted by
+        <%= link_to walk_event.host_user.name, user_path(walk_event.host_user), class: "text-decoration-none" %>
+        with
+        <%= link_to walk_event.host_pet.name, pet_path(walk_event.host_pet), class: "text-decoration-none" %>
+      </div>
+    </div>
 
-  <p>
-    <strong>Title:</strong>
-    <%= walk_event.title %>
-  </p>
+    <small class="text-muted">
+      <%= walk_event.status %>
+    </small>
+  </div>
 
-  <p>
-    <strong>Note:</strong>
+  <p class="mb-2">
     <%= walk_event.note %>
   </p>
 
-  <p>
-    <strong>Location name:</strong>
+  <div class="small text-muted mb-2">
+    <i class="fa-solid fa-location-dot"></i>
     <%= walk_event.location_name %>
-  </p>
+    ·
+    <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") if walk_event.start_time.present? %>
+    ·
+    <%= walk_event.duration_minutes %> min
+  </div>
 
-  <p>
-    <strong>Latitude:</strong>
-    <%= walk_event.latitude %>
-  </p>
+  <div class="d-flex justify-content-between align-items-center">
+    <%= link_to walk_event_path(walk_event), class: "btn btn-link text-decoration-none p-0" do %>
+      Participants: <%= walk_event.walk_participants.count %>
+    <% end %>
 
-  <p>
-    <strong>Longitude:</strong>
-    <%= walk_event.longitude %>
-  </p>
-
-  <p>
-    <strong>Start time:</strong>
-    <%= walk_event.start_time %>
-  </p>
-
-  <p>
-    <strong>Duration minutes:</strong>
-    <%= walk_event.duration_minutes %>
-  </p>
-
-  <p>
-    <strong>Visibility:</strong>
-    <%= walk_event.visibility %>
-  </p>
-
-  <p>
-    <strong>Max participants:</strong>
-    <%= walk_event.max_participants %>
-  </p>
-
-  <p>
-    <strong>Status:</strong>
-    <%= walk_event.status %>
-  </p>
-
+    <% unless walk_event.host_user == current_user %>
+      <%= link_to "View / Join", walk_event_path(walk_event), class: "btn btn-outline-primary btn-sm" %>
+    <% end %>
+  </div>
 </div>

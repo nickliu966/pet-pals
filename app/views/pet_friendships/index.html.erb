@@ -1,16 +1,58 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Pet Friends" %>
 
-<% content_for :title, "Pet friendships" %>
+<h1>Pet Friends</h1>
 
-<h1>Pet friendships</h1>
+<h3 class="mt-4">Pending pet requests</h3>
 
-<div id="pet_friendships">
-  <% @pet_friendships.each do |pet_friendship| %>
-    <%= render pet_friendship %>
-    <p>
-      <%= link_to "Show this pet friendship", pet_friendship %>
-    </p>
+<ul class="list-group list-group-flush mb-4">
+  <% current_user.pets.each do |pet| %>
+    <% pet.received_pet_friendships.pending.each do |friendship| %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <%= link_to friendship.requester_pet.name,
+                pet_path(friendship.requester_pet),
+                class: "text-decoration-none" %>
+          wants to be friends with
+          <%= link_to friendship.receiver_pet.name,
+                pet_path(friendship.receiver_pet),
+                class: "text-decoration-none" %>.
+        </div>
+
+        <div class="d-flex gap-2">
+          <%= button_to "Accept",
+                pet_friendship_path(friendship),
+                method: :patch,
+                params: { pet_friendship: { status: "accepted" } },
+                class: "btn btn-primary btn-sm" %>
+
+          <%= button_to "Decline",
+                pet_friendship_path(friendship),
+                method: :patch,
+                params: { pet_friendship: { status: "declined" } },
+                class: "btn btn-outline-secondary btn-sm" %>
+        </div>
+      </li>
+    <% end %>
   <% end %>
-</div>
+</ul>
 
-<%= link_to "New pet friendship", new_pet_friendship_path %>
+<h3>Your pets' friend zones</h3>
+
+<% current_user.pets.each do |pet| %>
+  <div class="mb-4">
+    <h5>
+      <%= link_to pet.name, pet_path(pet), class: "text-decoration-none" %>
+    </h5>
+
+    <ul class="list-group list-group-flush">
+      <% (pet.pet_friends + pet.friended_by_pets).uniq.each do |friend_pet| %>
+        <li class="list-group-item">
+          <%= link_to friend_pet.name, pet_path(friend_pet), class: "text-decoration-none" %>
+          <span class="text-muted">
+            owned by <%= link_to friend_pet.user.name, user_path(friend_pet.user), class: "text-decoration-none" %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

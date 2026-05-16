@@ -1,10 +1,44 @@
-<p style="color: green"><%= notice %></p>
+<div class="fs-5 border-bottom mb-3">
+  <%= link_to :back, class: "text-decoration-none" do %>
+    ← Back
+  <% end %>
+</div>
 
 <%= render @walk_event %>
 
-<div>
-  <%= link_to "Edit this walk event", edit_walk_event_path(@walk_event) %> |
-  <%= link_to "Back to walk events", walk_events_path %>
+<hr>
 
-  <%= button_to "Destroy this walk event", @walk_event, method: :delete %>
-</div>
+<h3>Joining pets</h3>
+
+<ul class="list-group list-group-flush mb-3">
+  <% @walk_event.walk_participants.each do |participant| %>
+    <li class="list-group-item">
+      <%= link_to participant.pet.name, pet_path(participant.pet), class: "text-decoration-none" %>
+      with
+      <%= link_to participant.user.name, user_path(participant.user), class: "text-decoration-none" %>
+    </li>
+  <% end %>
+</ul>
+
+<% eligible_pets = @walk_event.eligible_pets_for(current_user) %>
+
+<% if eligible_pets.any? %>
+  <h4>Join this walk</h4>
+
+  <% eligible_pets.each do |pet| %>
+    <%= button_to "Join with #{pet.name}",
+          walk_participants_path,
+          method: :post,
+          params: {
+            walk_participant: {
+              walk_event_id: @walk_event.id,
+              pet_id: pet.id
+            }
+          },
+          class: "btn btn-primary mb-2" %>
+  <% end %>
+<% else %>
+  <p class="text-muted">
+    You do not have an eligible pet for this walk.
+  </p>
+<% end %>

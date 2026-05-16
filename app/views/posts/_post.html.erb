@@ -1,21 +1,41 @@
-<div id="<%= dom_id post %>">
-  <article class="card mb-3">
-    <% if post.image_url.present? %>
-      <%= image_tag post.image_url, class: "card-img-top", style: "max-height: 400px; object-fit: cover;" %>
-    <% end %>
+<div id="<%= dom_id(post) %>">
+  <% if post.image_url.present? %>
+    <%= image_tag post.image_url,
+        class: "w-100",
+        style: "height: 360px; object-fit: cover;" %>
+  <% end %>
 
-    <div class="card-body">
-      <p>
-        <strong><%= link_to post.user.name, user_path(post.user) %></strong>
+  <div class="p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <strong>
+          <%= link_to post.user.name, user_path(post.user), class: "text-decoration-none" %>
+        </strong>
 
         <% if post.pet.present? %>
-          with <%= link_to post.pet.name, pet_path(post.pet) %>
+          <span class="text-muted">with</span>
+          <%= link_to post.pet.name, pet_path(post.pet), class: "text-decoration-none" %>
         <% end %>
-      </p>
+      </div>
 
-      <p><%= post.body %></p>
-
-      <small><%= time_ago_in_words(post.created_at) %> ago</small>
+      <small class="text-muted">
+        <%= time_ago_in_words(post.created_at) %> ago
+      </small>
     </div>
-  </article>
+
+    <p class="mb-2">
+      <%= post.body %>
+    </p>
+
+    <%= link_to post_path(post), class: "btn btn-link text-decoration-none p-0" do %>
+      <%= post.likes.count %> Likes
+      <%= link_to "View post", post_path(post), class: "btn btn-link text-decoration-none p-0" %>
+    <% end %>
+  </div>
+
+  <% if post.comments.any? %>
+    <ul class="list-group list-group-flush border-top">
+      <%= render post.comments.default_order %>
+    </ul>
+  <% end %>
 </div>

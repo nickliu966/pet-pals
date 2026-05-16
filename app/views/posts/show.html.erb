@@ -1,10 +1,13 @@
-<p style="color: green"><%= notice %></p>
+<div class="fs-5 border-bottom mb-3">
+  <%= link_to :back, class: "text-decoration-none" do %>
+    ← Back
+  <% end %>
+</div>
 
 <%= render @post %>
 
-<div>
-  <%= link_to "Edit this post", edit_post_path(@post) %> |
-  <%= link_to "Back to posts", posts_path %>
+<hr>
 
-  <%= button_to "Destroy this post", @post, method: :delete %>
-</div>
+<h3>Add a comment</h3>
+
+<%= render "comments/form", comment: @post.comments.build %>

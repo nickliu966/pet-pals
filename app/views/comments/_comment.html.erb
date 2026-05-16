@@ -1,22 +1,17 @@
-<div id="<%= dom_id comment %>">
-  <p>
-    <strong>Post:</strong>
-    <%= comment.post_id %>
-  </p>
+<li id="<%= dom_id(comment) %>" class="list-group-item">
+  <div class="d-flex justify-content-between">
+    <div>
+      <strong>
+        <%= link_to comment.author.name, user_path(comment.author), class: "text-decoration-none" %>
+      </strong>
 
-  <p>
-    <strong>User:</strong>
-    <%= comment.user_id %>
-  </p>
+      <span class="text-muted">
+        &middot; <%= time_ago_in_words(comment.created_at) %> ago
+      </span>
+    </div>
+  </div>
 
-  <p>
-    <strong>Body:</strong>
+  <p class="mb-0 mt-1">
     <%= comment.body %>
   </p>
-
-  <p>
-    <strong>Parent comment:</strong>
-    <%= comment.parent_comment_id %>
-  </p>
-
-</div>
+</li>

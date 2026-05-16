@@ -1,62 +1,31 @@
-<div id="<%= dom_id pet %>">
-  <p>
-    <strong>User:</strong>
-    <%= pet.user_id %>
-  </p>
+<div id="<%= dom_id(pet) %>" class="card">
+  <% if pet.image_url.present? %>
+    <%= image_tag pet.image_url,
+        class: "card-img-top",
+        style: "height: 320px; object-fit: cover;" %>
+  <% end %>
 
-  <p>
-    <strong>Name:</strong>
-    <%= pet.name %>
-  </p>
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h5 class="card-title mb-1">
+          <%= link_to pet.name, pet_path(pet), class: "text-decoration-none" %>
+        </h5>
 
-  <p>
-    <strong>Species:</strong>
-    <%= pet.species %>
-  </p>
+        <p class="text-muted mb-2">
+          Owned by <%= link_to pet.user.name, user_path(pet.user), class: "text-decoration-none" %>
+        </p>
+      </div>
+    </div>
 
-  <p>
-    <strong>Breed:</strong>
-    <%= pet.breed %>
-  </p>
+    <% if pet.respond_to?(:bio) && pet.bio.present? %>
+      <p class="card-text">
+        <%= pet.bio %>
+      </p>
+    <% end %>
 
-  <p>
-    <strong>Gender:</strong>
-    <%= pet.gender %>
-  </p>
-
-  <p>
-    <strong>Birthday:</strong>
-    <%= pet.birthday %>
-  </p>
-
-  <p>
-    <strong>Size:</strong>
-    <%= pet.size %>
-  </p>
-
-  <p>
-    <strong>Energy level:</strong>
-    <%= pet.energy_level %>
-  </p>
-
-  <p>
-    <strong>Temperament:</strong>
-    <%= pet.temperament %>
-  </p>
-
-  <p>
-    <strong>Vaccinated:</strong>
-    <%= pet.vaccinated %>
-  </p>
-
-  <p>
-    <strong>Neutered:</strong>
-    <%= pet.neutered %>
-  </p>
-
-  <p>
-    <strong>Bio:</strong>
-    <%= pet.bio %>
-  </p>
-
+    <div class="d-flex gap-3">
+      <%= link_to "View profile", pet_path(pet), class: "btn btn-link text-decoration-none p-0" %>
+    </div>
+  </div>
 </div>

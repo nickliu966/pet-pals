@@ -1,16 +1,13 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Walks" %>
 
-<% content_for :title, "Walk events" %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="mb-0">Walks</h1>
 
-<h1>Walk events</h1>
-
-<div id="walk_events">
-  <% @walk_events.each do |walk_event| %>
-    <%= render walk_event %>
-    <p>
-      <%= link_to "Show this walk event", walk_event %>
-    </p>
-  <% end %>
+  <%= link_to "Create walk", new_walk_event_path, class: "btn btn-primary" %>
 </div>
 
-<%= link_to "New walk event", new_walk_event_path %>
+<ul id="walk_events" class="list-group list-group-flush">
+  <%= render partial: "walk_events/walk_event",
+             collection: @walk_events,
+             layout: "layouts/list_group" %>
+</ul>

@@ -1,10 +1,48 @@
-<p style="color: green"><%= notice %></p>
-
-<%= render @pet %>
-
-<div>
-  <%= link_to "Edit this pet", edit_pet_path(@pet) %> |
-  <%= link_to "Back to pets", pets_path %>
-
-  <%= button_to "Destroy this pet", @pet, method: :delete %>
+<div class="fs-5 border-bottom mb-3">
+  <%= link_to :back, class: "text-decoration-none" do %>
+    ← Back
+  <% end %>
 </div>
+
+<div class="card mb-4">
+  <% if @pet.image_url.present? %>
+    <%= image_tag @pet.image_url,
+        class: "card-img-top",
+        style: "height: 360px; object-fit: cover;" %>
+  <% end %>
+
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h1 class="card-title mb-1">
+          <%= @pet.name %>
+        </h1>
+
+        <p class="text-muted mb-2">
+          Owned by
+          <%= link_to @pet.user.name, user_path(@pet.user), class: "text-decoration-none" %>
+        </p>
+      </div>
+
+      <% unless @pet.user == current_user %>
+        <%= render "pet_friendships/pet_friend_button", pet: @pet %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<h3>Posts with <%= @pet.name %></h3>
+
+<ul class="list-group list-group-flush mb-4">
+  <%= render partial: "posts/post",
+             collection: @pet.posts,
+             layout: "layouts/list_group" %>
+</ul>
+
+<h3>Walks hosted by <%= @pet.name %></h3>
+
+<ul class="list-group list-group-flush">
+  <%= render partial: "walk_events/walk_event",
+             collection: @pet.hosted_walk_events,
+             layout: "layouts/list_group" %>
+</ul>

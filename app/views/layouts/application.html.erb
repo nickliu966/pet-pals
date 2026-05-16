@@ -24,11 +24,28 @@
   </head>
 
   <body>
+    <% if notice.present? || alert.present? %>
+      <div class="container">
+        <div class="row mb-2">
+          <div class="col-md-6 offset-md-3">
+            <% if notice.present? %>
+              <%= render "shared/flash", message: notice, css_class: "success" %>
+            <% end %>
+            <% if alert.present? %>
+              <%= render "shared/flash", message: alert, css_class: "danger" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
 
     <%= render 'shared/navbar' %>
-    <div class="container">
-    <%= render 'shared/flash' %>
+
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9 col-12">
       <%= yield %>
+      </div>
     </div>
   </body>
 </html>
