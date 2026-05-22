@@ -29,12 +29,22 @@
     <%= form.text_area :note, class: "form-control" %>
   </div>
 
-  <div class="form-group mb-2">
-    <%= form.label :location_name, "Location" %>
-    <%= form.select :location_name,
-        options_for_select(WalkEvent.location_names, walk_event.location_name),
-        { prompt: "Choose a walk location" },
-        class: "form-select" %>
+  <div data-controller="google-search">
+    <div class="form-group mb-2">
+      <%= form.label :location_name, "Search location" %>
+
+      <div id="search-box-container" class="mb-2"></div>
+
+      <div id="minimap" class="mb-2" style="height: 240px;"></div>
+
+      <%= form.text_field :location_name,
+          id: "walk_location_name_box",
+          class: "form-control",
+          placeholder: "Selected location" %>
+
+      <%= form.hidden_field :latitude, id: "walk_latitude_box" %>
+      <%= form.hidden_field :longitude, id: "walk_longitude_box" %>
+    </div>
   </div>
 
   <div class="form-group mb-2">
@@ -49,17 +59,21 @@
 
   <div class="form-group mb-2">
     <%= form.label :visibility %>
-    <%= form.text_field :visibility, class: "form-control" %>
+    <%= form.select :visibility,
+        options_for_select(
+          WalkEvent.visibilities.keys.map { |visibility| [ visibility.humanize, visibility ] },
+          walk_event.visibility
+        ),
+        {},
+        class: "form-select" %>
   </div>
 
   <div class="form-group mb-2">
-    <%= form.label :max_participants %>
-    <%= form.number_field :max_participants, class: "form-control" %>
-  </div>
-
-  <div class="form-group mb-2">
-    <%= form.label :status %>
-    <%= form.text_field :status, class: "form-control" %>
+    <%= form.label :max_participants, "Max participants" %>
+    <%= form.number_field :max_participants,
+        class: "form-control",
+        min: 1,
+        placeholder: "Leave blank for no limit" %>
   </div>
 
   <div>

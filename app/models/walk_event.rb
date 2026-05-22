@@ -50,14 +50,14 @@ class WalkEvent < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either"
+    friends_of_either: "friends_of_either",
   }
 
   enum :status, {
     scheduled: "scheduled",
     full: "full",
     cancelled: "cancelled",
-    completed: "completed"
+    completed: "completed",
   }
 
   validates :title, presence: true
@@ -65,9 +65,6 @@ class WalkEvent < ApplicationRecord
   validates :start_time, presence: true
 
   validates :duration_minutes,
-            numericality: { greater_than: 0 }
-
-  validates :max_participants,
             numericality: { greater_than: 0 }
 
   validate :host_pet_must_belong_to_host_user
@@ -108,6 +105,17 @@ class WalkEvent < ApplicationRecord
 
   def full_by_count?
     walk_participants.joined.count >= max_participants
+  end
+
+  def display_status
+    if status == "cancelled"
+      "cancelled"
+    elsif start_time.present? && duration_minutes.present? &&
+          Time.current > start_time + duration_minutes.minutes
+      "completed"
+    else
+      "scheduled"
+    end
   end
 
   private

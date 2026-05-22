@@ -21,6 +21,7 @@ class WalkEventsController < ApplicationController
     @walk_event = WalkEvent.new(walk_event_params)
     @walk_event.host_user = current_user
     @walk_event.host_pet = host_pet
+    @walk_event.status = "scheduled"
 
     respond_to do |format|
       if @walk_event.save
@@ -71,11 +72,12 @@ class WalkEventsController < ApplicationController
         :title,
         :note,
         :location_name,
+        :latitude,
+        :longitude,
         :start_time,
         :duration_minutes,
         :visibility,
-        :max_participants,
-        :status
+        :max_participants
       ]
     )
   end
