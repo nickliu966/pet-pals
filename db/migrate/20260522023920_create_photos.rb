@@ -3,10 +3,10 @@ class CreatePhotos < ActiveRecord::Migration[8.0]
     create_table :photos do |t|
       t.string :image
       t.text :caption
-      t.references :owner, null: false, foreign_key: true
-      t.boolean :pinned
-      t.integer :comments_count
-      t.integer :likes_count
+      t.belongs_to :owner, null: false, foreign_key: { to_table: :users }
+      t.boolean :pinned, default: false, null: false
+      t.integer :comments_count, default: 0
+      t.integer :likes_count, default: 0
 
       t.timestamps
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_22_022530) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_22_023920) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -90,6 +90,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_022530) do
     t.datetime "updated_at", null: false
     t.string "image_url"
     t.index ["user_id"], name: "index_pets_on_user_id"
+  end
+
+  create_table "photos", force: :cascade do |t|
+    t.string "image"
+    t.text "caption"
+    t.bigint "owner_id", null: false
+    t.boolean "pinned", default: false, null: false
+    t.integer "comments_count", default: 0
+    t.integer "likes_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_photos_on_owner_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -309,6 +321,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_022530) do
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users", column: "fan_id"
   add_foreign_key "pets", "users"
+  add_foreign_key "photos", "users", column: "owner_id"
   add_foreign_key "posts", "pets"
   add_foreign_key "posts", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
