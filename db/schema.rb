@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_22_033204) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_22_153152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -112,6 +112,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_033204) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "image_url"
+    t.integer "likes_count", default: 0, null: false
+    t.integer "comments_count", default: 0, null: false
     t.index ["pet_id"], name: "index_posts_on_pet_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
