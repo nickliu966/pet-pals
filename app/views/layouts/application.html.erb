@@ -39,7 +39,9 @@
       </div>
     <% end %>
 
-    <%= render "shared/post_modal" %>
+    <% if user_signed_in? %>
+      <%= render "shared/post_modal" %>
+    <% end %>
 
     <%= render 'shared/navbar' %>
 
