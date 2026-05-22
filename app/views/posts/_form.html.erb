@@ -1,9 +1,7 @@
 <%= form_with(model: post) do |form| %>
   <% if post.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h2>
-
-      <ul>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
         <% post.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -11,27 +9,36 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :user_id, style: "display: block" %>
-    <%= form.text_field :user_id %>
+  <div class="mb-3">
+    <%= form.label :pet_id, "Pet", class: "form-label" %>
+    <%= form.collection_select :pet_id,
+          current_user.pets,
+          :id,
+          :name,
+          { prompt: "Choose a pet" },
+          class: "form-select" %>
   </div>
 
-  <div>
-    <%= form.label :pet_id, style: "display: block" %>
-    <%= form.text_field :pet_id %>
+  <div class="mb-3">
+    <%= form.label :body, "Caption", class: "form-label" %>
+    <%= form.text_area :body,
+          class: "form-control",
+          rows: 4,
+          placeholder: "What is your pet doing?" %>
   </div>
 
-  <div>
-    <%= form.label :body, style: "display: block" %>
-    <%= form.textarea :body %>
+  <div class="mb-3">
+    <%= form.label :image_url, "Image URL", class: "form-label" %>
+    <%= form.text_field :image_url,
+          class: "form-control",
+          placeholder: "https://..." %>
   </div>
 
-  <div>
-    <%= form.label :visibility, style: "display: block" %>
-    <%= form.number_field :visibility %>
-  </div>
+  <div class="d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+      Cancel
+    </button>
 
-  <div>
-    <%= form.submit %>
+    <%= form.submit "Create post", class: "btn btn-primary" %>
   </div>
 <% end %>
