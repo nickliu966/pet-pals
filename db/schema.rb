@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_15_015412) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_22_020419) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
 
   create_table "comments", force: :cascade do |t|
@@ -227,12 +228,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_15_015412) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "name"
-    t.string "email"
+    t.citext "name"
+    t.citext "email"
     t.text "bio"
     t.string "city"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["name"], name: "index_users_on_name", unique: true
   end
 
   create_table "walk_events", force: :cascade do |t|
