@@ -28,7 +28,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Pet < ApplicationRecord
-  has_one_attached :image, dependent: purge_later
+  has_one_attached :image, dependent: :purge_later
 
   belongs_to :user
 
