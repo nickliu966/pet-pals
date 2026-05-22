@@ -1,16 +1,19 @@
 Rails.application.routes.draw do
   root "posts#index"
 
-  resources :walk_participants
-  resources :walk_events
-  resources :likes
-  resources :comments
+  resources :users, only: [:show]
+
   resources :posts
-  resources :pet_friendships
-  resources :user_friendships
-  resources :pets
-  resources :users
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  resources :comments, only: [:create, :edit, :update, :destroy]
+  resources :likes, only: [:create, :destroy]
+
+  resources :pets, except: [:index]
+
+  resources :walk_events
+  resources :walk_participants, only: [:create, :update, :destroy]
+
+  resources :user_friendships, only: [:index, :create, :update, :destroy]
+  resources :pet_friendships, only: [:index, :create, :update, :destroy]
+
   get "up" => "rails/health#show", as: :rails_health_check
 end
