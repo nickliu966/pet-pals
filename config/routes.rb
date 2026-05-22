@@ -1,14 +1,16 @@
 Rails.application.routes.draw do
+  get "up" => "rails/health#show", as: :rails_health_check
+
   root "posts#index"
 
   devise_for :users
 
   resources :users, only: [:show]
 
-
-  resources :posts
-  resources :comments, only: [:create, :edit, :update, :destroy]
-  resources :likes, only: [:create, :destroy]
+  resources :posts do
+    resources :comments, only: [:create, :edit, :update, :destroy]
+    resources :likes, only: [:create, :destroy]
+  end
 
   resources :pets, except: [:index]
 
@@ -18,5 +20,8 @@ Rails.application.routes.draw do
   resources :user_friendships, only: [:index, :create, :update, :destroy]
   resources :pet_friendships, only: [:index, :create, :update, :destroy]
 
-  get "up" => "rails/health#show", as: :rails_health_check
+  get ":username" => "users#show", as: :user
+  get ":username/posts" => "users#posts", as: :user_posts
+  get ":username/pets" => "users#pets", as: :user_pets
+  get ":username/friends" => "users#friends", as: :user_friends
 end
