@@ -20,9 +20,10 @@
 #
 class Like < ApplicationRecord
   belongs_to :fan,
-             class_name: "User"
+             class_name: "User",
+             counter_cache: true
 
-  belongs_to :post
+  belongs_to :post, counter_cache: true
 
   validates :fan_id,
             uniqueness: {
