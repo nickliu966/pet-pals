@@ -15,6 +15,7 @@
 #  visibility       :string           default("friends_of_either"), not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  google_place_id  :string
 #  host_pet_id      :bigint           not null
 #  host_user_id     :bigint           not null
 #

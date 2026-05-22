@@ -12,10 +12,8 @@
           <%= link_to post.user.username, user_path(post.user.username), class: "text-decoration-none" %>
         </strong>
 
-        <% if post.pet.present? %>
-          <span class="text-muted">with</span>
-          <%= link_to post.pet.name, pet_path(post.pet), class: "text-decoration-none" %>
-        <% end %>
+        <span class="text-muted">with</span>
+        <%= link_to post.pet.name, pet_path(post.pet), class: "text-decoration-none" %>
       </div>
 
       <small class="text-muted">
@@ -27,15 +25,58 @@
       <%= post.body %>
     </p>
 
-    <%= link_to post_path(post), class: "btn btn-link text-decoration-none p-0" do %>
-      <%= post.likes.count %> Likes
-      <%= link_to "View post", post_path(post), class: "btn btn-link text-decoration-none p-0" %>
-    <% end %>
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-3 align-items-center">
+        <% like = current_user.likes.find_by(post: post) %>
+
+        <% if like.present? %>
+          <%= button_to "Unlike",
+              like,
+              method: :delete,
+              class: "btn btn-link text-decoration-none p-0" %>
+        <% else %>
+          <%= form_with(model: Like.new) do |form| %>
+            <%= form.hidden_field :post_id, value: post.id %>
+            <%= form.submit "Like", class: "btn btn-link text-decoration-none p-0" %>
+          <% end %>
+        <% end %>
+
+        <span>
+          <%= pluralize(post.likes_count, "like") %>
+        </span>
+
+        <%= link_to "View post", post_path(post), class: "btn btn-link text-decoration-none p-0" %>
+      </div>
+
+      <% if current_user == post.user %>
+        <div class="d-flex gap-2">
+          <%= link_to "Edit", edit_post_path(post), class: "btn btn-sm btn-outline-secondary" %>
+
+          <%= button_to "Delete",
+              post_path(post),
+              method: :delete,
+              class: "btn btn-sm btn-outline-danger" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
-  <% if post.comments.any? %>
-    <ul class="list-group list-group-flush border-top">
-      <%= render post.comments.default_order %>
-    </ul>
-  <% end %>
+  <ul class="list-group list-group-flush border-top">
+    <%= render post.comments.default_order %>
+  </ul>
+
+  <div class="border-top p-3">
+    <%= form_with(model: Comment.new) do |form| %>
+      <%= form.hidden_field :post_id, value: post.id %>
+
+      <div class="form-group mb-2">
+        <%= form.label :body, "Add a comment", class: "visually-hidden" %>
+        <%= form.text_area :body, class: "form-control", placeholder: "Add a comment..." %>
+      </div>
+
+      <div class="d-grid">
+        <%= form.submit "Comment", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
 </div>

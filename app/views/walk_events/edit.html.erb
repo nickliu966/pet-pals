@@ -1,12 +1,16 @@
 <% content_for :title, "Editing walk event" %>
 
-<h1>Editing walk event</h1>
+<div class="card">
+  <div class="card-header">
+    Editing walk event
+  </div>
 
-<%= render "form", walk_event: @walk_event %>
+  <div class="card-body">
+    <%= render "form", walk_event: @walk_event %>
+  </div>
+</div>
 
-<br>
-
-<div>
-  <%= link_to "Show this walk event", @walk_event %> |
-  <%= link_to "Back to walk events", walk_events_path %>
+<div class="mt-3 d-flex gap-2">
+  <%= link_to "Show this walk event", @walk_event, class: "btn btn-outline-secondary" %>
+  <%= link_to "Back to walks", walk_events_path, class: "btn btn-outline-secondary" %>
 </div>

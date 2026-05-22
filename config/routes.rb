@@ -6,17 +6,22 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :posts do
-    resources :comments, only: [:create, :edit, :update, :destroy]
-    resources :likes, only: [:create, :destroy]
+    resources :comments, only: [:index]
+    resources :likes, only: [:index]
   end
 
   resources :pets, except: [:index]
+
+  resources :comments
+  resources :likes
 
   resources :walk_events
   resources :walk_participants, only: [:create, :update, :destroy]
 
   resources :user_friendships, only: [:index, :create, :update, :destroy]
   resources :pet_friendships, only: [:index, :create, :update, :destroy]
+
+  resources :users, only: [:index]
 
   get ":username" => "users#show", as: :user
   get ":username/posts" => "users#posts", as: :user_posts

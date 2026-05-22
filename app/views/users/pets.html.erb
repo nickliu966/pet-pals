@@ -1,0 +1,56 @@
+<% content_for :title, "#{@user.username}'s pets" %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0"><%= @user.username %>'s pets</h1>
+    <small class="text-muted"><%= pluralize(@pets.count, "pet") %></small>
+  </div>
+
+  <% if current_user == @user %>
+    <%= link_to "New pet", new_pet_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<ul class="list-group list-group-flush">
+  <% @pets.each do |pet| %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <% if pet.image_url.present? %>
+            <%= image_tag pet.image_url,
+                class: "rounded-circle me-3",
+                style: "width: 64px; height: 64px; object-fit: cover;" %>
+          <% end %>
+
+          <div>
+            <h5 class="mb-1">
+              <%= link_to pet.name, pet_path(pet), class: "text-decoration-none" %>
+            </h5>
+
+            <div class="text-muted">
+              <%= pet.species %> · <%= pet.breed %>
+            </div>
+
+            <div class="small">
+              Owned by
+              <%= link_to pet.user.username, user_path(pet.user.username), class: "text-decoration-none" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <%= link_to "View", pet_path(pet), class: "btn btn-sm btn-outline-primary" %>
+
+          <% if current_user == pet.user %>
+            <%= link_to "Edit", edit_pet_path(pet), class: "btn btn-sm btn-outline-secondary" %>
+
+            <%= button_to "Delete",
+                pet_path(pet),
+                method: :delete,
+                class: "btn btn-sm btn-outline-danger" %>
+          <% end %>
+        </div>
+      </div>
+    </li>
+  <% end %>
+</ul>

@@ -1,12 +1,24 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary mb-4">
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
   <div class="container">
     <%= link_to "PetPals", root_path, class: "navbar-brand" %>
 
-    <div class="navbar-nav">
+    <div class="navbar-nav ms-auto align-items-center">
       <%= link_to "Feed", posts_path, class: "nav-link" %>
       <%= link_to "Walks", walk_events_path, class: "nav-link" %>
       <%= link_to "Owner Friends", user_friendships_path, class: "nav-link" %>
       <%= link_to "Pet Friends", pet_friendships_path, class: "nav-link" %>
+
+      <% if user_signed_in? %>
+        <%= link_to current_user.username, user_path(current_user.username), class: "nav-link" %>
+
+        <%= button_to "Sign out",
+              destroy_user_session_path,
+              method: :delete,
+              class: "btn btn-link nav-link" %>
+      <% else %>
+        <%= link_to "Sign in", new_user_session_path, class: "nav-link" %>
+        <%= link_to "Sign up", new_user_registration_path, class: "nav-link" %>
+      <% end %>
     </div>
   </div>
 </nav>

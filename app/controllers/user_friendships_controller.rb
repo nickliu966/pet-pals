@@ -1,70 +1,59 @@
 class UserFriendshipsController < ApplicationController
-  before_action :set_user_friendship, only: %i[ show edit update destroy ]
+  before_action :set_user_friendship, only: [ :update, :destroy ]
 
-  # GET /user_friendships or /user_friendships.json
   def index
-    @user_friendships = UserFriendship.all
+    @received_requests = current_user.received_user_friendships.pending
+    @sent_requests = current_user.sent_user_friendships.pending
+    @friends = (current_user.owner_friends + current_user.friended_by_users).uniq
   end
 
-  # GET /user_friendships/1 or /user_friendships/1.json
-  def show
-  end
-
-  # GET /user_friendships/new
-  def new
-    @user_friendship = UserFriendship.new
-  end
-
-  # GET /user_friendships/1/edit
-  def edit
-  end
-
-  # POST /user_friendships or /user_friendships.json
   def create
+    receiver = User.find(user_friendship_params.fetch(:receiver_id))
+
     @user_friendship = UserFriendship.new(user_friendship_params)
+    @user_friendship.requester = current_user
+    @user_friendship.receiver = receiver
+    @user_friendship.status = "pending"
 
     respond_to do |format|
       if @user_friendship.save
-        format.html { redirect_to @user_friendship, notice: "User friendship was successfully created." }
+        format.html { redirect_to user_path(receiver.username), notice: "Friend request sent." }
         format.json { render :show, status: :created, location: @user_friendship }
       else
-        format.html { render :new, status: :unprocessable_entity }
+        format.html { redirect_to user_path(receiver.username), alert: @user_friendship.errors.full_messages.to_sentence }
         format.json { render json: @user_friendship.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # PATCH/PUT /user_friendships/1 or /user_friendships/1.json
   def update
     respond_to do |format|
       if @user_friendship.update(user_friendship_params)
-        format.html { redirect_to @user_friendship, notice: "User friendship was successfully updated." }
+        format.html { redirect_back fallback_location: user_friendships_path, notice: "Friend request was successfully updated." }
         format.json { render :show, status: :ok, location: @user_friendship }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html { redirect_back fallback_location: user_friendships_path, alert: @user_friendship.errors.full_messages.to_sentence }
         format.json { render json: @user_friendship.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /user_friendships/1 or /user_friendships/1.json
   def destroy
     @user_friendship.destroy!
 
     respond_to do |format|
-      format.html { redirect_to user_friendships_path, status: :see_other, notice: "User friendship was successfully destroyed." }
+      format.html { redirect_back fallback_location: root_url, notice: "Friendship was successfully destroyed." }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user_friendship
-      @user_friendship = UserFriendship.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def user_friendship_params
-      params.expect(user_friendship: [ :requester_id, :receiver_id, :status, :accepted_at ])
-    end
+  def set_user_friendship
+    @user_friendship = UserFriendship.find(params.expect(:id))
+  end
+
+  def user_friendship_params
+    params.expect(user_friendship: [ :receiver_id, :status ])
+  end
 end

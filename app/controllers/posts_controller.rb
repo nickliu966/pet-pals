@@ -1,27 +1,28 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: %i[ show edit update destroy ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
+  before_action :require_owner, only: [ :edit, :update, :destroy ]
 
-  # GET /posts or /posts.json
   def index
-    @posts = Post.all
+    @posts = Post.order(created_at: :desc)
   end
 
-  # GET /posts/1 or /posts/1.json
   def show
   end
 
-  # GET /posts/new
   def new
-    @post = Post.new
+    @post = current_user.posts.build
   end
 
-  # GET /posts/1/edit
   def edit
   end
 
-  # POST /posts or /posts.json
   def create
-    @post = Post.new(post_params)
+    @post = current_user.posts.build(post_params)
+    @post.owner = current_user
+
+    if @post.pet_id.present?
+      @post.pet = current_user.pets.find(@post.pet_id)
+    end
 
     respond_to do |format|
       if @post.save
@@ -34,10 +35,15 @@ class PostsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /posts/1 or /posts/1.json
   def update
+    @post.assign_attributes(post_params)
+
+    if @post.pet_id.present?
+      @post.pet = current_user.pets.find(@post.pet_id)
+    end
+
     respond_to do |format|
-      if @post.update(post_params)
+      if @post.save
         format.html { redirect_to @post, notice: "Post was successfully updated." }
         format.json { render :show, status: :ok, location: @post }
       else
@@ -47,24 +53,22 @@ class PostsController < ApplicationController
     end
   end
 
-  # DELETE /posts/1 or /posts/1.json
   def destroy
     @post.destroy!
 
     respond_to do |format|
-      format.html { redirect_to posts_path, status: :see_other, notice: "Post was successfully destroyed." }
+      format.html { redirect_back fallback_location: root_url, notice: "Post was successfully destroyed." }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_post
-      @post = Post.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def post_params
-      params.expect(post: [ :user_id, :pet_id, :body, :visibility ])
-    end
+  def set_post
+    @post = Post.find(params.expect(:id))
+  end
+
+  def post_params
+    params.expect(post: [ :pet_id, :body, :image_url, :visibility, :image ])
+  end
 end

@@ -1,6 +1,6 @@
 <div class="fs-5 border-bottom mb-3">
-  <%= link_to :back, class: "text-decoration-none" do %>
-    ← Back
+  <%= link_to user_pets_path(@pet.user.username), class: "text-decoration-none" do %>
+    ← Back to <%= @pet.user.username %>'s pets
   <% end %>
 </div>
 
@@ -22,11 +22,76 @@
           Owned by
           <%= link_to @pet.user.username, user_path(@pet.user.username), class: "text-decoration-none" %>
         </p>
+
+        <p class="mb-1">
+          <strong>Species:</strong>
+          <%= @pet.species %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Breed:</strong>
+          <%= @pet.breed %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Gender:</strong>
+          <%= @pet.gender %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Size:</strong>
+          <%= @pet.size %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Energy level:</strong>
+          <%= @pet.energy_level %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Temperament:</strong>
+          <%= @pet.temperament %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Vaccinated:</strong>
+          <%= @pet.vaccinated? ? "Yes" : "No" %>
+        </p>
+
+        <p class="mt-2 mb-0">
+          <%= @pet.bio %>
+        </p>
       </div>
 
-      <% unless @pet.user == current_user %>
-        <%= render "pet_friendships/pet_friend_button", pet: @pet %>
-      <% end %>
+      <div>
+        <% if @pet.user == current_user %>
+          <div class="dropdown">
+            <%= button_tag class: "btn btn-link text-decoration-none",
+                data: { bs_toggle: "dropdown" },
+                aria: { expanded: false } do %>
+              <i class="fa-solid fa-ellipsis"></i>
+            <% end %>
+
+            <ul class="dropdown-menu">
+              <li>
+                <%= link_to edit_pet_path(@pet), class: "dropdown-item" do %>
+                  Edit
+                <% end %>
+              </li>
+
+              <li>
+                <%= button_to pet_path(@pet),
+                    method: :delete,
+                    class: "dropdown-item text-danger" do %>
+                  Delete
+                <% end %>
+              </li>
+            </ul>
+          </div>
+        <% else %>
+          <%= render "pet_friendships/pet_friend_button", pet: @pet %>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

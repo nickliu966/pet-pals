@@ -1,27 +1,26 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: %i[ show edit update destroy ]
+  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
 
-  # GET /walk_events or /walk_events.json
   def index
-    @walk_events = WalkEvent.all
+    @walk_events = WalkEvent.order(start_time: :asc)
   end
 
-  # GET /walk_events/1 or /walk_events/1.json
   def show
   end
 
-  # GET /walk_events/new
   def new
     @walk_event = WalkEvent.new
   end
 
-  # GET /walk_events/1/edit
   def edit
   end
 
-  # POST /walk_events or /walk_events.json
   def create
+    host_pet = current_user.pets.find(walk_event_params.fetch(:host_pet_id))
+
     @walk_event = WalkEvent.new(walk_event_params)
+    @walk_event.host_user = current_user
+    @walk_event.host_pet = host_pet
 
     respond_to do |format|
       if @walk_event.save
@@ -34,8 +33,11 @@ class WalkEventsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /walk_events/1 or /walk_events/1.json
   def update
+    if walk_event_params[:host_pet_id].present?
+      @walk_event.host_pet = current_user.pets.find(walk_event_params.fetch(:host_pet_id))
+    end
+
     respond_to do |format|
       if @walk_event.update(walk_event_params)
         format.html { redirect_to @walk_event, notice: "Walk event was successfully updated." }
@@ -47,24 +49,34 @@ class WalkEventsController < ApplicationController
     end
   end
 
-  # DELETE /walk_events/1 or /walk_events/1.json
   def destroy
     @walk_event.destroy!
 
     respond_to do |format|
-      format.html { redirect_to walk_events_path, status: :see_other, notice: "Walk event was successfully destroyed." }
+      format.html { redirect_back fallback_location: root_url, notice: "Walk event was successfully destroyed." }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_walk_event
-      @walk_event = WalkEvent.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def walk_event_params
-      params.expect(walk_event: [ :host_user_id, :host_pet_id, :title, :note, :location_name, :latitude, :longitude, :start_time, :duration_minutes, :visibility, :max_participants, :status ])
-    end
+  def set_walk_event
+    @walk_event = WalkEvent.find(params.expect(:id))
+  end
+
+  def walk_event_params
+    params.expect(
+      walk_event: [
+        :host_pet_id,
+        :title,
+        :note,
+        :location_name,
+        :start_time,
+        :duration_minutes,
+        :visibility,
+        :max_participants,
+        :status
+      ]
+    )
+  end
 end

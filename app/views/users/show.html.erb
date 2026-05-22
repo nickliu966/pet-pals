@@ -8,21 +8,59 @@
   <% end %>
 
   <div class="card-body">
-    <div class="d-flex align-items-center gap-3">
-      <% if @user.avatar_image.attached? %>
-        <%= image_tag @user.avatar_image,
-              class: "rounded-circle",
-              style: "width: 80px; height: 80px; object-fit: cover;" %>
-      <% end %>
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="d-flex align-items-center gap-3">
+        <% if @user.avatar_image.attached? %>
+          <%= image_tag @user.avatar_image,
+                class: "rounded-circle",
+                style: "width: 80px; height: 80px; object-fit: cover;" %>
+        <% end %>
+
+        <div>
+          <h1 class="mb-0">
+            <%= @user.username %>
+          </h1>
+
+          <p class="text-muted mb-0">
+            @<%= @user.username %>
+          </p>
+        </div>
+      </div>
 
       <div>
-        <h1 class="mb-0">
-          <%= @user.username %>
-        </h1>
+        <% if @user == current_user %>
+          <%= link_to "Edit account",
+                edit_user_registration_path,
+                class: "btn btn-outline-primary btn-sm" %>
+        <% else %>
+          <% sent_friendship = current_user.sent_user_friendships.find_by(receiver: @user) %>
+          <% received_friendship = current_user.received_user_friendships.find_by(requester: @user) %>
+          <% friendship = sent_friendship || received_friendship %>
 
-        <p class="text-muted mb-0">
-          @<%= @user.username %>
-        </p>
+          <% if friendship.present? && friendship.accepted? %>
+            <%= button_to "Friends",
+                  user_friendship_path(friendship),
+                  method: :delete,
+                  class: "btn btn-primary btn-sm" %>
+          <% elsif friendship.present? && friendship.pending? %>
+            <% if sent_friendship.present? %>
+              <%= button_to "Requested",
+                    user_friendship_path(friendship),
+                    method: :delete,
+                    class: "btn btn-outline-secondary btn-sm" %>
+            <% else %>
+              <%= link_to "Respond",
+                    user_friendships_path,
+                    class: "btn btn-outline-primary btn-sm" %>
+            <% end %>
+          <% else %>
+            <%= button_to "Add friend",
+                  user_friendships_path,
+                  method: :post,
+                  params: { user_friendship: { receiver_id: @user.id } },
+                  class: "btn btn-primary btn-sm" %>
+          <% end %>
+        <% end %>
       </div>
     </div>
 
@@ -32,15 +70,14 @@
       </p>
     <% end %>
 
-    <% if @user == current_user %>
-      <div class="mt-3">
-        <%= link_to "Edit account",
-              edit_user_registration_path,
-              class: "btn btn-outline-primary btn-sm" %>
-      </div>
-    <% end %>
+    <div class="mt-3 d-flex gap-2">
+      <%= link_to "Pets", user_pets_path(@user.username), class: "btn btn-outline-primary btn-sm" %>
+      <%= link_to "Friends", user_friends_path(@user.username), class: "btn btn-outline-primary btn-sm" %>
+    </div>
   </div>
 </div>
+
+<hr>
 
 <h3>Posts</h3>
 

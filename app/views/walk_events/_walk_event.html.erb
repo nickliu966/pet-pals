@@ -25,19 +25,32 @@
   <div class="small text-muted mb-2">
     <i class="fa-solid fa-location-dot"></i>
     <%= walk_event.location_name %>
-    ·
-    <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") if walk_event.start_time.present? %>
-    ·
-    <%= walk_event.duration_minutes %> min
+
+    <% if walk_event.start_time.present? %>
+      · <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") %>
+    <% end %>
+
+    <% if walk_event.duration_minutes.present? %>
+      · <%= walk_event.duration_minutes %> min
+    <% end %>
   </div>
 
   <div class="d-flex justify-content-between align-items-center">
-    <%= link_to walk_event_path(walk_event),  class: "btn btn-link text-decoration-none p-0" do %>
+    <%= link_to walk_event_path(walk_event), class: "btn btn-link text-decoration-none p-0" do %>
       Participants: <%= walk_event.walk_participants.count %>
     <% end %>
 
-    <% unless walk_event.host_user == current_user %>
-      <%= link_to "View / Join", walk_event_path(walk_event), class: "btn btn-outline-primary btn-sm" %>
-    <% end %>
+    <div class="d-flex gap-2">
+      <% if walk_event.host_user == current_user %>
+        <%= link_to "Edit", edit_walk_event_path(walk_event), class: "btn btn-sm btn-outline-secondary" %>
+
+        <%= button_to "Delete",
+              walk_event_path(walk_event),
+              method: :delete,
+              class: "btn btn-sm btn-outline-danger" %>
+      <% else %>
+        <%= link_to "View / Join", walk_event_path(walk_event), class: "btn btn-outline-primary btn-sm" %>
+      <% end %>
+    </div>
   </div>
 </div>

@@ -1,42 +1,6 @@
 <%= form_with(model: pet_friendship) do |form| %>
-  <% if pet_friendship.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(pet_friendship.errors.count, "error") %> prohibited this pet_friendship from being saved:</h2>
+  <%= form.hidden_field :requester_pet_id %>
+  <%= form.hidden_field :receiver_pet_id %>
 
-      <ul>
-        <% pet_friendship.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div>
-    <%= form.label :requester_pet_id, style: "display: block" %>
-    <%= form.number_field :requester_pet_id %>
-  </div>
-
-  <div>
-    <%= form.label :receiver_pet_id, style: "display: block" %>
-    <%= form.number_field :receiver_pet_id %>
-  </div>
-
-  <div>
-    <%= form.label :requested_by_user_id, style: "display: block" %>
-    <%= form.number_field :requested_by_user_id %>
-  </div>
-
-  <div>
-    <%= form.label :status, style: "display: block" %>
-    <%= form.number_field :status %>
-  </div>
-
-  <div>
-    <%= form.label :accepted_at, style: "display: block" %>
-    <%= form.datetime_field :accepted_at %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
+  <%= form.submit "Add to friend zone", class: "btn btn-primary btn-sm" %>
 <% end %>
