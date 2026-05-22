@@ -2,22 +2,29 @@
 #
 # Table name: users
 #
-#  id             :bigint           not null, primary key
-#  bio            :text
-#  city           :string
-#  comments_count :integer          default(0), not null
-#  email          :citext
-#  likes_count    :integer          default(0), not null
-#  posts_count    :integer          default(0), not null
-#  private        :boolean          default(FALSE), not null
-#  username       :citext           not null
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
+#  id                     :bigint           not null, primary key
+#  bio                    :text
+#  city                   :string
+#  comments_count         :integer          default(0), not null
+#  display_name           :string
+#  email                  :citext
+#  encrypted_password     :string           default(""), not null
+#  likes_count            :integer          default(0), not null
+#  posts_count            :integer          default(0), not null
+#  private                :boolean          default(FALSE), not null
+#  remember_created_at    :datetime
+#  reset_password_sent_at :datetime
+#  reset_password_token   :string
+#  username               :citext           not null
+#  website                :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
 #
 # Indexes
 #
-#  index_users_on_email     (email) UNIQUE
-#  index_users_on_username  (username) UNIQUE
+#  index_users_on_email                 (email) UNIQUE
+#  index_users_on_reset_password_token  (reset_password_token) UNIQUE
+#  index_users_on_username              (username) UNIQUE
 #
 class User < ApplicationRecord
   has_one_attached :avatar_image, dependent: :purge_later
