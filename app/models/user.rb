@@ -2,20 +2,29 @@
 #
 # Table name: users
 #
-#  id         :bigint           not null, primary key
-#  bio        :text
-#  city       :string
-#  email      :citext
-#  name       :citext
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id             :bigint           not null, primary key
+#  bio            :text
+#  city           :string
+#  comments_count :integer          default(0), not null
+#  email          :citext
+#  likes_count    :integer          default(0), not null
+#  posts_count    :integer          default(0), not null
+#  private        :boolean          default(FALSE), not null
+#  username       :citext           not null
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
 #
 # Indexes
 #
-#  index_users_on_email  (email) UNIQUE
-#  index_users_on_name   (name) UNIQUE
+#  index_users_on_email     (email) UNIQUE
+#  index_users_on_username  (username) UNIQUE
 #
 class User < ApplicationRecord
+  has_one_attached :avatar_image, dependent: :purge_later
+  has_one_attached :profile_banner, dependent: :purge_later
+
+  has_many :own_photos, foreign_key: :owner_id, class_name: "Photo", dependent: :destroy
+
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
@@ -87,8 +96,29 @@ class User < ApplicationRecord
            through: :accepted_received_user_friendships,
            source: :requester
 
-  validates :name, presence: true
+  validates :username, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true
+
+  validates :username,
+    presence: true,
+    uniqueness: true,
+    format: {
+      with: /\A[\w_\.]+\z/i,
+      message: "can only contain letters, numbers, periods, and underscores",
+    }
+
+  validates :website, url: { allow_blank: true }
+  
+  before_create :set_default_avatar
+
+  def set_default_avatar
+    image = "https://res.cloudinary.com/dzhwwlb9e/image/upload/v1773240782/960px-Default_pfp.svg_dpntzd_ga9htr.png"
+    avatar_image.attach(
+      io: URI.open(image),
+      filename: image.split("/").last,
+      content_type: "image/jpg"
+    )
+  end
 
   def friends_with?(other_user)
     owner_friends.exists?(id: other_user.id) ||

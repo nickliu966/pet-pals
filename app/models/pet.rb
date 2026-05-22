@@ -28,6 +28,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Pet < ApplicationRecord
+  has_one_attached :image, dependent: purge_later
+
   belongs_to :user
 
   has_many :posts, dependent: :nullify
@@ -81,8 +83,8 @@ class Pet < ApplicationRecord
            source: :walk_event
 
   has_many :friended_by_pets,
-         through: :accepted_received_pet_friendships,
-         source: :requester_pet
+           through: :accepted_received_pet_friendships,
+           source: :requester_pet
 
   validates :name, presence: true
   validates :species, presence: true
