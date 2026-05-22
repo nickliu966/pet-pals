@@ -7,7 +7,7 @@
 
       <div class="text-muted">
         Hosted by
-        <%= link_to walk_event.host_user.name, user_path(walk_event.host_user.username), class: "text-decoration-none" %>
+        <%= link_to walk_event.host_user.username, user_path(walk_event.host_user.username), class: "text-decoration-none" %>
         with
         <%= link_to walk_event.host_pet.name, pet_path(walk_event.host_pet), class: "text-decoration-none" %>
       </div>

@@ -49,7 +49,7 @@
         <li class="list-group-item">
           <%= link_to friend_pet.name, pet_path(friend_pet), class: "text-decoration-none" %>
           <span class="text-muted">
-            owned by <%= link_to friend_pet.user.name, user_path(friend_pet.user), class: "text-decoration-none" %>
+            owned by <%= link_to friend_pet.user.username, user_path(friend_pet.user.username), class: "text-decoration-none" %>
           </span>
         </li>
       <% end %>

@@ -13,7 +13,7 @@
         </h5>
 
         <p class="text-muted mb-2">
-          Owned by <%= link_to pet.user.name, user_path(pet.user), class: "text-decoration-none" %>
+          Owned by <%= link_to pet.user.username, user_path(pet.user.username), class: "text-decoration-none" %>
         </p>
       </div>
     </div>

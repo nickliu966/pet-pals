@@ -15,7 +15,7 @@
     <li class="list-group-item">
       <%= link_to participant.pet.name, pet_path(participant.pet), class: "text-decoration-none" %>
       with
-      <%= link_to participant.user.name, user_path(participant.user), class: "text-decoration-none" %>
+      <%= link_to participant.user.username, user_path(participant.user), class: "text-decoration-none" %>
     </li>
   <% end %>
 </ul>

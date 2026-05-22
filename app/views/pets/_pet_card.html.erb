@@ -6,6 +6,6 @@
   <div class="card-body">
     <h3><%= link_to pet.name, pet_path(pet) %></h3>
     <p><%= pet.species %> · <%= pet.breed %></p>
-    <p>Owner: <%= link_to pet.user.name, user_path(pet.user) %></p>
+    <p>Owner: <%= link_to pet.user.username, user_path(pet.user.username) %></p>
   </div>
 </div>

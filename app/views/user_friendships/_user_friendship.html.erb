@@ -8,8 +8,8 @@
   <% current_user.pending_received_user_friendships.each do |friendship| %>
     <li class="list-group-item d-flex justify-content-between align-items-center">
       <div>
-        <%= link_to friendship.requester.name,
-              user_path(friendship.requester),
+        <%= link_to friendship.requester.username,
+              user_path(friendship.requester.username),
               class: "text-decoration-none" %>
         wants to be your friend.
       </div>
@@ -34,9 +34,19 @@
 <h3>Your friends</h3>
 
 <ul class="list-group list-group-flush">
-  <% (current_user.owner_friends + current_user.friended_by_users).uniq.each do |user| %>
+  <% current_user.owner_friends.each do |user| %>
     <li class="list-group-item">
-      <%= link_to user.name, user_path(user), class: "text-decoration-none" %>
+      <%= link_to user.username,
+            user_path(user.username),
+            class: "text-decoration-none" %>
+    </li>
+  <% end %>
+
+  <% current_user.friended_by_users.each do |user| %>
+    <li class="list-group-item">
+      <%= link_to user.username,
+            user_path(user.username),
+            class: "text-decoration-none" %>
     </li>
   <% end %>
 </ul>
