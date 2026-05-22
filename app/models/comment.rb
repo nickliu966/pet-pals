@@ -21,8 +21,8 @@
 #  fk_rails_...  (post_id => posts.id)
 #
 class Comment < ApplicationRecord
-  belongs_to :author, class_name: "User"
-  belongs_to :post
+  belongs_to :author, class_name: "User", counter_cache: true
+  belongs_to :post, counter_cache: true
 
   belongs_to :parent_comment,
              class_name: "Comment",
