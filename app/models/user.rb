@@ -23,7 +23,7 @@ class User < ApplicationRecord
   has_one_attached :avatar_image, dependent: :purge_later
   has_one_attached :profile_banner, dependent: :purge_later
 
-  has_many :own_photos, foreign_key: :owner_id, class_name: "Photo", dependent: :destroy
+  has_many :own_posts, foreign_key: :owner_id, class_name: "Post", dependent: :destroy
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
@@ -108,7 +108,10 @@ class User < ApplicationRecord
     }
 
   validates :website, url: { allow_blank: true }
-  
+
+  attr_accessor :remove_profile_banner
+  after_save :purge_profile_banner, if: :remove_profile_banner
+
   before_create :set_default_avatar
 
   def set_default_avatar
@@ -118,6 +121,14 @@ class User < ApplicationRecord
       filename: image.split("/").last,
       content_type: "image/jpg"
     )
+  end
+
+  def purge_profile_banner
+    profile_banner.purge_later
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    [ "username" ]
   end
 
   def friends_with?(other_user)
