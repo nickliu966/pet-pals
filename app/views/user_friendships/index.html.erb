@@ -1,16 +1,52 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Owner Friends" %>
 
-<% content_for :title, "User friendships" %>
+<h1>Owner Friends</h1>
 
-<h1>User friendships</h1>
+<h3 class="mt-4">Pending requests</h3>
 
-<div id="user_friendships">
-  <% @user_friendships.each do |user_friendship| %>
-    <%= render user_friendship %>
-    <p>
-      <%= link_to "Show this user friendship", user_friendship %>
-    </p>
+<ul class="list-group list-group-flush mb-4">
+  <% current_user.pending_received_user_friendships.each do |friendship| %>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <%= link_to friendship.requester.username,
+              user_path(friendship.requester.username),
+              class: "text-decoration-none" %>
+        wants to be your friend.
+      </div>
+
+      <div class="d-flex gap-2">
+        <%= button_to "Accept",
+              user_friendship_path(friendship),
+              method: :patch,
+              params: { user_friendship: { status: "accepted" } },
+              class: "btn btn-primary btn-sm" %>
+
+        <%= button_to "Decline",
+              user_friendship_path(friendship),
+              method: :patch,
+              params: { user_friendship: { status: "declined" } },
+              class: "btn btn-outline-secondary btn-sm" %>
+      </div>
+    </li>
   <% end %>
-</div>
+</ul>
 
-<%= link_to "New user friendship", new_user_friendship_path %>
+<h3>Your friends</h3>
+
+<ul class="list-group list-group-flush">
+  <% current_user.owner_friends.each do |user| %>
+    <li class="list-group-item">
+      <%= link_to user.username,
+            user_path(user.username),
+            class: "text-decoration-none" %>
+    </li>
+  <% end %>
+
+  <% current_user.friended_by_users.each do |user| %>
+    <li class="list-group-item">
+      <%= link_to user.username,
+            user_path(user.username),
+            class: "text-decoration-none" %>
+    </li>
+  <% end %>
+</ul>
