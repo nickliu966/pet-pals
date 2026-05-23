@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_22_195145) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_23_002422) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -106,7 +106,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_195145) do
 
   create_table "posts", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "pet_id", null: false
+    t.bigint "pet_id"
     t.text "body"
     t.integer "visibility"
     t.datetime "created_at", null: false
@@ -114,6 +114,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_195145) do
     t.string "image_url"
     t.integer "likes_count", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
+    t.string "location_name"
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.string "google_place_id"
     t.index ["pet_id"], name: "index_posts_on_pet_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -286,6 +290,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_22_195145) do
     t.datetime "remember_created_at"
     t.string "display_name"
     t.string "website"
+    t.datetime "notifications_read_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true

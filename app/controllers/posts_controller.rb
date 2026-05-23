@@ -1,9 +1,39 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
-  before_action :require_owner, only: [ :edit, :update, :destroy ]
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :require_owner, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.order(created_at: :desc)
+    post_ids = []
+
+    # 1. Always include my own posts
+    post_ids += current_user.posts.pluck(:id)
+
+    # 2. Include owner-friend posts
+    owner_friends = (current_user.owner_friends + current_user.friended_by_users).uniq
+
+    post_ids += Post.where(user: owner_friends)
+                    .where(visibility: ["everyone", "user_friends_only", "friends_of_either"])
+                    .pluck(:id)
+
+    # 3. Include pet-friend posts
+    pet_friends = []
+
+    current_user.pets.each do |pet|
+      pet_friends += pet.pet_friends
+      pet_friends += pet.friended_by_pets
+    end
+
+    pet_friends = pet_friends.uniq
+
+    post_ids += Post.where(pet: pet_friends)
+                    .where(visibility: ["everyone", "pet_friends_only", "friends_of_either"])
+                    .pluck(:id)
+
+    @posts = Post.where(id: post_ids.uniq).default_order
+  end
+
+  def discover
+    @posts = Post.everyone.default_order
   end
 
   def show
@@ -18,7 +48,6 @@ class PostsController < ApplicationController
 
   def create
     @post = current_user.posts.build(post_params)
-    @post.owner = current_user
 
     if @post.pet_id.present?
       @post.pet = current_user.pets.find(@post.pet_id)
@@ -69,6 +98,15 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.expect(post: [ :pet_id, :body, :image_url, :visibility, :image ])
+    params.expect(post: [
+                    :body,
+                    :image_url,
+                    :pet_id,
+                    :visibility,
+                    :location_name,
+                    :latitude,
+                    :longitude,
+                    :google_place_id,
+                  ])
   end
 end

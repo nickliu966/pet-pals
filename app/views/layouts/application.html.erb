@@ -33,32 +33,32 @@
   </head>
 
   <body>
-    <% if notice.present? || alert.present? %>
-      <div class="container">
-        <div class="row mb-2">
-          <div class="col-md-6 offset-md-3">
-            <% if notice.present? %>
-              <%= render "shared/flash", message: notice, css_class: "success" %>
-            <% end %>
-            <% if alert.present? %>
-              <%= render "shared/flash", message: alert, css_class: "danger" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
+    <%= render "shared/navbar" %>
 
     <% if user_signed_in? %>
       <%= render "shared/post_modal" %>
-    <% end %>
 
-    <%= render 'shared/navbar' %>
+      <div class="container app-shell-container">
+        <div class="app-layout">
+          <aside class="app-left">
+            <%= render "shared/left_sidebar" %>
+          </aside>
 
-    <div class="container mt-4">
-      <div class="row justify-content-center">
-        <div class="col-lg-7 col-md-9 col-12">
-          <%= yield %>
+          <main class="app-main">
+            <%= render "shared/flash" %>
+            <%= yield %>
+          </main>
+
+          <aside class="app-right">
+            <%= render "shared/right_sidebar" %>
+          </aside>
         </div>
       </div>
-    </body>
-  </html>
+    <% else %>
+      <main class="container py-4">
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </main>
+    <% end %>
+  </body>
+</html>

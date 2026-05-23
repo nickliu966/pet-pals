@@ -10,6 +10,7 @@
 #  email                  :citext
 #  encrypted_password     :string           default(""), not null
 #  likes_count            :integer          default(0), not null
+#  notifications_read_at  :datetime
 #  posts_count            :integer          default(0), not null
 #  private                :boolean          default(FALSE), not null
 #  remember_created_at    :datetime
@@ -121,21 +122,30 @@ class User < ApplicationRecord
 
   before_create :set_default_avatar
 
+  def self.ransackable_attributes(auth_object = nil)
+    [
+      "username",
+      "display_name",
+      "city",
+      "bio",
+    ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    []
+  end
+
   def set_default_avatar
     image = "https://res.cloudinary.com/dzhwwlb9e/image/upload/v1773240782/960px-Default_pfp.svg_dpntzd_ga9htr.png"
     avatar_image.attach(
       io: URI.open(image),
       filename: image.split("/").last,
-      content_type: "image/jpg"
+      content_type: "image/jpg",
     )
   end
 
   def purge_profile_banner
     profile_banner.purge_later
-  end
-
-  def self.ransackable_attributes(auth_object = nil)
-    [ "username" ]
   end
 
   def friends_with?(other_user)

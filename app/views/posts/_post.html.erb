@@ -1,19 +1,47 @@
 <div id="<%= dom_id(post) %>">
-  <% if post.image_url.present? %>
+  <% if post.respond_to?(:video) && post.video.attached? %>
+    <%= video_tag post.video,
+          controls: true,
+          class: "w-100",
+          style: "max-height: 420px; object-fit: cover; background: black;" %>
+  <% elsif post.respond_to?(:image) && post.image.attached? %>
+    <%= image_tag post.image,
+          class: "w-100",
+          style: "height: 360px; object-fit: cover;" %>
+  <% elsif post.image_url.present? %>
     <%= image_tag post.image_url,
-        class: "w-100",
-        style: "height: 360px; object-fit: cover;" %>
+          class: "w-100",
+          style: "height: 360px; object-fit: cover;" %>
   <% end %>
 
   <div class="p-3">
     <div class="d-flex justify-content-between align-items-center mb-2">
       <div>
         <strong>
-          <%= link_to post.user.username, user_path(post.user.username), class: "text-decoration-none" %>
+          <%= link_to post.user.username,
+                user_path(post.user.username),
+                class: "text-decoration-none" %>
         </strong>
 
-        <span class="text-muted">with</span>
-        <%= link_to post.pet.name, pet_path(post.pet), class: "text-decoration-none" %>
+        <% if post.pet.present? %>
+          <span class="text-muted">with</span>
+          <%= link_to post.pet.name,
+                pet_path(post.pet),
+                class: "text-decoration-none" %>
+        <% end %>
+
+        <% if post.location_name.present? %>
+          <span class="text-muted">at</span>
+
+          <% if post.latitude.present? && post.longitude.present? %>
+            <%= link_to post.location_name,
+                  "https://www.google.com/maps/search/?api=1&query=#{post.latitude},#{post.longitude}",
+                  target: "_blank",
+                  class: "text-decoration-none" %>
+          <% else %>
+            <span><%= post.location_name %></span>
+          <% end %>
+        <% end %>
       </div>
 
       <small class="text-muted">
@@ -31,13 +59,14 @@
 
         <% if like.present? %>
           <%= button_to "Unlike",
-              like,
-              method: :delete,
-              class: "btn btn-link text-decoration-none p-0" %>
+                like,
+                method: :delete,
+                class: "btn btn-link text-decoration-none p-0" %>
         <% else %>
           <%= form_with(model: Like.new) do |form| %>
             <%= form.hidden_field :post_id, value: post.id %>
-            <%= form.submit "Like", class: "btn btn-link text-decoration-none p-0" %>
+            <%= form.submit "Like",
+                  class: "btn btn-link text-decoration-none p-0" %>
           <% end %>
         <% end %>
 
@@ -45,17 +74,21 @@
           <%= pluralize(post.likes_count, "like") %>
         </span>
 
-        <%= link_to "View post", post_path(post), class: "btn btn-link text-decoration-none p-0" %>
+        <%= link_to "View post",
+              post_path(post),
+              class: "btn btn-link text-decoration-none p-0" %>
       </div>
 
       <% if current_user == post.user %>
         <div class="d-flex gap-2">
-          <%= link_to "Edit", edit_post_path(post), class: "btn btn-sm btn-outline-secondary" %>
+          <%= link_to "Edit",
+                edit_post_path(post),
+                class: "btn btn-sm btn-outline-secondary" %>
 
           <%= button_to "Delete",
-              post_path(post),
-              method: :delete,
-              class: "btn btn-sm btn-outline-danger" %>
+                post_path(post),
+                method: :delete,
+                class: "btn btn-sm btn-outline-danger" %>
         </div>
       <% end %>
     </div>
@@ -71,7 +104,9 @@
 
       <div class="form-group mb-2">
         <%= form.label :body, "Add a comment", class: "visually-hidden" %>
-        <%= form.text_area :body, class: "form-control", placeholder: "Add a comment..." %>
+        <%= form.text_area :body,
+              class: "form-control",
+              placeholder: "Add a comment..." %>
       </div>
 
       <div class="d-grid">

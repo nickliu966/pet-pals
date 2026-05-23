@@ -1,0 +1,11 @@
+<div class="list-group list-group-flush">
+  <% users.each do |user| %>
+    <%= render "users/person", user: user %>
+  <% end %>
+
+  <% if users.empty? %>
+    <div class="list-group-item text-muted">
+      <%= empty_message %>
+    </div>
+  <% end %>
+</div>

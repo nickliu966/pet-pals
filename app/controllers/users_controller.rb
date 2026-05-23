@@ -1,5 +1,9 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [ :show, :posts, :pets, :friends ]
+  before_action :set_user, only: %i[show posts pets friends followers follows]
+
+  def index
+    @users = @q.result(distinct: true).where.not(id: current_user.id)
+  end
 
   def show
   end
@@ -13,7 +17,16 @@ class UsersController < ApplicationController
   end
 
   def friends
-    @friends = (@user.owner_friends + @user.friended_by_users).uniq
+    @followers = @user.friended_by_users
+    @following = @user.owner_friends
+  end
+
+  def followers
+    @followers = @user.friended_by_users
+  end
+
+  def follows
+    @follows = @user.owner_friends
   end
 
   private

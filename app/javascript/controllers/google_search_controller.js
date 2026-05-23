@@ -1,48 +1,107 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  async connect() {
-    const [{ Map }, { AdvancedMarkerElement }, _] = await Promise.all([
+  static targets = [
+    "map",
+    "searchBox",
+    "locationName",
+    "latitude",
+    "longitude",
+    "placeId"
+  ]
+
+  connect() {
+    this.initialized = false
+
+    const modal = this.element.closest(".modal")
+
+    if (modal) {
+      modal.addEventListener("shown.bs.modal", () => {
+        this.initializeGoogleSearch()
+      }, { once: true })
+    } else {
+      this.initializeGoogleSearch()
+    }
+  }
+
+  async initializeGoogleSearch() {
+    if (this.initialized) return
+    this.initialized = true
+
+    if (!window.google) {
+      console.error("Google Maps JS is not loaded.")
+      return
+    }
+
+    const [{ Map }, { AdvancedMarkerElement }] = await Promise.all([
       google.maps.importLibrary("maps"),
       google.maps.importLibrary("marker"),
-      google.maps.importLibrary("places"),
-    ]);
+      google.maps.importLibrary("places")
+    ])
 
-    const map = new Map(document.getElementById("minimap"), {
-      center: { lat: 41.8781, lng: -87.6298 },
-      zoom: 11,
-      mapId: "DEMO_MAP_ID",
-    });
+    let map = null
+    let marker = null
 
-    const marker = new AdvancedMarkerElement({ map });
+    if (this.hasMapTarget) {
+      map = new Map(this.mapTarget, {
+        center: { lat: 41.8781, lng: -87.6298 },
+        zoom: 11,
+        mapId: "DEMO_MAP_ID",
+      })
 
-    const placeAutocomplete = new google.maps.places.PlaceAutocompleteElement({});
-    placeAutocomplete.placeholder = "Search for a park, trail, or address...";
-    placeAutocomplete.style.width = "100%";
+      marker = new AdvancedMarkerElement({ map: map })
+    }
 
-    document.getElementById("search-box-container").appendChild(placeAutocomplete);
+    const placeAutocomplete = new google.maps.places.PlaceAutocompleteElement({})
+
+    placeAutocomplete.placeholder = "Search for a park, trail, or address..."
+    placeAutocomplete.style.width = "100%"
+
+    this.searchBoxTarget.innerHTML = ""
+    this.searchBoxTarget.appendChild(placeAutocomplete)
 
     placeAutocomplete.addEventListener("gmp-select", async ({ placePrediction }) => {
-      const place = placePrediction.toPlace();
+      const place = placePrediction.toPlace()
 
       await place.fetchFields({
-        fields: ["displayName", "formattedAddress", "location", "viewport"],
-      });
+        fields: [
+          "id",
+          "displayName",
+          "formattedAddress",
+          "location",
+          "viewport"
+        ],
+      })
 
-      if (place.viewport) {
-        map.fitBounds(place.viewport);
-      } else {
-        map.setCenter(place.location);
-        map.setZoom(15);
+      if (!place.location) return
+
+      if (map && marker) {
+        if (place.viewport) {
+          map.fitBounds(place.viewport)
+        } else {
+          map.setCenter(place.location)
+          map.setZoom(15)
+        }
+
+        marker.position = place.location
       }
 
-      marker.position = place.location;
+      if (this.hasLocationNameTarget) {
+        this.locationNameTarget.value =
+          place.formattedAddress || place.displayName || ""
+      }
 
-      document.getElementById("walk_location_name_box").value =
-        place.formattedAddress || place.displayName || "";
+      if (this.hasLatitudeTarget) {
+        this.latitudeTarget.value = place.location.lat()
+      }
 
-      document.getElementById("walk_latitude_box").value = place.location.lat();
-      document.getElementById("walk_longitude_box").value = place.location.lng();
-    });
+      if (this.hasLongitudeTarget) {
+        this.longitudeTarget.value = place.location.lng()
+      }
+
+      if (this.hasPlaceIdTarget) {
+        this.placeIdTarget.value = place.id || ""
+      }
+    })
   }
 }

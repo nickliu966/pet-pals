@@ -1,41 +1,85 @@
 <%= form_with(model: post) do |form| %>
   <% if post.errors.any? %>
     <div class="alert alert-danger">
-      <ul class="mb-0">
-        <% post.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+      <% post.errors.each do |error| %>
+        <div><%= error.full_message %></div>
+      <% end %>
     </div>
   <% end %>
 
-  <div class="mb-3">
-    <%= form.label :pet_id, "Pet", class: "form-label" %>
+  <div class="form-group mb-2">
+    <%= form.label :pet_id, "Featured pet" %>
+
     <%= form.collection_select :pet_id,
           current_user.pets,
           :id,
           :name,
-          { prompt: "Choose a pet" },
+          { prompt: "None" },
           class: "form-select" %>
+
+    <div class="form-text">
+      Leave blank for wildlife, park, or general posts.
+    </div>
   </div>
 
-  <div class="mb-3">
-    <%= form.label :body, "Caption", class: "form-label" %>
+  <div class="form-group mb-2">
+    <%= form.label :body, "Caption" %>
     <%= form.text_area :body,
           class: "form-control",
           rows: 4,
-          placeholder: "What is your pet doing?" %>
+          placeholder: "What is happening?" %>
   </div>
 
-  <div class="mb-3">
-    <%= form.label :image_url, "Image URL", class: "form-label" %>
+  <div class="form-group mb-2">
+    <%= form.label :image_url, "Image URL" %>
     <%= form.text_field :image_url,
           class: "form-control",
           placeholder: "https://..." %>
   </div>
 
+  <div class="form-group mb-3"
+       data-controller="google-search">
+    <%= form.label :location_name, "Location" %>
+
+    <div class="form-control mb-2"
+         data-google-search-target="searchBox">
+    </div>
+
+    <div data-google-search-target="map"
+         class="border rounded mb-2"
+         style="height: 180px;">
+    </div>
+
+    <%= form.text_field :location_name,
+          class: "form-control",
+          placeholder: "Selected location",
+          data: { google_search_target: "locationName" } %>
+
+    <%= form.hidden_field :latitude,
+          data: { google_search_target: "latitude" } %>
+
+    <%= form.hidden_field :longitude,
+          data: { google_search_target: "longitude" } %>
+
+    <%= form.hidden_field :google_place_id,
+          data: { google_search_target: "placeId" } %>
+  </div>
+
+  <div class="form-group mb-3">
+    <%= form.label :visibility %>
+    <%= form.select :visibility,
+          options_for_select(
+            Post.visibilities.keys.map { |visibility| [visibility.humanize, visibility] },
+            post.visibility
+          ),
+          {},
+          class: "form-select" %>
+  </div>
+
   <div class="d-flex justify-content-end gap-2">
-    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+    <button type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal">
       Cancel
     </button>
 

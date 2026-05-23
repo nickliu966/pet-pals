@@ -1,0 +1,18 @@
+<% content_for :title, "Following" %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0">Following</h1>
+    <div class="text-muted">
+      <%= @follows.count %> following
+    </div>
+  </div>
+
+  <%= link_to "Back",
+        user_path(@user.username),
+        class: "btn btn-outline-secondary" %>
+</div>
+
+<%= render "users/people_list",
+      users: @follows,
+      empty_message: "User isn't following anyone yet." %>

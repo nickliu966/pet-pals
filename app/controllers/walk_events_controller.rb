@@ -1,5 +1,5 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
 
   def index
     @walk_events = WalkEvent.order(start_time: :asc)
@@ -66,19 +66,18 @@ class WalkEventsController < ApplicationController
   end
 
   def walk_event_params
-    params.expect(
-      walk_event: [
-        :host_pet_id,
-        :title,
-        :note,
-        :location_name,
-        :latitude,
-        :longitude,
-        :start_time,
-        :duration_minutes,
-        :visibility,
-        :max_participants
-      ]
-    )
+    params.expect(walk_event: [
+                    :title,
+                    :note,
+                    :location_name,
+                    :latitude,
+                    :longitude,
+                    :google_place_id,
+                    :start_time,
+                    :duration_minutes,
+                    :visibility,
+                    :max_participants,
+                    :status,
+                  ])
   end
 end

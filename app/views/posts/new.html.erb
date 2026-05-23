@@ -1,23 +1,13 @@
-<% if current_user.present? %>
-  <div class="modal fade" id="new_post_modal" tabindex="-1" aria-labelledby="newPostModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="newPostModalLabel">New post</h1>
+<% content_for :title, "New post" %>
 
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <%= render "posts/form", post: current_user.posts.build %>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header">
+    New post
   </div>
-<% end %>
+
+  <%= render "form", post: @post %>
+</div>
+
+<div class="mt-3">
+  <%= link_to "Back", root_path, class: "btn btn-outline-secondary" %>
+</div>

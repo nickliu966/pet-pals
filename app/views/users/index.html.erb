@@ -1,0 +1,63 @@
+<% content_for :title, "Search" %>
+
+<h1 class="mb-3">Search</h1>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <%= search_form_for @q, url: users_path, method: :get do |form| %>
+      <div class="input-group">
+        <%= form.search_field :username_or_display_name_cont,
+              class: "form-control",
+              placeholder: "Search owners by username or name" %>
+
+        <%= form.button class: "btn btn-primary", name: nil do %>
+          Search
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    Owners
+  </div>
+
+  <div class="list-group list-group-flush">
+    <% @users.each do |user| %>
+      <%= link_to user_path(user.username),
+            class: "list-group-item list-group-item-action" do %>
+        <div class="d-flex align-items-center">
+          <% if user.avatar_image.attached? %>
+            <%= image_tag user.avatar_image,
+                  class: "rounded-circle me-3",
+                  style: "width: 48px; height: 48px; object-fit: cover;" %>
+          <% else %>
+            <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center me-3"
+                 style="width: 48px; height: 48px;">
+              <%= user.username.first.upcase %>
+            </div>
+          <% end %>
+
+          <div>
+            <div class="fw-bold">
+              <%= user.username %>
+            </div>
+
+            <% if user.display_name.present? %>
+              <div class="text-muted small">
+                <%= user.display_name %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% if @users.empty? %>
+      <div class="list-group-item text-muted">
+        No users found.
+      </div>
+    <% end %>
+  </div>
+</div>

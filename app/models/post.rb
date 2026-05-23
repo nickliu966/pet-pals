@@ -2,16 +2,20 @@
 #
 # Table name: posts
 #
-#  id             :bigint           not null, primary key
-#  body           :text
-#  comments_count :integer          default(0), not null
-#  image_url      :string
-#  likes_count    :integer          default(0), not null
-#  visibility     :integer
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  pet_id         :bigint           not null
-#  user_id        :bigint           not null
+#  id              :bigint           not null, primary key
+#  body            :text
+#  comments_count  :integer          default(0), not null
+#  image_url       :string
+#  latitude        :decimal(, )
+#  likes_count     :integer          default(0), not null
+#  location_name   :string
+#  longitude       :decimal(, )
+#  visibility      :integer
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  google_place_id :string
+#  pet_id          :bigint
+#  user_id         :bigint           not null
 #
 # Indexes
 #
