@@ -54,6 +54,8 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       if @post.save
+        @post.images.attach(uploaded_images) if uploaded_images.any?
+
         format.html { redirect_to root_path, notice: "Post was successfully created." }
         format.json { render :show, status: :created, location: @post }
       else
@@ -72,7 +74,12 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       if @post.save
-        format.html { redirect_to @post, notice: "Post was successfully updated." }
+        @post.images.attach(uploaded_images) if uploaded_images.any?
+
+        return_to = params[:return_to].presence
+        return_to = post_path(@post) unless return_to&.start_with?("/")
+
+        format.html { redirect_to return_to, notice: "Post was successfully updated." }
         format.json { render :show, status: :ok, location: @post }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -96,16 +103,19 @@ class PostsController < ApplicationController
     @post = Post.find(params.expect(:id))
   end
 
-def post_params
-  params.expect(post: [
-    :pet_id,
-    :body,
-    :location_name,
-    :latitude,
-    :longitude,
-    :google_place_id,
-    :visibility,
-    images: []
-  ])
-end
+  def post_params
+    params.expect(post: [
+                    :pet_id,
+                    :body,
+                    :location_name,
+                    :latitude,
+                    :longitude,
+                    :google_place_id,
+                    :visibility,
+                  ])
+  end
+
+  def uploaded_images
+    Array(params.dig(:post, :images)).reject(&:blank?)
+  end
 end

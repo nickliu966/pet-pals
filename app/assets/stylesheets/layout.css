@@ -95,3 +95,7 @@
   word-break: normal;
   overflow-wrap: break-word;
 }
+
+[id^="post_"] {
+  scroll-margin-top: 90px;
+}

@@ -114,39 +114,39 @@
               class: "btn btn-link text-decoration-none p-0" %>
       </div>
 
-        <% if current_user == post.user %>
-          <div class="d-flex gap-2">
-            <%= link_to "Edit",
-                edit_post_path(post),
+      <% if current_user == post.user %>
+        <div class="d-flex gap-2">
+          <%= link_to "Edit",
+                edit_post_path(post, return_to: "#{request.fullpath}##{dom_id(post)}"),
                 class: "btn btn-sm btn-outline-secondary" %>
 
-            <%= button_to "Delete",
+          <%= button_to "Delete",
                 post_path(post),
                 method: :delete,
                 class: "btn btn-sm btn-outline-danger" %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <ul class="list-group list-group-flush border-top">
-      <%= render post.comments.default_order %>
-    </ul>
-
-    <div class="border-top p-3">
-      <%= form_with(model: Comment.new) do |form| %>
-        <%= form.hidden_field :post_id, value: post.id %>
-
-        <div class="form-group mb-2">
-          <%= form.label :body, "Add a comment", class: "visually-hidden" %>
-          <%= form.text_area :body,
-              class: "form-control",
-              placeholder: "Add a comment..." %>
-        </div>
-
-        <div class="d-grid">
-          <%= form.submit "Comment", class: "btn btn-primary" %>
         </div>
       <% end %>
     </div>
   </div>
+
+  <ul class="list-group list-group-flush border-top">
+    <%= render post.comments.default_order %>
+  </ul>
+
+  <div class="border-top p-3">
+    <%= form_with(model: Comment.new) do |form| %>
+      <%= form.hidden_field :post_id, value: post.id %>
+
+      <div class="form-group mb-2">
+        <%= form.label :body, "Add a comment", class: "visually-hidden" %>
+        <%= form.text_area :body,
+              class: "form-control",
+              placeholder: "Add a comment..." %>
+      </div>
+
+      <div class="d-grid">
+        <%= form.submit "Comment", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
