@@ -10,7 +10,7 @@
 #  likes_count     :integer          default(0), not null
 #  location_name   :string
 #  longitude       :decimal(, )
-#  visibility      :integer
+#  visibility      :string           default("everyone"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  google_place_id :string
