@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   get "feed" => "posts#index", as: :feed
   get "discover" => "posts#discover", as: :discover
   get "notifications" => "notifications#index", as: :notifications
+  get "my_events" => "walk_events#mine", as: :my_events
 
   get ":username" => "users#show", as: :user
   get ":username/posts" => "users#posts", as: :user_posts

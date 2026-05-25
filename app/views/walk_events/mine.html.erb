@@ -1,0 +1,21 @@
+<% content_for :title, "My events" %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>My events</h1>
+
+  <%= link_to "Create walk",
+        new_walk_event_path,
+        class: "btn btn-primary" %>
+</div>
+
+<% if @walk_events.any? %>
+  <div class="list-group">
+    <%= render @walk_events %>
+  </div>
+<% else %>
+  <div class="card">
+    <div class="card-body text-muted">
+      You have not joined or hosted any walks yet.
+    </div>
+  </div>
+<% end %>

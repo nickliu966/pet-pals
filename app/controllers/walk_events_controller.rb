@@ -64,6 +64,16 @@ class WalkEventsController < ApplicationController
     end
   end
 
+  def mine
+    walk_event_ids =
+      current_user.hosted_walk_events.pluck(:id) +
+      current_user.joined_walk_events.pluck(:id)
+
+    @walk_events = WalkEvent
+      .where(id: walk_event_ids.uniq)
+      .order(start_time: :asc)
+  end
+
   private
 
   def set_walk_event
