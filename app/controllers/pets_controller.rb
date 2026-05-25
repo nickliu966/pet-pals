@@ -9,6 +9,7 @@ class PetsController < ApplicationController
   end
 
   def edit
+    authorize! @pet
   end
 
   def create
@@ -26,6 +27,8 @@ class PetsController < ApplicationController
   end
 
   def update
+    authorize! @pet
+
     respond_to do |format|
       if @pet.update(pet_params)
         format.html { redirect_to @pet, notice: "Pet was successfully updated." }
@@ -38,6 +41,8 @@ class PetsController < ApplicationController
   end
 
   def destroy
+    authorize! @pet
+
     @pet.destroy!
 
     respond_to do |format|

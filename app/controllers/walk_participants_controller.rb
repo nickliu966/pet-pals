@@ -24,6 +24,8 @@ class WalkParticipantsController < ApplicationController
   end
 
   def update
+    authorize! @walk_participant
+
     respond_to do |format|
       if @walk_participant.update(walk_participant_update_params)
         format.html { redirect_to walk_event_path(@walk_participant.walk_event), notice: "Walk participation was successfully updated." }
@@ -36,6 +38,8 @@ class WalkParticipantsController < ApplicationController
   end
 
   def destroy
+    authorize! @walk_participant
+
     @walk_participant.destroy!
 
     respond_to do |format|

@@ -13,6 +13,8 @@ class UsersController < ApplicationController
   end
 
   def pets
+    authorize! @user, to: :view_private_content?
+
     @pets = @user.pets.order(created_at: :desc)
   end
 
@@ -22,10 +24,14 @@ class UsersController < ApplicationController
   end
 
   def followers
+    authorize! @user, to: :view_private_content?
+
     @followers = @user.friended_by_users
   end
 
   def follows
+    authorize! @user, to: :view_private_content?
+
     @follows = @user.owner_friends
   end
 

@@ -35,6 +35,8 @@ class PetFriendshipsController < ApplicationController
   end
 
   def update
+    authorize! @pet_friendship
+
     respond_to do |format|
       if @pet_friendship.update(pet_friendship_params)
         format.html { redirect_back fallback_location: pet_friendships_path, notice: "Pet friendship was successfully updated." }
@@ -47,6 +49,8 @@ class PetFriendshipsController < ApplicationController
   end
 
   def destroy
+    authorize! @pet_friendship
+
     @pet_friendship.destroy!
 
     respond_to do |format|

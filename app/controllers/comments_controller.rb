@@ -17,9 +17,12 @@ class CommentsController < ApplicationController
   end
 
   def edit
+    authorize! @comment
   end
 
   def update
+    authorize! @comment
+
     respond_to do |format|
       if @comment.update(comment_params)
         format.html { redirect_to post_path(@comment.post), notice: "Comment was successfully updated." }
@@ -32,6 +35,8 @@ class CommentsController < ApplicationController
   end
 
   def destroy
+    authorize! @comment
+
     @comment.destroy!
 
     respond_to do |format|

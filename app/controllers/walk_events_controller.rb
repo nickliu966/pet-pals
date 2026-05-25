@@ -13,6 +13,7 @@ class WalkEventsController < ApplicationController
   end
 
   def edit
+    authorize! @walk_event
   end
 
   def create
@@ -35,6 +36,8 @@ class WalkEventsController < ApplicationController
   end
 
   def update
+    authorize! @walk_event
+
     if walk_event_params[:host_pet_id].present?
       @walk_event.host_pet = current_user.pets.find(walk_event_params.fetch(:host_pet_id))
     end
@@ -51,6 +54,8 @@ class WalkEventsController < ApplicationController
   end
 
   def destroy
+    authorize! @walk_event
+
     @walk_event.destroy!
 
     respond_to do |format|

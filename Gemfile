@@ -26,6 +26,7 @@ gem "validate_url"                    # URL validation for models
 gem "faker"                           # Generate fake data for seeds
 gem "cloudinary"                      # Cloud image storage and CDN
 gem "ransack"                         # Search and filtering
+gem "action_policy"
 
 group :development, :test do
   gem "debug", platforms: %i[mri windows], require: "debug/prelude" # Ruby debugger

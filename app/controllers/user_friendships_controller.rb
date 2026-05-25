@@ -27,6 +27,8 @@ class UserFriendshipsController < ApplicationController
   end
 
   def update
+    authorize! @user_friendship
+
     respond_to do |format|
       if @user_friendship.update(user_friendship_params)
         format.html { redirect_back fallback_location: user_friendships_path, notice: "Friend request was successfully updated." }
@@ -39,6 +41,8 @@ class UserFriendshipsController < ApplicationController
   end
 
   def destroy
+    authorize! @user_friendship
+
     @user_friendship.destroy!
 
     respond_to do |format|

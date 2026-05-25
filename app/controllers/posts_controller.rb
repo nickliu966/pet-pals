@@ -36,6 +36,7 @@ class PostsController < ApplicationController
   end
 
   def show
+    authorize! @post
   end
 
   def new
@@ -43,6 +44,7 @@ class PostsController < ApplicationController
   end
 
   def edit
+    authorize! @post
   end
 
   def create
@@ -66,6 +68,8 @@ class PostsController < ApplicationController
   end
 
   def update
+    authorize! @post
+
     @post.assign_attributes(post_params)
 
     if @post.pet_id.present?
@@ -89,6 +93,8 @@ class PostsController < ApplicationController
   end
 
   def destroy
+    authorize! @post
+
     @post.destroy!
 
     respond_to do |format|
