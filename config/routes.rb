@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   get "network/index"
   get "up" => "rails/health#show", as: :rails_health_check
 
-  root "posts#index"
+  root "posts#discover"
 
   devise_for :users
 
@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   resources :users, only: [:index]
 
   get "network" => "network#index", as: :network
+  get "feed" => "posts#index", as: :feed
   get "discover" => "posts#discover", as: :discover
   get "notifications" => "notifications#index", as: :notifications
 
