@@ -79,9 +79,25 @@
         <% end %>
       </div>
 
-      <small class="text-muted">
-        <%= time_ago_in_words(post.created_at) %> ago
-      </small>
+      <div class="text-end">
+        <% edited = post.updated_at > post.created_at + 1.minute %>
+
+        <% if edited %>
+          <details class="small text-muted">
+            <summary class="text-muted" style="cursor: pointer;">
+              edited <%= time_ago_in_words(post.updated_at) %> ago
+            </summary>
+
+            <div>
+              posted <%= time_ago_in_words(post.created_at) %> ago
+            </div>
+          </details>
+        <% else %>
+          <small class="text-muted">
+            <%= time_ago_in_words(post.created_at) %> ago
+          </small>
+        <% end %>
+      </div>
     </div>
 
     <p class="mb-2">
