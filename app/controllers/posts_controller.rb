@@ -1,6 +1,5 @@
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
-  before_action :require_owner, only: [:edit, :update, :destroy]
 
   def index
     post_ids = []
@@ -55,7 +54,7 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       if @post.save
-        format.html { redirect_to @post, notice: "Post was successfully created." }
+        format.html { redirect_to root_path, notice: "Post was successfully created." }
         format.json { render :show, status: :created, location: @post }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -97,16 +96,16 @@ class PostsController < ApplicationController
     @post = Post.find(params.expect(:id))
   end
 
-  def post_params
-    params.expect(post: [
-                    :body,
-                    :image_url,
-                    :pet_id,
-                    :visibility,
-                    :location_name,
-                    :latitude,
-                    :longitude,
-                    :google_place_id,
-                  ])
-  end
+def post_params
+  params.expect(post: [
+    :pet_id,
+    :body,
+    :location_name,
+    :latitude,
+    :longitude,
+    :google_place_id,
+    :visibility,
+    images: []
+  ])
+end
 end

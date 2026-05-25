@@ -4,10 +4,45 @@
           controls: true,
           class: "w-100",
           style: "max-height: 420px; object-fit: cover; background: black;" %>
+
+  <% elsif post.respond_to?(:images) && post.images.attached? %>
+    <% if post.images.count == 1 %>
+      <%= image_tag post.images.first,
+            class: "w-100",
+            style: "height: 360px; object-fit: cover;" %>
+    <% else %>
+      <div id="postImages<%= post.id %>" class="carousel slide">
+        <div class="carousel-inner">
+          <% post.images.each_with_index do |image, index| %>
+            <div class="carousel-item <%= "active" if index == 0 %>">
+              <%= image_tag image,
+                    class: "d-block w-100",
+                    style: "height: 360px; object-fit: cover;" %>
+            </div>
+          <% end %>
+        </div>
+
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#postImages<%= post.id %>"
+                data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#postImages<%= post.id %>"
+                data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+    <% end %>
+
   <% elsif post.respond_to?(:image) && post.image.attached? %>
     <%= image_tag post.image,
           class: "w-100",
           style: "height: 360px; object-fit: cover;" %>
+
   <% elsif post.image_url.present? %>
     <%= image_tag post.image_url,
           class: "w-100",
@@ -79,39 +114,39 @@
               class: "btn btn-link text-decoration-none p-0" %>
       </div>
 
-      <% if current_user == post.user %>
-        <div class="d-flex gap-2">
-          <%= link_to "Edit",
+        <% if current_user == post.user %>
+          <div class="d-flex gap-2">
+            <%= link_to "Edit",
                 edit_post_path(post),
                 class: "btn btn-sm btn-outline-secondary" %>
 
-          <%= button_to "Delete",
+            <%= button_to "Delete",
                 post_path(post),
                 method: :delete,
                 class: "btn btn-sm btn-outline-danger" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <ul class="list-group list-group-flush border-top">
+      <%= render post.comments.default_order %>
+    </ul>
+
+    <div class="border-top p-3">
+      <%= form_with(model: Comment.new) do |form| %>
+        <%= form.hidden_field :post_id, value: post.id %>
+
+        <div class="form-group mb-2">
+          <%= form.label :body, "Add a comment", class: "visually-hidden" %>
+          <%= form.text_area :body,
+              class: "form-control",
+              placeholder: "Add a comment..." %>
+        </div>
+
+        <div class="d-grid">
+          <%= form.submit "Comment", class: "btn btn-primary" %>
         </div>
       <% end %>
     </div>
   </div>
-
-  <ul class="list-group list-group-flush border-top">
-    <%= render post.comments.default_order %>
-  </ul>
-
-  <div class="border-top p-3">
-    <%= form_with(model: Comment.new) do |form| %>
-      <%= form.hidden_field :post_id, value: post.id %>
-
-      <div class="form-group mb-2">
-        <%= form.label :body, "Add a comment", class: "visually-hidden" %>
-        <%= form.text_area :body,
-              class: "form-control",
-              placeholder: "Add a comment..." %>
-      </div>
-
-      <div class="d-grid">
-        <%= form.submit "Comment", class: "btn btn-primary" %>
-      </div>
-    <% end %>
-  </div>
-</div>

@@ -28,6 +28,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
+  has_many_attached :images
+
   belongs_to :user
   belongs_to :pet, optional: true
 
@@ -43,10 +45,8 @@ class Post < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either"
+    friends_of_either: "friends_of_either",
   }
-
-  validates :body, presence: true
 
   scope :default_order, -> { order(created_at: :desc) }
 end
