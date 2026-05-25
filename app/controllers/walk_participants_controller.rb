@@ -1,26 +1,41 @@
 class WalkParticipantsController < ApplicationController
-  before_action :set_walk_participant, only: [ :update, :destroy ]
+  before_action :set_walk_participant, only: [:update, :destroy]
 
   def create
     walk_event = WalkEvent.find(walk_participant_params.fetch(:walk_event_id))
-    pet = current_user.pets.find(walk_participant_params.fetch(:pet_id))
 
-    @walk_participant = WalkParticipant.new(walk_participant_params)
-    @walk_participant.walk_event = walk_event
-    @walk_participant.user = current_user
-    @walk_participant.pet = pet
-    @walk_participant.status = "joined"
-    @walk_participant.joined_at = Time.current
+    pet_ids = Array(walk_participant_params[:pet_ids]).reject(&:blank?)
+    pets = current_user.pets.where(id: pet_ids)
 
-    respond_to do |format|
-      if @walk_participant.save
-        format.html { redirect_to walk_event_path(walk_event), notice: "You joined this walk." }
-        format.json { render :show, status: :created, location: @walk_participant }
-      else
-        format.html { redirect_to walk_event_path(walk_event), alert: @walk_participant.errors.full_messages.to_sentence }
-        format.json { render json: @walk_participant.errors, status: :unprocessable_entity }
+    existing_participants = walk_event.walk_participants.where(user: current_user)
+
+    if pets.any?
+      # If user previously joined without a pet, remove that placeholder row.
+      existing_participants.where(pet_id: nil).destroy_all
+
+      pets.each do |pet|
+        walk_event.walk_participants.find_or_create_by!(
+          user: current_user,
+          pet: pet,
+        )
       end
+
+      notice = "You joined this walk."
+    elsif existing_participants.none?
+      # Only create a no-pet participant if user has not joined at all.
+      walk_event.walk_participants.create!(
+        user: current_user,
+        pet: nil,
+      )
+
+      notice = "You joined this walk."
+    else
+      # User already joined, and did not select any new pets.
+      notice = "You are already joining this walk."
     end
+
+    redirect_to walk_event_path(walk_event, return_to: params[:return_to]),
+                notice: notice
   end
 
   def update
@@ -38,14 +53,14 @@ class WalkParticipantsController < ApplicationController
   end
 
   def destroy
+    @walk_participant = WalkParticipant.find(params.fetch(:id))
     authorize! @walk_participant
 
-    @walk_participant.destroy!
+    walk_event = @walk_participant.walk_event
+    @walk_participant.destroy
 
-    respond_to do |format|
-      format.html { redirect_back fallback_location: root_url, notice: "Walk participation was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    redirect_to walk_event_path(walk_event),
+                notice: "Participant was removed."
   end
 
   private
@@ -55,10 +70,21 @@ class WalkParticipantsController < ApplicationController
   end
 
   def walk_participant_params
-    params.expect(walk_participant: [ :walk_event_id, :pet_id ])
+    params.expect(walk_participant: [:walk_event_id, :pet_id])
   end
 
   def walk_participant_update_params
-    params.expect(walk_participant: [ :status ])
+    params.expect(walk_participant: [:status])
+  end
+
+  private
+
+  def walk_participant_params
+    params.expect(
+      walk_participant: [
+        :walk_event_id,
+        pet_ids: [],
+      ],
+    )
   end
 end

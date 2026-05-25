@@ -7,7 +7,7 @@
 #  status        :string           default("joined"), not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  pet_id        :bigint           not null
+#  pet_id        :bigint
 #  user_id       :bigint           not null
 #  walk_event_id :bigint           not null
 #
@@ -26,7 +26,7 @@
 class WalkParticipant < ApplicationRecord
   belongs_to :walk_event
   belongs_to :user
-  belongs_to :pet
+  belongs_to :pet, optional: true
 
   enum :status, {
     joined: "joined",

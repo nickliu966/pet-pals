@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_25_153045) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_25_184527) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -319,7 +319,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_153045) do
   create_table "walk_participants", force: :cascade do |t|
     t.bigint "walk_event_id", null: false
     t.bigint "user_id", null: false
-    t.bigint "pet_id", null: false
+    t.bigint "pet_id"
     t.string "status", default: "joined", null: false
     t.datetime "joined_at"
     t.datetime "created_at", null: false

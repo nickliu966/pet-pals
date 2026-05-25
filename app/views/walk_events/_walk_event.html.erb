@@ -1,56 +1,82 @@
-<div id="<%= dom_id(walk_event) %>" class="p-3">
-  <div class="d-flex justify-content-between align-items-start mb-2">
-    <div>
-      <h5 class="mb-1">
-        <%= link_to walk_event.title, walk_event_path(walk_event), class: "text-decoration-none" %>
-      </h5>
+<% host_participants = walk_event.walk_participants.select { |participant| participant.user == walk_event.host_user } %>
+<% host_pets = host_participants.map(&:pet) %>
+<% show_view_button = local_assigns.fetch(:show_view_button, true) %>
 
-      <div class="text-muted">
-        Hosted by
-        <%= link_to walk_event.host_user.username, user_path(walk_event.host_user.username), class: "text-decoration-none" %>
-        with
-        <%= link_to walk_event.host_pet.name, pet_path(walk_event.host_pet), class: "text-decoration-none" %>
+<div id="<%= dom_id(walk_event) %>" class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h4 class="mb-1">
+          <%= link_to walk_event.title,
+                walk_event_path(walk_event, return_to: request.fullpath),
+                class: "text-decoration-none" %>
+        </h4>
+
+        <div class="mb-2">
+          Hosted by
+          <%= link_to walk_event.host_user.username,
+                user_path(walk_event.host_user.username),
+                class: "text-decoration-none" %>
+
+          <% if host_pets.any? %>
+            with
+            <%= safe_join(
+                  host_pets.map {
+                    |pet| link_to pet.name, pet_path(pet), class: "text-decoration-none"
+                  },
+                  ", ".html_safe
+                ) %>
+          <% end %>
+        </div>
+
+        <% if walk_event.note.present? %>
+          <p class="mb-2">
+            <%= walk_event.note %>
+          </p>
+        <% end %>
+
+        <div class="text-muted small mb-2">
+          <% if walk_event.location_name.present? %>
+            <i class="fa-solid fa-location-dot"></i>
+            <%= walk_event.location_name %>
+          <% end %>
+
+          <% if walk_event.start_time.present? %>
+            · <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") %>
+          <% end %>
+
+          <% if walk_event.duration_minutes.present? %>
+            · <%= walk_event.duration_minutes %> min
+          <% end %>
+        </div>
+
+        <%= link_to "Participants: #{walk_event.walk_participants.count}",
+              walk_event_path(walk_event, return_to: request.fullpath),
+              class: "text-decoration-none" %>
       </div>
-    </div>
 
-    <small class="text-muted">
-      <%= walk_event.display_status %>
-    </small>
-  </div>
+      <div class="text-end">
+        <div class="text-muted mb-3">
+          <%= walk_event.status %>
+        </div>
 
-  <p class="mb-2">
-    <%= walk_event.note %>
-  </p>
+        <% if allowed_to?(:edit?, walk_event) %>
+          <div class="d-flex gap-2">
+            <%= link_to "Edit",
+                  edit_walk_event_path(walk_event),
+                  class: "btn btn-sm btn-outline-secondary" %>
 
-  <div class="small text-muted mb-2">
-    <i class="fa-solid fa-location-dot"></i>
-    <%= walk_event.location_name %>
-
-    <% if walk_event.start_time.present? %>
-      · <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") %>
-    <% end %>
-
-    <% if walk_event.duration_minutes.present? %>
-      · <%= walk_event.duration_minutes %> min
-    <% end %>
-  </div>
-
-  <div class="d-flex justify-content-between align-items-center">
-    <%= link_to walk_event_path(walk_event), class: "btn btn-link text-decoration-none p-0" do %>
-      Participants: <%= walk_event.walk_participants.count %>
-    <% end %>
-
-    <div class="d-flex gap-2">
-      <% if walk_event.host_user == current_user %>
-        <%= link_to "Edit", edit_walk_event_path(walk_event), class: "btn btn-sm btn-outline-secondary" %>
-
-        <%= button_to "Delete",
-              walk_event_path(walk_event),
-              method: :delete,
-              class: "btn btn-sm btn-outline-danger" %>
-      <% else %>
-        <%= link_to "View / Join", walk_event_path(walk_event), class: "btn btn-outline-primary btn-sm" %>
-      <% end %>
+            <%= button_to "Delete",
+                  walk_event_path(walk_event),
+                  method: :delete,
+                  class: "btn btn-sm btn-outline-danger" %>
+          </div>
+        <% elsif show_view_button %>
+          <%= link_to "View / Join",
+                walk_event_path(walk_event, return_to: request.fullpath),
+                class: "btn btn-sm btn-outline-primary" %>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>
