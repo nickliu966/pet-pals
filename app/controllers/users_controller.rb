@@ -13,7 +13,7 @@ class UsersController < ApplicationController
   end
 
   def pets
-    authorize! @user, to: :view_private_content?
+    authorize! @user, to: :show?
 
     @pets = @user.pets.order(created_at: :desc)
   end
