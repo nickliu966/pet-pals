@@ -1,9 +1,11 @@
 <%= form_with(model: post) do |form| %>
   <% if post.errors.any? %>
     <div class="alert alert-danger">
-      <% post.errors.each do |error| %>
-        <div><%= error.full_message %></div>
-      <% end %>
+      <ul class="mb-0">
+        <% post.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
 
@@ -30,13 +32,43 @@
           placeholder: "What is happening?" %>
   </div>
 
+  <% if post.respond_to?(:images) && post.images.attached? %>
+    <div class="mb-2">
+      <div class="form-label">Current photos</div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <% post.images.each do |image| %>
+          <%= image_tag image,
+                class: "rounded border",
+                style: "width: 96px; height: 96px; object-fit: cover;" %>
+        <% end %>
+      </div>
+    </div>
+  <% elsif post.respond_to?(:image) && post.image.attached? %>
+    <div class="mb-2">
+      <div class="form-label">Current photo</div>
+
+      <%= image_tag post.image,
+            class: "rounded border",
+            style: "width: 120px; height: 120px; object-fit: cover;" %>
+    </div>
+  <% elsif post.image_url.present? %>
+    <div class="mb-2">
+      <div class="form-label">Current image URL</div>
+
+      <%= image_tag post.image_url,
+            class: "rounded border",
+            style: "width: 120px; height: 120px; object-fit: cover;" %>
+    </div>
+  <% end %>
+
   <div class="form-group mb-2">
     <%= form.label :images, "Photos" %>
 
     <%= form.file_field :images,
-        multiple: true,
-        class: "form-control",
-        accept: "image/*" %>
+          multiple: true,
+          class: "form-control",
+          accept: "image/*" %>
 
     <div class="form-text">
       You can select multiple photos.
@@ -83,12 +115,19 @@
   </div>
 
   <div class="d-flex justify-content-end gap-2">
-    <button type="button"
-            class="btn btn-outline-secondary"
-            data-bs-dismiss="modal">
-      Cancel
-    </button>
+    <% if post.persisted? %>
+      <%= link_to "Cancel",
+            post_path(post),
+            class: "btn btn-outline-secondary" %>
+    <% else %>
+      <button type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal">
+        Cancel
+      </button>
+    <% end %>
 
-    <%= form.submit "Create post", class: "btn btn-primary" %>
+    <%= form.submit post.persisted? ? "Update post" : "Create post",
+          class: "btn btn-primary" %>
   </div>
 <% end %>

@@ -39,17 +39,29 @@ export default class extends Controller {
       google.maps.importLibrary("places")
     ])
 
+    const savedLatitude = this.hasLatitudeTarget ? parseFloat(this.latitudeTarget.value) : NaN
+    const savedLongitude = this.hasLongitudeTarget ? parseFloat(this.longitudeTarget.value) : NaN
+
+    const hasSavedLocation = !Number.isNaN(savedLatitude) && !Number.isNaN(savedLongitude)
+
+    const initialPosition = hasSavedLocation
+      ? { lat: savedLatitude, lng: savedLongitude }
+      : { lat: 41.8781, lng: -87.6298 }
+
     let map = null
     let marker = null
 
     if (this.hasMapTarget) {
       map = new Map(this.mapTarget, {
-        center: { lat: 41.8781, lng: -87.6298 },
-        zoom: 11,
+        center: initialPosition,
+        zoom: hasSavedLocation ? 15 : 11,
         mapId: "DEMO_MAP_ID",
       })
 
-      marker = new AdvancedMarkerElement({ map: map })
+      marker = new AdvancedMarkerElement({
+        map: map,
+        position: hasSavedLocation ? initialPosition : null,
+      })
     }
 
     const placeAutocomplete = new google.maps.places.PlaceAutocompleteElement({})
