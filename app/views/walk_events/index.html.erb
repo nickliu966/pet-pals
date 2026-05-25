@@ -4,15 +4,43 @@
   <h1 class="mb-0">Walks</h1>
 
   <button type="button"
-        class="btn btn-primary"
-        data-bs-toggle="modal"
-        data-bs-target="#createWalkModal">
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#createWalkModal">
     Create walk
   </button>
 </div>
 
-<ul id="walk_events" class="list-group list-group-flush">
-  <%= render partial: "walk_events/walk_event",
-             collection: @walk_events,
-             layout: "layouts/list_group" %>
-</ul>
+<div class="card mb-3">
+  <div class="card-body">
+    <%= search_form_for @q, url: walk_events_path, method: :get do |form| %>
+      <div class="input-group">
+        <%= form.search_field :title_or_note_or_location_name_cont,
+              class: "form-control",
+              placeholder: "Search walks by title, note, or location" %>
+
+        <%= form.submit "Search", class: "btn btn-outline-primary" %>
+
+        <% if params[:q].present? %>
+          <%= link_to "Clear",
+                walk_events_path,
+                class: "btn btn-outline-secondary" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @walk_events.any? %>
+  <ul id="walk_events" class="list-group list-group-flush">
+    <%= render partial: "walk_events/walk_event",
+               collection: @walk_events,
+               layout: "layouts/list_group" %>
+  </ul>
+<% else %>
+  <div class="card">
+    <div class="card-body text-muted">
+      No walks found.
+    </div>
+  </div>
+<% end %>

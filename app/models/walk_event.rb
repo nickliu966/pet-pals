@@ -46,6 +46,8 @@ class WalkEvent < ApplicationRecord
            through: :walk_participants,
            source: :pet
 
+  has_many :posts, dependent: :nullify
+
   enum :visibility, {
     everyone: "everyone",
     user_friends_only: "user_friends_only",
@@ -116,6 +118,34 @@ class WalkEvent < ApplicationRecord
     else
       "scheduled"
     end
+  end
+
+  def joined_by?(user)
+    walk_participants.exists?(user: user)
+  end
+
+  def involved_user?(user)
+    host_user == user || joined_by?(user)
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    [
+      "title",
+      "note",
+      "location_name",
+      "start_time",
+      "visibility",
+      "status",
+      "created_at",
+    ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [
+      "host_user",
+      "walk_participants",
+      "posts",
+    ]
   end
 
   private

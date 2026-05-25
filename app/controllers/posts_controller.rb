@@ -58,7 +58,10 @@ class PostsController < ApplicationController
       if @post.save
         @post.images.attach(uploaded_images) if uploaded_images.any?
 
-        format.html { redirect_to root_path, notice: "Post was successfully created." }
+        return_to = params[:return_to].presence
+        return_to = root_path unless return_to&.start_with?("/")
+
+        format.html { redirect_to return_to, notice: "Post was successfully created." }
         format.json { render :show, status: :created, location: @post }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -118,6 +121,8 @@ class PostsController < ApplicationController
                     :longitude,
                     :google_place_id,
                     :visibility,
+                    :walk_event_id,
+                    photos: [],
                   ])
   end
 

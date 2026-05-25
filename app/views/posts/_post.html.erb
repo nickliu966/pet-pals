@@ -82,6 +82,14 @@
         <% end %>
       </div>
 
+      <% if post.walk_event.present? %>
+        <span class="text-muted">from</span>
+
+        <%= link_to post.walk_event.title,
+        walk_event_path(post.walk_event),
+        class: "text-decoration-none" %>
+      <% end %>
+
       <div class="text-end">
         <% edited = post.updated_at > post.created_at + 1.minute %>
 

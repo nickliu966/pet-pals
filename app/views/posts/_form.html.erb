@@ -31,6 +31,21 @@
     </div>
   </div>
 
+  <% fixed_walk_event = local_assigns[:walk_event] %>
+
+  <% if fixed_walk_event.present? %>
+    <%= form.hidden_field :walk_event_id, value: fixed_walk_event.id %>
+
+    <div class="alert alert-light border">
+      Posting to
+      <strong><%= fixed_walk_event.title %></strong>
+    </div>
+  <% else %>
+    <div class="form-text mb-2">
+      To link this post to a walk, find the walk from the Walks page and use “Share post.”
+    </div>
+  <% end %>
+
   <div class="form-group mb-2">
     <%= form.label :body, "Caption" %>
     <%= form.text_area :body,

@@ -118,3 +118,46 @@
     </p>
   <% end %>
 <% end %>
+
+<hr>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Posts from this walk</h3>
+
+  <% if @walk_event.involved_user?(current_user) %>
+    <button type="button"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#<%= dom_id(@walk_event, :post_form_modal) %>">
+      Share post
+    </button>
+  <% end %>
+</div>
+
+<% if @walk_event.posts.any? %>
+  <ul class="list-group list-group-flush">
+    <%= render partial: "posts/post",
+          collection: @walk_event.posts.default_order,
+          layout: "layouts/list_group" %>
+  </ul>
+<% else %>
+  <p class="text-muted">
+    No posts from this walk yet.
+  </p>
+<% end %>
+
+<% if @walk_event.involved_user?(current_user) %>
+  <% content_for :modals do %>
+    <%= render "shared/form_modal",
+          record: Post.new,
+          modal_id: dom_id(@walk_event, :post_form_modal),
+          title: "Share post from this walk",
+          form_partial: "posts/form",
+          form_locals: {
+            post: current_user.posts.build(walk_event: @walk_event),
+            walk_event: @walk_event,
+            return_to: walk_event_path(@walk_event),
+            modal: true
+          } %>
+  <% end %>
+<% end %>

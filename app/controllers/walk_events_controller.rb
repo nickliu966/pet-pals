@@ -2,7 +2,11 @@ class WalkEventsController < ApplicationController
   before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
 
   def index
-    @walk_events = WalkEvent.order(start_time: :asc)
+    @q = WalkEvent.ransack(params[:q])
+
+    @walk_events = @q
+      .result(distinct: true)
+      .order(start_time: :asc)
   end
 
   def show

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_25_184527) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_25_220136) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -118,8 +118,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_184527) do
     t.decimal "latitude"
     t.decimal "longitude"
     t.string "google_place_id"
+    t.bigint "walk_event_id"
     t.index ["pet_id"], name: "index_posts_on_pet_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
+    t.index ["walk_event_id"], name: "index_posts_on_walk_event_id"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -339,6 +341,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_184527) do
   add_foreign_key "photos", "users", column: "owner_id"
   add_foreign_key "posts", "pets"
   add_foreign_key "posts", "users"
+  add_foreign_key "posts", "walk_events"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
