@@ -1,5 +1,5 @@
 class PetsController < ApplicationController
-  before_action :set_pet, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_pet, only: [:show, :edit, :update, :destroy]
 
   def show
   end
@@ -17,7 +17,10 @@ class PetsController < ApplicationController
 
     respond_to do |format|
       if @pet.save
-        format.html { redirect_to @pet, notice: "Pet was successfully created." }
+        return_to = params[:return_to].presence
+        return_to = user_pets_path(current_user.username) unless return_to&.start_with?("/")
+
+        format.html { redirect_to return_to, notice: "Pet was successfully created." }
         format.json { render :show, status: :created, location: @pet }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -31,7 +34,10 @@ class PetsController < ApplicationController
 
     respond_to do |format|
       if @pet.update(pet_params)
-        format.html { redirect_to @pet, notice: "Pet was successfully updated." }
+        return_to = params[:return_to].presence
+        return_to = pet_path(@pet) unless return_to&.start_with?("/")
+
+        format.html { redirect_to return_to, notice: "Pet was successfully updated." }
         format.json { render :show, status: :ok, location: @pet }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -71,8 +77,8 @@ class PetsController < ApplicationController
         :vaccinated,
         :bio,
         :image_url,
-        :image
-      ]
+        :image,
+      ],
     )
   end
 end

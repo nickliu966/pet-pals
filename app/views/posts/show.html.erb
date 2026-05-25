@@ -4,4 +4,6 @@
   <% end %>
 </div>
 
-<%= render @post %>
+<%= render partial: "posts/post",
+      locals: { post: @post, expanded: true },
+      layout: "layouts/list_group" %>

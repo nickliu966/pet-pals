@@ -1,12 +1,21 @@
-<aside class="right-sidebar">
-  <div class="card mb-3">
-    <div class="card-body">
-      <h6 class="text-muted mb-3">Quick actions</h6>
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Quick actions</h5>
 
-      <div class="d-grid gap-2">
-        <%= link_to "Create walk", new_walk_event_path, class: "btn btn-outline-primary btn-sm" %>
-        <%= link_to "Add pet", new_pet_path, class: "btn btn-outline-primary btn-sm" %>
-      </div>
+    <div class="d-grid gap-2">
+      <button type="button"
+              class="btn btn-outline-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#createWalkModal">
+        Create walk
+      </button>
+
+      <button type="button"
+              class="btn btn-outline-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addPetModal">
+        Add pet
+      </button>
     </div>
   </div>
-</aside>
+</div>

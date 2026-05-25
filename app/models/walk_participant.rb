@@ -35,10 +35,10 @@ class WalkParticipant < ApplicationRecord
     no_show: "no_show"
   }
 
-  validates :pet_id,
+  validates :user_id,
             uniqueness: {
-              scope: :walk_event_id,
-              message: "has already joined this walk"
+              scope: [:walk_event_id, :pet_id],
+              message: "has already joined this walk with this pet"
             }
 
   validate :pet_must_belong_to_user
@@ -62,8 +62,14 @@ class WalkParticipant < ApplicationRecord
   end
 
   def walk_must_be_joinable
-    return if walk_event.nil? || user.nil? || pet.nil?
+    return if walk_event.nil? || user.nil?
     return if status != "joined"
+
+    # Joining without a pet is allowed.
+    return if pet.nil?
+
+    # The host can always bring their own pet to their own walk.
+    return if walk_event.host_user == user && pet.user == user
 
     unless walk_event.joinable_by?(user, pet)
       errors.add(:walk_event, "is not available to this user and pet")

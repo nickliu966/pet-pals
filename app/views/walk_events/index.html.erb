@@ -3,7 +3,12 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0">Walks</h1>
 
-  <%= link_to "Create walk", new_walk_event_path, class: "btn btn-primary" %>
+  <button type="button"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#createWalkModal">
+    Create walk
+  </button>
 </div>
 
 <ul id="walk_events" class="list-group list-group-flush">

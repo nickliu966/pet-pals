@@ -1,5 +1,6 @@
 <%= form_with(model: post) do |form| %>
   <% return_to = local_assigns[:return_to] %>
+  <% modal = local_assigns.fetch(:modal, false) %>
 
   <% if return_to.present? %>
     <%= hidden_field_tag :return_to, return_to %>
@@ -121,17 +122,23 @@
   </div>
 
   <div class="d-flex justify-content-end gap-2">
-    <% if post.persisted? %>
+    <% if modal %>
+      <button type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal">
+        Cancel
+      </button>
+    <% elsif post.persisted? %>
       <% cancel_path =
-     if return_to.present? && return_to.start_with?("/")
-       return_to
-     else
-       post_path(post)
-     end %>
+         if return_to.present? && return_to.start_with?("/")
+           return_to
+         else
+           post_path(post)
+         end %>
 
       <%= link_to "Cancel",
-      cancel_path,
-      class: "btn btn-outline-secondary" %>
+          cancel_path,
+          class: "btn btn-outline-secondary" %>
     <% else %>
       <button type="button"
             class="btn btn-outline-secondary"

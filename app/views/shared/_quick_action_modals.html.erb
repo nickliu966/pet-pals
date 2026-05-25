@@ -1,0 +1,21 @@
+<%= render "shared/form_modal",
+      record: WalkEvent.new,
+      modal_id: "createWalkModal",
+      title: "Create walk",
+      form_partial: "walk_events/form",
+      form_locals: {
+        walk_event: WalkEvent.new,
+        return_to: request.fullpath,
+        modal: true
+      } %>
+
+<%= render "shared/form_modal",
+      record: Pet.new,
+      modal_id: "addPetModal",
+      title: "Add pet",
+      form_partial: "pets/form",
+      form_locals: {
+        pet: Pet.new,
+        return_to: request.fullpath,
+        modal: true
+      } %>

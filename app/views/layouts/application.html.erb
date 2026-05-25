@@ -36,8 +36,6 @@
     <%= render "shared/navbar" %>
 
     <% if user_signed_in? %>
-      <%= render "shared/post_modal" %>
-
       <div class="container app-shell-container">
         <div class="app-layout">
           <aside class="app-left">
@@ -54,11 +52,16 @@
           </aside>
         </div>
       </div>
+
+      <%= render "shared/post_modal" %>
+      <%= render "shared/quick_action_modals" %>
     <% else %>
       <main class="container py-4">
         <%= render "shared/flash" %>
         <%= yield %>
       </main>
     <% end %>
+
+    <%= yield :modals %>
   </body>
 </html>

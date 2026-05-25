@@ -7,8 +7,8 @@
 <div class="card mb-4">
   <% if @pet.image_url.present? %>
     <%= image_tag @pet.image_url,
-        class: "card-img-top",
-        style: "height: 360px; object-fit: cover;" %>
+          class: "card-img-top",
+          style: "height: 360px; object-fit: cover;" %>
   <% end %>
 
   <div class="card-body">
@@ -20,7 +20,9 @@
 
         <p class="text-muted mb-2">
           Owned by
-          <%= link_to @pet.user.username, user_path(@pet.user.username), class: "text-decoration-none" %>
+          <%= link_to @pet.user.username,
+                user_path(@pet.user.username),
+                class: "text-decoration-none" %>
         </p>
 
         <p class="mb-1">
@@ -58,31 +60,36 @@
           <%= @pet.vaccinated? ? "Yes" : "No" %>
         </p>
 
-        <p class="mt-2 mb-0">
-          <%= @pet.bio %>
-        </p>
+        <% if @pet.bio.present? %>
+          <p class="mt-2 mb-0">
+            <%= @pet.bio %>
+          </p>
+        <% end %>
       </div>
 
       <div>
-        <% if @pet.user == current_user %>
+        <% if allowed_to?(:edit?, @pet) %>
           <div class="dropdown">
             <%= button_tag class: "btn btn-link text-decoration-none",
-                data: { bs_toggle: "dropdown" },
-                aria: { expanded: false } do %>
+                  data: { bs_toggle: "dropdown" },
+                  aria: { expanded: false } do %>
               <i class="fa-solid fa-ellipsis"></i>
             <% end %>
 
             <ul class="dropdown-menu">
               <li>
-                <%= link_to edit_pet_path(@pet), class: "dropdown-item" do %>
+                <button type="button"
+                        class="dropdown-item"
+                        data-bs-toggle="modal"
+                        data-bs-target="#<%= dom_id(@pet, :form_modal) %>">
                   Edit
-                <% end %>
+                </button>
               </li>
 
               <li>
                 <%= button_to pet_path(@pet),
-                    method: :delete,
-                    class: "dropdown-item text-danger" do %>
+                      method: :delete,
+                      class: "dropdown-item text-danger" do %>
                   Delete
                 <% end %>
               </li>
@@ -111,3 +118,18 @@
              collection: @pet.hosted_walk_events,
              layout: "layouts/list_group" %>
 </ul>
+
+<% if allowed_to?(:edit?, @pet) %>
+  <% content_for :modals do %>
+    <%= render "shared/form_modal",
+          record: @pet,
+          modal_id: dom_id(@pet, :form_modal),
+          title: "Edit pet",
+          form_partial: "pets/form",
+          form_locals: {
+            pet: @pet,
+            return_to: request.fullpath,
+            modal: true
+          } %>
+  <% end %>
+<% end %>

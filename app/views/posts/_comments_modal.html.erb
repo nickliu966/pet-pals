@@ -1,0 +1,134 @@
+<div class="modal fade"
+     id="<%= comments_modal_id %>"
+     tabindex="-1"
+     aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content overflow-hidden">
+      <div class="row g-0">
+        <div class="col-md-7 bg-black d-flex align-items-center justify-content-center">
+          <% if post.respond_to?(:video) && post.video.attached? %>
+            <%= video_tag post.video,
+                  controls: true,
+                  class: "w-100",
+                  style: "max-height: 80vh; object-fit: contain; background: black;" %>
+
+          <% elsif post.respond_to?(:images) && post.images.attached? %>
+            <% if post.images.count == 1 %>
+              <%= image_tag post.images.first,
+                    class: "w-100",
+                    style: "max-height: 80vh; object-fit: contain;" %>
+            <% else %>
+              <div id="<%= dom_id(post, :modal_images) %>" class="carousel slide w-100">
+                <div class="carousel-inner">
+                  <% post.images.each_with_index do |image, index| %>
+                    <div class="carousel-item <%= "active" if index == 0 %>">
+                      <%= image_tag image,
+                            class: "d-block w-100",
+                            style: "max-height: 80vh; object-fit: contain;" %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <button class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#<%= dom_id(post, :modal_images) %>"
+                        data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon"></span>
+                </button>
+
+                <button class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#<%= dom_id(post, :modal_images) %>"
+                        data-bs-slide="next">
+                  <span class="carousel-control-next-icon"></span>
+                </button>
+              </div>
+            <% end %>
+
+          <% elsif post.respond_to?(:image) && post.image.attached? %>
+            <%= image_tag post.image,
+                  class: "w-100",
+                  style: "max-height: 80vh; object-fit: contain;" %>
+
+          <% elsif post.image_url.present? %>
+            <%= image_tag post.image_url,
+                  class: "w-100",
+                  style: "max-height: 80vh; object-fit: contain;" %>
+          <% end %>
+        </div>
+
+        <div class="col-md-5 d-flex flex-column" style="height: 80vh;">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <div>
+              <strong>
+                <%= link_to post.user.username,
+                      user_path(post.user.username),
+                      class: "text-dark text-decoration-none" %>
+              </strong>
+
+              <% if post.location_name.present? %>
+                <div class="small text-muted">
+                  <%= post.location_name %>
+                </div>
+              <% end %>
+            </div>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+
+          <div class="p-3 overflow-auto flex-grow-1">
+            <% if post.body.present? %>
+              <div class="mb-3">
+                <strong>
+                  <%= link_to post.user.username,
+                        user_path(post.user.username),
+                        class: "text-dark text-decoration-none" %>
+                </strong>
+
+                <%= post.body %>
+              </div>
+            <% end %>
+
+            <% post.comments.default_order.each do |comment| %>
+              <div class="mb-3">
+                <strong>
+                  <%= link_to comment.author.username,
+                        user_path(comment.author.username),
+                        class: "text-dark text-decoration-none" %>
+                </strong>
+
+                <%= comment.body %>
+
+                <div class="small text-muted">
+                  <%= time_ago_in_words(comment.created_at) %> ago
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="p-3 border-top">
+            <div class="fw-bold mb-2">
+              <%= pluralize(post.likes_count, "like") %>
+            </div>
+
+            <%= form_with(model: Comment.new) do |form| %>
+              <%= form.hidden_field :post_id, value: post.id %>
+
+              <div class="input-group">
+                <%= form.text_field :body,
+                      class: "form-control",
+                      placeholder: "Add a comment..." %>
+
+                <%= form.submit "Post",
+                      class: "btn btn-primary" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

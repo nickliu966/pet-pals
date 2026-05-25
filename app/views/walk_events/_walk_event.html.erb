@@ -1,5 +1,5 @@
 <% host_participants = walk_event.walk_participants.select { |participant| participant.user == walk_event.host_user } %>
-<% host_pets = host_participants.map(&:pet) %>
+<% host_pets = host_participants.map(&:pet).compact %>
 <% show_view_button = local_assigns.fetch(:show_view_button, true) %>
 
 <div id="<%= dom_id(walk_event) %>" class="card mb-3">
@@ -21,8 +21,10 @@
           <% if host_pets.any? %>
             with
             <%= safe_join(
-                  host_pets.map {
-                    |pet| link_to pet.name, pet_path(pet), class: "text-decoration-none"
+                  host_pets.map { |pet|
+                    link_to pet.name,
+                          pet_path(pet),
+                          class: "text-decoration-none"
                   },
                   ", ".html_safe
                 ) %>
@@ -62,9 +64,12 @@
 
         <% if allowed_to?(:edit?, walk_event) %>
           <div class="d-flex gap-2">
-            <%= link_to "Edit",
-                  edit_walk_event_path(walk_event),
-                  class: "btn btn-sm btn-outline-secondary" %>
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#<%= dom_id(walk_event, :form_modal) %>">
+              Edit
+            </button>
 
             <%= button_to "Delete",
                   walk_event_path(walk_event),
@@ -79,4 +84,19 @@
       </div>
     </div>
   </div>
+
+  <% if allowed_to?(:edit?, walk_event) %>
+    <% content_for :modals do %>
+      <%= render "shared/form_modal",
+          record: walk_event,
+          modal_id: dom_id(walk_event, :form_modal),
+          title: "Edit walk",
+          form_partial: "walk_events/form",
+          form_locals: {
+            walk_event: walk_event,
+            return_to: "#{request.fullpath}##{dom_id(walk_event)}",
+            modal: true
+          } %>
+    <% end %>
+  <% end %>
 </div>

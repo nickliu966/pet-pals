@@ -22,27 +22,19 @@
     <% @walk_event.walk_participants.includes(:pet, :user).each do |participant| %>
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <div>
-          <% if participant.pet.present? %>
-            <strong>
-              <%= link_to participant.pet.name,
-                    pet_path(participant.pet),
-                    class: "text-decoration-none" %>
-            </strong>
-
-            <span class="text-muted">
-              with
-            </span>
-
+          <strong>
             <%= link_to participant.user.username,
                   user_path(participant.user.username),
                   class: "text-decoration-none" %>
-          <% else %>
-            <strong>
-              <%= link_to participant.user.username,
-                    user_path(participant.user.username),
-                    class: "text-decoration-none" %>
-            </strong>
+          </strong>
 
+          <% if participant.pet.present? %>
+            <span class="text-muted">with</span>
+
+            <%= link_to participant.pet.name,
+                  pet_path(participant.pet),
+                  class: "text-decoration-none" %>
+          <% else %>
             <span class="text-muted">
               joined without a pet
             </span>
