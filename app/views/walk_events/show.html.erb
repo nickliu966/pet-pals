@@ -53,33 +53,9 @@
 
 <%= render @walk_event, show_view_button: false %>
 
-<% invitation = @walk_event.walk_participants.find_by(user: current_user, status: "invited") %>
-
-<% if invitation.present? %>
-  <div class="card mb-3">
-    <div class="card-body">
-      <h5 class="card-title">You were invited to this walk</h5>
-
-      <p class="text-muted mb-3">
-        Accept the invitation before appearing as a participant.
-      </p>
-
-      <div class="d-flex gap-2">
-        <%= button_to "Accept",
-              accept_walk_participant_path(invitation),
-              method: :patch,
-              class: "btn btn-primary" %>
-
-        <%= button_to "Decline",
-              decline_walk_participant_path(invitation),
-              method: :patch,
-              class: "btn btn-outline-secondary" %>
-      </div>
-    </div>
-  </div>
-<% end %>
-
-<hr>
+<%= render "walk_events/invitation_card",
+      walk_event: @walk_event,
+      viewer: current_user %>
 
 <hr>
 
