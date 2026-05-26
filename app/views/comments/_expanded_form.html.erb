@@ -1,0 +1,17 @@
+<div id="<%= dom_id(post, :comment_form) %>" class="border-top p-3">
+  <%= form_with(model: Comment.new) do |form| %>
+    <%= form.hidden_field :post_id, value: post.id %>
+    <%= hidden_field_tag :expanded, true %>
+
+    <div class="form-group mb-2">
+      <%= form.label :body, "Add a comment", class: "visually-hidden" %>
+      <%= form.text_area :body,
+            class: "form-control",
+            placeholder: "Add a comment..." %>
+    </div>
+
+    <div class="d-grid">
+      <%= form.submit "Comment", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
