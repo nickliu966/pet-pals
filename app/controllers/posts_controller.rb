@@ -76,17 +76,29 @@ class PostsController < ApplicationController
     permitted_params = post_params
 
     if visibility_only_update?(permitted_params)
+      @expanded = params[:expanded] == "true"
       visibility = permitted_params.fetch(:visibility)
 
       unless Post.visibilities.key?(visibility)
-        redirect_to safe_post_return_to, alert: "Invalid visibility."
+        respond_to do |format|
+          format.html { redirect_to safe_post_return_to, alert: "Invalid visibility." }
+          format.turbo_stream { head :unprocessable_entity }
+        end
+
         return
       end
 
       @post.update_column(:visibility, visibility)
 
-      redirect_to safe_post_return_to,
-                  notice: "Post visibility was successfully updated."
+      respond_to do |format|
+        format.html do
+          redirect_to safe_post_return_to,
+                      notice: "Post visibility was successfully updated."
+        end
+
+        format.turbo_stream
+      end
+
       return
     end
 
