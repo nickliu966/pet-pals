@@ -1,5 +1,5 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
 
   def index
     post_ids = []
@@ -11,7 +11,7 @@ class PostsController < ApplicationController
     owner_friends = (current_user.owner_friends + current_user.friended_by_users).uniq
 
     post_ids += Post.where(user: owner_friends)
-                    .where(visibility: [ "everyone", "user_friends_only", "friends_of_either" ])
+                    .where(visibility: ["everyone", "user_friends_only", "friends_of_either"])
                     .pluck(:id)
 
     # 3. Include pet-friend posts
@@ -25,7 +25,7 @@ class PostsController < ApplicationController
     pet_friends = pet_friends.uniq
 
     post_ids += Post.where(pet: pet_friends)
-                    .where(visibility: [ "everyone", "pet_friends_only", "friends_of_either" ])
+                    .where(visibility: ["everyone", "pet_friends_only", "friends_of_either"])
                     .pluck(:id)
 
     @posts = Post.where(id: post_ids.uniq).default_order
@@ -121,6 +121,7 @@ class PostsController < ApplicationController
     respond_to do |format|
       format.html { redirect_back fallback_location: root_url, notice: "Post was successfully destroyed." }
       format.json { head :no_content }
+      format.turbo_stream
     end
   end
 
@@ -131,7 +132,7 @@ class PostsController < ApplicationController
   end
 
   def visibility_only_update?(permitted_params)
-    permitted_params.keys.map(&:to_s).sort == [ "visibility" ]
+    permitted_params.keys.map(&:to_s).sort == ["visibility"]
   end
 
   def safe_post_return_to
@@ -154,7 +155,7 @@ class PostsController < ApplicationController
                     :google_place_id,
                     :visibility,
                     :walk_event_id,
-                    photos: []
+                    photos: [],
                   ])
   end
 
