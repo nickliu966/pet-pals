@@ -1,0 +1,4 @@
+<div id="<%= local_assigns.fetch(:target_id, dom_id(post, :likes_count)) %>"
+     class="<%= local_assigns.fetch(:class_name, "fw-bold mb-1") %>">
+  <%= pluralize(post.likes_count, "like") %>
+</div>

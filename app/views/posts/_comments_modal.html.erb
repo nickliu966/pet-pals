@@ -100,9 +100,10 @@
           </div>
 
           <div class="p-3 border-top">
-            <div class="fw-bold mb-2">
-              <%= pluralize(post.likes_count, "like") %>
-            </div>
+            <%= render "posts/likes_count",
+                  post: post,
+                  target_id: dom_id(post, :modal_likes_count),
+                  class_name: "fw-bold mb-2" %>
 
             <%= render "comments/modal_form", post: post %>
           </div>

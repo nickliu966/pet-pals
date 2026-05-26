@@ -1,0 +1,20 @@
+<div id="<%= dom_id(post, :like_button) %>">
+  <% like = current_user.likes.find_by(post: post) %>
+
+  <% if like.present? %>
+    <%= button_to like,
+          method: :delete,
+          class: "btn btn-link text-danger p-0 border-0 fs-4" do %>
+      <i class="fa-solid fa-heart"></i>
+    <% end %>
+  <% else %>
+    <%= form_with(model: Like.new) do |form| %>
+      <%= form.hidden_field :post_id, value: post.id %>
+
+      <button type="submit"
+              class="btn btn-link text-dark p-0 border-0 fs-4">
+        <i class="fa-regular fa-heart"></i>
+      </button>
+    <% end %>
+  <% end %>
+</div>
