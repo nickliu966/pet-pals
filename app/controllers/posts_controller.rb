@@ -28,11 +28,13 @@ class PostsController < ApplicationController
                     .where(visibility: ["everyone", "pet_friends_only", "friends_of_either"])
                     .pluck(:id)
 
-    @posts = Post.where(id: post_ids.uniq).default_order
+    @posts = preload_post_feed_associations(Post.where(id: post_ids.uniq).default_order)
+    prepare_current_user_likes_for(@posts)
   end
 
   def discover
-    @posts = Post.everyone.default_order
+    @posts = preload_post_feed_associations(Post.everyone.default_order)
+    prepare_current_user_likes_for(@posts)
   end
 
   def show
@@ -140,6 +142,23 @@ class PostsController < ApplicationController
   end
 
   private
+
+  def preload_post_feed_associations(posts)
+    posts.includes(
+      :user,
+      :pet,
+      :walk_event,
+      images_attachments: :blob,
+      comments: :author,
+    )
+  end
+
+  def prepare_current_user_likes_for(posts)
+    post_ids = posts.map(&:id)
+
+    @current_user_likes_by_post_id =
+      current_user.likes.where(post_id: post_ids).index_by(&:post_id)
+  end
 
   def set_post
     @post = Post.find(params.expect(:id))
