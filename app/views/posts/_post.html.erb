@@ -155,6 +155,7 @@
             <div class="p-3 border-bottom">
               <%= form_with model: post, url: post_path(post), method: :patch, local: true do |form| %>
                 <%= hidden_field_tag :return_to, "#{request.fullpath}##{dom_id(post)}" %>
+                <%= hidden_field_tag :expanded, expanded %>
 
                 <%= form.label :visibility, "Visibility", class: "form-label small fw-semibold mb-1" %>
 
