@@ -1,5 +1,5 @@
 class LikesController < ApplicationController
-  before_action :set_like, only: [ :destroy ]
+  before_action :set_like, only: [:destroy]
 
   def create
     @like = Like.new(like_params)
@@ -28,10 +28,10 @@ class LikesController < ApplicationController
   private
 
   def set_like
-    @like = Like.find(params.expect(:id))
+    @like = current_user.likes.find(params.fetch(:id))
   end
 
   def like_params
-    params.expect(like: [ :post_id ])
+    params.expect(like: [:post_id])
   end
 end

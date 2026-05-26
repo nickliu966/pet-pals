@@ -134,17 +134,18 @@ class WalkEventsController < ApplicationController
 
   def walk_event_params
     params.expect(walk_event: [
-                    :title,
-                    :note,
-                    :location_name,
-                    :latitude,
-                    :longitude,
-                    :google_place_id,
-                    :start_time,
-                    :duration_minutes,
-                    :visibility,
-                    :max_participants,
-                    :status,
-                  ])
+      :host_pet_id,
+      :title,
+      :note,
+      :location_name,
+      :latitude,
+      :longitude,
+      :google_place_id,
+      :start_time,
+      :duration_minutes,
+      :visibility,
+      :max_participants,
+      :status,
+    ])
   end
 end

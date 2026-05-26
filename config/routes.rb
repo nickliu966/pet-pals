@@ -19,7 +19,6 @@ Rails.application.routes.draw do
   resources :walk_events do
     member do
       post :invite_participant
-      post :mark_attended
     end
   end
 
@@ -42,7 +41,7 @@ Rails.application.routes.draw do
   get "my_events" => "walk_events#mine", as: :my_events
 
   patch ":username" => "users#update", as: :update_user
-  
+
   get ":username" => "users#show", as: :user
   get ":username/posts" => "users#posts", as: :user_posts
   get ":username/pets" => "users#pets", as: :user_pets
