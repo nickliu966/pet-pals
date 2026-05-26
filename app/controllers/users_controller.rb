@@ -6,6 +6,10 @@ class UsersController < ApplicationController
   end
 
   def show
+    if allowed_to?(:show?, @user)
+      @posts = preload_profile_posts(@user.posts.default_order)
+      prepare_current_user_likes_for(@posts)
+    end
   end
 
   def update
@@ -50,6 +54,23 @@ class UsersController < ApplicationController
 
   private
 
+  def preload_profile_posts(posts)
+    posts.includes(
+      :user,
+      :pet,
+      :walk_event,
+      images_attachments: :blob,
+      comments: :author,
+    )
+  end
+
+  def prepare_current_user_likes_for(posts)
+    post_ids = posts.map(&:id)
+
+    @current_user_likes_by_post_id =
+      current_user.likes.where(post_id: post_ids).index_by(&:post_id)
+  end
+
   def set_user
     @user = User.find_by!(username: params.fetch(:username))
   end
@@ -65,7 +86,7 @@ class UsersController < ApplicationController
         :website,
         :private,
         :avatar_image,
-        :profile_banner
+        :profile_banner,
       ],
     )
   end

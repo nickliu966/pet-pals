@@ -133,49 +133,48 @@
 
   <ul class="list-group list-group-flush">
     <%= render partial: "posts/post",
-               collection: @user.posts.default_order,
-               layout: "layouts/list_group" %>
-  </ul>
-<% else %>
-  <div class="card">
-    <div class="card-body text-center text-muted">
-      <div class="mb-2">
-        <i class="fa-solid fa-lock fa-lg"></i>
-      </div>
+           collection: @posts,
+           layout: "layouts/list_group" %>
+  <% else %>
+    <div class="card">
+      <div class="card-body text-center text-muted">
+        <div class="mb-2">
+          <i class="fa-solid fa-lock fa-lg"></i>
+        </div>
 
-      <div>
-        This account is private.
-      </div>
+        <div>
+          This account is private.
+        </div>
 
-      <div class="small">
-        Add them as a friend to see their posts and pets.
-      </div>
-    </div>
-  </div>
-<% end %>
-
-<% if @user == current_user %>
-  <% content_for :modals do %>
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editProfileModalLabel">
-              Edit profile
-            </h5>
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close">
-            </button>
-          </div>
-
-          <div class="modal-body">
-            <%= render "users/profile_form", user: current_user %>
-          </div>
+        <div class="small">
+          Add them as a friend to see their posts and pets.
         </div>
       </div>
     </div>
   <% end %>
-<% end %>
+
+  <% if @user == current_user %>
+    <% content_for :modals do %>
+      <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editProfileModalLabel">
+                Edit profile
+              </h5>
+
+              <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close">
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <%= render "users/profile_form", user: current_user %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
