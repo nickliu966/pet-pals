@@ -52,9 +52,10 @@
           <% end %>
         </div>
 
-        <%= link_to "Participants: #{walk_event.confirmed_participants.count}",
-              walk_event_path(walk_event, return_to: request.fullpath),
-              class: "text-decoration-none" %>
+        <%= link_to walk_event_path(walk_event, return_to: request.fullpath),
+            class: "text-decoration-none" do %>
+            <%= render "walk_events/participant_count", walk_event: walk_event %>
+        <% end %>
       </div>
 
       <div class="text-end">

@@ -5,6 +5,10 @@
        walk_events_path
      end %>
 
+<%= turbo_stream_from @walk_event %>
+<%= turbo_stream_from "walk_event_#{@walk_event.id}_participant_list_user_#{current_user.id}" %>
+<%= turbo_stream_from "walk_event_#{@walk_event.id}_join_controls_user_#{current_user.id}" %>
+
 <div class="fs-5 border-bottom mb-3">
   <%= link_to back_path, class: "text-decoration-none" do %>
     ← Back
@@ -77,111 +81,18 @@
 
 <hr>
 
+<hr>
+
 <h3>Joining people and pets</h3>
 
-<% confirmed_participants = @walk_event.confirmed_participants.includes(:pet, :user) %>
+<%= render "walk_events/participant_list",
+      walk_event: @walk_event,
+      viewer: current_user %>
 
-<% if confirmed_participants.any? %>
-  <ul class="list-group list-group-flush mb-3">
-    <% confirmed_participants.each do |participant| %>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <strong>
-            <%= link_to participant.user.username,
-                  user_path(participant.user.username),
-                  class: "text-decoration-none" %>
-          </strong>
-
-          <% if participant.pet.present? %>
-            <span class="text-muted">with</span>
-
-            <%= link_to participant.pet.name,
-                  pet_path(participant.pet),
-                  class: "text-decoration-none" %>
-          <% else %>
-            <span class="text-muted">
-              joined without a pet
-            </span>
-          <% end %>
-
-          <% if participant.user == @walk_event.host_user %>
-            <span class="badge text-bg-secondary ms-2">Host</span>
-          <% end %>
-
-          <% if participant.user == current_user %>
-            <span class="badge text-bg-primary ms-1">You</span>
-          <% end %>
-        </div>
-
-        <% if participant.user == current_user || @walk_event.host_user == current_user %>
-          <%= button_to "Remove",
-                walk_participant_path(participant),
-                method: :delete,
-                class: "btn btn-sm btn-outline-danger" %>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p class="text-muted">
-    No one has joined this walk yet.
-  </p>
-<% end %>
-
-<% unless @walk_event.host_user == current_user %>
-  <% current_user_participants = @walk_event.walk_participants.where(user: current_user) %>
-  <% already_joined = current_user_participants.exists? %>
-  <% eligible_pets = @walk_event.eligible_pets_for(current_user) %>
-
-  <% if eligible_pets.any? || !already_joined %>
-    <h3>Join this walk</h3>
-
-    <%= form_with url: walk_participants_path, method: :post do %>
-      <%= hidden_field_tag "walk_participant[walk_event_id]", @walk_event.id %>
-
-      <% if params[:return_to].present? %>
-        <%= hidden_field_tag :return_to, params[:return_to] %>
-      <% end %>
-
-      <% if eligible_pets.any? %>
-        <div class="border rounded p-3 mb-3">
-          <div class="form-label">
-            Pets you are bringing
-          </div>
-
-          <% eligible_pets.each do |pet| %>
-            <div class="form-check">
-              <%= check_box_tag "walk_participant[pet_ids][]",
-                    pet.id,
-                    false,
-                    id: "walk_participant_pet_ids_#{pet.id}",
-                    class: "form-check-input" %>
-
-              <%= label_tag "walk_participant_pet_ids_#{pet.id}",
-                    pet.name,
-                    class: "form-check-label" %>
-            </div>
-          <% end %>
-
-          <div class="form-text">
-            Optional. Leave all unchecked if you are joining without a pet.
-          </div>
-        </div>
-      <% else %>
-        <p class="text-muted">
-          You can join this walk without bringing a pet.
-        </p>
-      <% end %>
-
-      <%= submit_tag already_joined ? "Add selected pets" : "Join walk",
-            class: "btn btn-primary" %>
-    <% end %>
-  <% else %>
-    <p class="text-muted">
-      You are already joining this walk.
-    </p>
-  <% end %>
-<% end %>
+<%= render "walk_events/join_controls",
+      walk_event: @walk_event,
+      viewer: current_user,
+      return_to: params[:return_to] %>
 
 <hr>
 

@@ -53,16 +53,20 @@
   }
 }
 
-/* .highlight {
-  animation: highlight 600ms ease-out;
+.soft-replace-in {
+  animation: softReplaceIn 900ms ease-in-out;
 }
 
-@keyframes highlight {
+@keyframes softReplaceIn {
   from {
-    background-color: #fff3cd;
+    opacity: 0.35;
+  }
+
+  60% {
+    opacity: 0.85;
   }
 
   to {
-    background-color: transparent;
+    opacity: 1;
   }
-} */
+}

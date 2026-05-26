@@ -1,5 +1,6 @@
-// Animate Turbo Stream remove/append/replace actions.
-// Based on the course pattern using turbo:before-stream-render.
+// Animate selected Turbo Stream actions.
+// Keep global append/remove animations,
+// but only animate replace for walk participant list updates.
 
 document.addEventListener("turbo:before-stream-render", (event) => {
   if (event.target.action !== "remove") return
@@ -49,12 +50,25 @@ document.addEventListener("turbo:before-stream-render", (event) => {
   if (event.target.action !== "replace") return
 
   const targetId = event.target.target
+
+  const shouldAnimate = targetId.includes("participant_list")
+
+  if (!shouldAnimate) return
+
   const originalRender = event.detail.render
 
   event.detail.render = (streamElement) => {
     originalRender(streamElement)
 
     const target = document.getElementById(targetId)
-    if (target) target.classList.add("highlight")
+    if (!target) return
+
+    target.classList.add("soft-replace-in")
+
+    target.addEventListener(
+      "animationend",
+      () => target.classList.remove("soft-replace-in"),
+      { once: true }
+    )
   }
 })

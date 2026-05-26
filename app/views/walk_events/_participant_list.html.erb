@@ -1,0 +1,51 @@
+<div id="<%= dom_id(walk_event, :participant_list) %>">
+  <% confirmed_participants = walk_event.confirmed_participants.includes(:pet, :user) %>
+
+  <% if confirmed_participants.any? %>
+    <ul class="list-group list-group-flush mb-3">
+      <% confirmed_participants.each do |participant| %>
+        <li id="<%= dom_id(participant, :participant_row) %>"
+            class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>
+              <%= link_to participant.user.username,
+                    user_path(participant.user.username),
+                    class: "text-decoration-none" %>
+            </strong>
+
+            <% if participant.pet.present? %>
+              <span class="text-muted">with</span>
+
+              <%= link_to participant.pet.name,
+                    pet_path(participant.pet),
+                    class: "text-decoration-none" %>
+            <% else %>
+              <span class="text-muted">
+                joined without a pet
+              </span>
+            <% end %>
+
+            <% if participant.user == walk_event.host_user %>
+              <span class="badge text-bg-secondary ms-2">Host</span>
+            <% end %>
+
+            <% if participant.user == viewer %>
+              <span class="badge text-bg-primary ms-1">You</span>
+            <% end %>
+          </div>
+
+          <% if participant.user == viewer || walk_event.host_user == viewer %>
+            <%= button_to "Remove",
+                  walk_participant_path(participant),
+                  method: :delete,
+                  class: "btn btn-sm btn-outline-danger" %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-muted">
+      No one has joined this walk yet.
+    </p>
+  <% end %>
+</div>
