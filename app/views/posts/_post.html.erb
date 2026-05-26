@@ -1,6 +1,13 @@
 <div id="<%= dom_id(post) %>">
   <% expanded = local_assigns.fetch(:expanded, false) %>
   <% comments_modal_id = dom_id(post, :comments_modal) %>
+  <% post_images = post.respond_to?(:images) ? post.images.to_a : [] %>
+  <% post_comments =
+       if post.comments.loaded?
+         post.comments.sort_by(&:created_at)
+       else
+         post.comments.default_order
+       end %>
 
   <% if post.respond_to?(:video) && post.video.attached? %>
     <%= video_tag post.video,
@@ -8,15 +15,15 @@
           class: "w-100",
           style: "max-height: 420px; object-fit: cover; background: black;" %>
 
-  <% elsif post.respond_to?(:images) && post.images.attached? %>
-    <% if post.images.count == 1 %>
-      <%= image_tag post.images.first,
+  <% elsif post_images.any? %>
+    <% if post_images.one? %>
+      <%= image_tag post_images.first,
             class: "w-100",
             style: "height: 360px; object-fit: cover;" %>
     <% else %>
       <div id="postImages<%= post.id %>" class="carousel slide">
         <div class="carousel-inner">
-          <% post.images.each_with_index do |image, index| %>
+          <% post_images.each_with_index do |image, index| %>
             <div class="carousel-item <%= "active" if index == 0 %>">
               <%= image_tag image,
                     class: "d-block w-100",
@@ -136,17 +143,17 @@
       <% if allowed_to?(:edit?, post) %>
         <div class="dropdown">
           <%= button_tag type: "button",
-          class: "btn btn-link text-decoration-none p-0",
-          data: { bs_toggle: "dropdown" },
-          aria: { expanded: false } do %>
+                class: "btn btn-link text-decoration-none p-0",
+                data: { bs_toggle: "dropdown" },
+                aria: { expanded: false } do %>
             <i class="fa-solid fa-ellipsis"></i>
           <% end %>
 
           <div class="dropdown-menu dropdown-menu-end p-0 post-actions-menu">
             <button type="button"
-              class="dropdown-item"
-              data-bs-toggle="modal"
-              data-bs-target="#<%= dom_id(post, :form_modal) %>">
+                    class="dropdown-item"
+                    data-bs-toggle="modal"
+                    data-bs-target="#<%= dom_id(post, :form_modal) %>">
               Edit
             </button>
 
@@ -176,9 +183,9 @@
             </div>
 
             <%= button_to "Delete",
-            post_path(post),
-            method: :delete,
-            class: "dropdown-item text-danger rounded-0" %>
+                  post_path(post),
+                  method: :delete,
+                  class: "dropdown-item text-danger rounded-0" %>
           </div>
         </div>
       <% end %>
@@ -200,23 +207,24 @@
 
     <div id="<%= dom_id(post, :comments_summary) %>">
       <%= render "posts/comments_summary",
-        post: post,
-        expanded: expanded,
-        comments_modal_id: comments_modal_id %>
+            post: post,
+            expanded: expanded,
+            comments_modal_id: comments_modal_id %>
     </div>
   </div>
 
   <% if expanded %>
     <ul id="<%= dom_id(post, :comments) %>" class="list-group list-group-flush border-top">
-      <%= render post.comments.default_order %>
+      <%= render post_comments %>
     </ul>
 
     <%= render "comments/expanded_form", post: post %>
-
   <% else %>
     <%= render "posts/comments_modal",
           post: post,
-          comments_modal_id: comments_modal_id %>
+          comments_modal_id: comments_modal_id,
+          post_images: post_images,
+          modal_comments: post_comments %>
   <% end %>
 
   <% if allowed_to?(:edit?, post) %>
@@ -231,8 +239,7 @@
               return_to: "#{request.fullpath}##{dom_id(post)}",
               modal: true,
               expanded: expanded
-            }
-      %>
+            } %>
     <% end %>
   <% end %>
 </div>
