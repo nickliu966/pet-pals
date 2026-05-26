@@ -1,0 +1,56 @@
+<div id="<%= dom_id(walk_event, :join_controls) %>">
+  <% unless walk_event.host_user == viewer %>
+    <% current_user_participants = walk_event.walk_participants.where(user: viewer) %>
+    <% already_joined = current_user_participants.exists? %>
+    <% eligible_pets = walk_event.eligible_pets_for(viewer) %>
+
+    <% if eligible_pets.any? || !already_joined %>
+      <h3>Join this walk</h3>
+
+      <%= form_with url: walk_participants_path, method: :post do %>
+        <%= hidden_field_tag "walk_participant[walk_event_id]", walk_event.id %>
+
+        <% if return_to.present? %>
+          <%= hidden_field_tag :return_to, return_to %>
+        <% end %>
+
+        <% if eligible_pets.any? %>
+          <div class="border rounded p-3 mb-3">
+            <div class="form-label">
+              Pets you are bringing
+            </div>
+
+            <% eligible_pets.each do |pet| %>
+              <div class="form-check">
+                <%= check_box_tag "walk_participant[pet_ids][]",
+                      pet.id,
+                      false,
+                      id: "walk_participant_pet_ids_#{pet.id}",
+                      class: "form-check-input" %>
+
+                <%= label_tag "walk_participant_pet_ids_#{pet.id}",
+                      pet.name,
+                      class: "form-check-label" %>
+              </div>
+            <% end %>
+
+            <div class="form-text">
+              Optional. Leave all unchecked if you are joining without a pet.
+            </div>
+          </div>
+        <% else %>
+          <p class="text-muted">
+            You can join this walk without bringing a pet.
+          </p>
+        <% end %>
+
+        <%= submit_tag already_joined ? "Add selected pets" : "Join walk",
+              class: "btn btn-primary" %>
+      <% end %>
+    <% else %>
+      <p class="text-muted">
+        You are already joining this walk.
+      </p>
+    <% end %>
+  <% end %>
+</div>
