@@ -114,28 +114,9 @@
   </div>
 
   <div class="px-3 pb-3">
-    <% like = current_user.likes.find_by(post: post) %>
-
     <div class="d-flex justify-content-between align-items-center mb-2">
       <div class="d-flex gap-3 align-items-center fs-4">
-        <div id="<%= dom_id(post, :like_button) %>">
-          <% if like.present? %>
-            <%= button_to like,
-            method: :delete,
-            class: "btn btn-link text-danger p-0 border-0 fs-4" do %>
-              <i class="fa-solid fa-heart"></i>
-            <% end %>
-          <% else %>
-            <%= form_with(model: Like.new) do |form| %>
-              <%= form.hidden_field :post_id, value: post.id %>
-
-              <button type="submit"
-                class="btn btn-link text-dark p-0 border-0 fs-4">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            <% end %>
-          <% end %>
-        </div>
+        <%= render "posts/like_button", post: post %>
 
         <% if expanded %>
           <%= link_to "##{dom_id(post, :comment_form)}",
@@ -202,9 +183,7 @@
       <% end %>
     </div>
 
-    <div id="<%= dom_id(post, :likes_count) %>" class="fw-bold mb-1">
-      <%= pluralize(post.likes_count, "like") %>
-    </div>
+    <%= render "posts/likes_count", post: post %>
 
     <% if post.body.present? %>
       <div class="mb-1">
@@ -232,7 +211,7 @@
     </ul>
 
     <%= render "comments/expanded_form", post: post %>
-  
+
   <% else %>
     <%= render "posts/comments_modal",
           post: post,

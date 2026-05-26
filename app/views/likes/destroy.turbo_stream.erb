@@ -1,0 +1,15 @@
+<%= turbo_stream.replace dom_id(@post, :like_button),
+      partial: "posts/like_button",
+      locals: { post: @post } %>
+
+<%= turbo_stream.replace dom_id(@post, :likes_count),
+      partial: "posts/likes_count",
+      locals: { post: @post } %>
+
+<%= turbo_stream.replace dom_id(@post, :modal_likes_count),
+      partial: "posts/likes_count",
+      locals: {
+        post: @post,
+        target_id: dom_id(@post, :modal_likes_count),
+        class_name: "fw-bold mb-2"
+      } %>
