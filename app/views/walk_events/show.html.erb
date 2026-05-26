@@ -112,8 +112,9 @@
 <% if @walk_event.posts.any? %>
   <ul class="list-group list-group-flush">
     <%= render partial: "posts/post",
-          collection: @walk_event.posts.default_order,
-          layout: "layouts/list_group" %>
+      collection: @walk_event.posts.default_order,
+      layout: "layouts/list_group",
+      locals: { render_edit_modal: false } %>
   </ul>
 <% else %>
   <p class="text-muted">

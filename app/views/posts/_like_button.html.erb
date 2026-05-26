@@ -1,6 +1,6 @@
 <div id="<%= dom_id(post, :like_button) %>">
   <% like =
-     if defined?(@current_user_likes_by_post_id) && @current_user_likes_by_post_id.present?
+     if defined?(@current_user_likes_by_post_id) && !@current_user_likes_by_post_id.nil?
        @current_user_likes_by_post_id[post.id]
      else
        current_user.likes.find_by(post: post)
