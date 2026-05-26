@@ -1,13 +1,38 @@
 <div id="<%= dom_id(comment, :modal) %>" class="mb-3">
-  <strong>
-    <%= link_to comment.author.username,
-          user_path(comment.author.username),
-          class: "text-dark text-decoration-none" %>
-  </strong>
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <strong>
+        <%= link_to comment.author.username,
+              user_path(comment.author.username),
+              class: "text-dark text-decoration-none" %>
+      </strong>
 
-  <%= comment.body %>
+      <%= comment.body %>
 
-  <div class="small text-muted">
-    <%= time_ago_in_words(comment.created_at) %> ago
+      <div class="small text-muted">
+        <%= time_ago_in_words(comment.created_at) %> ago
+      </div>
+    </div>
+
+    <% if current_user == comment.author %>
+      <div class="dropdown">
+        <%= button_tag class: "btn btn-sm btn-link text-decoration-none",
+            data: { bs_toggle: "dropdown" },
+            aria: { expanded: false } do %>
+          <i class="fa-solid fa-ellipsis"></i>
+        <% end %>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <%= button_to comment_path(comment),
+                method: :delete,
+                params: { expanded: false },
+                class: "dropdown-item text-danger" do %>
+              Delete
+            <% end %>
+          </li>
+        </ul>
+      </div>
+    <% end %>
   </div>
 </div>
