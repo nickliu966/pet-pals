@@ -229,8 +229,10 @@
             form_locals: {
               post: post,
               return_to: "#{request.fullpath}##{dom_id(post)}",
-              modal: true
-            } %>
+              modal: true,
+              expanded: expanded
+            }
+      %>
     <% end %>
   <% end %>
 </div>
