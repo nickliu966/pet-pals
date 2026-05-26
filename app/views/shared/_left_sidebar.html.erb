@@ -1,0 +1,74 @@
+<aside class="left-sidebar">
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="fw-bold">
+        <%= link_to current_user.username,
+              user_path(current_user.username),
+              class: "text-decoration-none" %>
+      </div>
+
+      <% if current_user.display_name.present? %>
+        <div class="text-muted small">
+          <%= current_user.display_name %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="list-group mb-3">
+    <%= button_tag type: "button",
+      class: "list-group-item list-group-item-action text-start",
+      data: { bs_toggle: "modal", bs_target: "#new_post_modal" } do %>
+      <i class="fa-solid fa-square-plus me-2"></i>
+        Create post
+    <% end %>
+
+    <%= link_to users_path, class: "list-group-item list-group-item-action" do %>
+      <i class="fa-solid fa-magnifying-glass me-2"></i>
+        Search
+    <% end %>
+
+    <% notifications_read_at = current_user.notifications_read_at || Time.at(0) %>
+
+    <% notification_count =
+     current_user.pending_received_user_friendships.where("created_at > ?", notifications_read_at).count +
+     PetFriendship.pending.where(receiver_pet: current_user.pets).where("created_at > ?", notifications_read_at).count +
+     Like.where(post: current_user.posts).where.not(fan: current_user).where("created_at > ?", notifications_read_at).count +
+     Comment.where(post: current_user.posts).where.not(author: current_user).where("created_at > ?", notifications_read_at).count %>
+    <%= link_to notifications_path,
+      class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>
+      <span>
+        <i class="fa-solid fa-bell me-2"></i>
+          Notifications
+      </span>
+
+      <% if notification_count.positive? %>
+        <span class="badge text-bg-primary rounded-pill">
+          <%= notification_count %>
+        </span>
+      <% end %>
+    <% end %>
+
+    <%= link_to user_pets_path(current_user.username), class: "list-group-item list-group-item-action" do %>
+      <i class="fa-solid fa-paw me-2"></i>
+        My pets
+    <% end %>
+
+    <%= link_to my_events_path,
+      class: "list-group-item list-group-item-action" do %>
+      <i class="fa-solid fa-calendar-days me-2"></i>
+        My events
+    <% end %>
+
+    <%= link_to user_path(current_user.username), class: "list-group-item list-group-item-action" do %>
+      <i class="fa-solid fa-circle-user me-2"></i>
+        Profile
+    <% end %>
+  </div>
+
+  <%= button_to destroy_user_session_path,
+        method: :delete,
+        class: "btn btn-outline-secondary w-100" do %>
+    Sign out
+  <% end %>
+</aside>

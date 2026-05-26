@@ -1,0 +1,42 @@
+<%= form_with(model: walk_participant) do |form| %>
+  <% if walk_participant.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(walk_participant.errors.count, "error") %> prohibited this walk_participant from being saved:</h2>
+
+      <ul>
+        <% walk_participant.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :walk_event_id, style: "display: block" %>
+    <%= form.text_field :walk_event_id %>
+  </div>
+
+  <div>
+    <%= form.label :user_id, style: "display: block" %>
+    <%= form.text_field :user_id %>
+  </div>
+
+  <div>
+    <%= form.label :pet_id, style: "display: block" %>
+    <%= form.text_field :pet_id %>
+  </div>
+
+  <div>
+    <%= form.label :status, style: "display: block" %>
+    <%= form.number_field :status %>
+  </div>
+
+  <div>
+    <%= form.label :joined_at, style: "display: block" %>
+    <%= form.datetime_field :joined_at %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

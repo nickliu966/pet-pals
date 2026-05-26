@@ -1,0 +1,212 @@
+<% content_for :title, "Notifications" %>
+
+<% request_count = @owner_requests.count + @pet_requests.count %>
+<% activity_count = @post_likes.count + @post_comments.count %>
+
+<h1 class="mb-4">Notifications</h1>
+
+<ul class="nav nav-pills mb-4" id="notification-tabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active"
+            id="requests-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#requests-pane"
+            type="button"
+            role="tab">
+      Requests
+      <span class="badge text-bg-secondary"><%= request_count %></span>
+    </button>
+  </li>
+
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"
+            id="activity-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#activity-pane"
+            type="button"
+            role="tab">
+      Post activity
+      <span class="badge text-bg-secondary"><%= activity_count %></span>
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="requests-pane" role="tabpanel">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Owner requests</span>
+        <span class="badge text-bg-secondary"><%= @owner_requests.count %></span>
+      </div>
+
+      <div class="list-group list-group-flush">
+        <% @owner_requests.each do |friendship| %>
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <%= link_to friendship.requester.username,
+                      user_path(friendship.requester.username),
+                      class: "text-decoration-none fw-bold" %>
+                wants to be your friend.
+
+                <% if friendship.requester.display_name.present? %>
+                  <div class="text-muted small">
+                    <%= friendship.requester.display_name %>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="d-flex gap-2">
+                <%= button_to "Accept",
+                      user_friendship_path(friendship),
+                      method: :patch,
+                      params: { user_friendship: { status: "accepted" } },
+                      class: "btn btn-primary btn-sm" %>
+
+                <%= button_to "Decline",
+                      user_friendship_path(friendship),
+                      method: :patch,
+                      params: { user_friendship: { status: "declined" } },
+                      class: "btn btn-outline-secondary btn-sm" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @owner_requests.empty? %>
+          <div class="list-group-item text-muted">
+            No owner requests.
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Pet requests</span>
+        <span class="badge text-bg-secondary"><%= @pet_requests.count %></span>
+      </div>
+
+      <div class="list-group list-group-flush">
+        <% @pet_requests.each do |friendship| %>
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <%= link_to friendship.requester_pet.name,
+                      pet_path(friendship.requester_pet),
+                      class: "text-decoration-none fw-bold" %>
+                wants to be friends with
+                <%= link_to friendship.receiver_pet.name,
+                      pet_path(friendship.receiver_pet),
+                      class: "text-decoration-none fw-bold" %>.
+
+                <div class="text-muted small">
+                  requested by <%= friendship.requested_by_user.username %>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <%= button_to "Accept",
+                      pet_friendship_path(friendship),
+                      method: :patch,
+                      params: { pet_friendship: { status: "accepted" } },
+                      class: "btn btn-primary btn-sm" %>
+
+                <%= button_to "Decline",
+                      pet_friendship_path(friendship),
+                      method: :patch,
+                      params: { pet_friendship: { status: "declined" } },
+                      class: "btn btn-outline-secondary btn-sm" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @pet_requests.empty? %>
+          <div class="list-group-item text-muted">
+            No pet requests.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="activity-pane" role="tabpanel">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Likes on your posts</span>
+        <span class="badge text-bg-secondary"><%= @post_likes.count %></span>
+      </div>
+
+      <div class="list-group list-group-flush">
+        <% @post_likes.each do |like| %>
+          <%= link_to post_path(like.post),
+                class: "list-group-item list-group-item-action" do %>
+            <div class="d-flex align-items-center">
+              <% if like.fan.avatar_image.attached? %>
+                <%= image_tag like.fan.avatar_image,
+                      class: "rounded-circle me-3",
+                      style: "width: 44px; height: 44px; object-fit: cover;" %>
+              <% else %>
+                <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center me-3"
+                     style="width: 44px; height: 44px;">
+                  <%= like.fan.username.first.upcase %>
+                </div>
+              <% end %>
+
+              <div>
+                <span class="fw-bold"><%= like.fan.username %></span>
+                liked your post.
+
+                <div class="text-muted small">
+                  <%= time_ago_in_words(like.created_at) %> ago
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if @post_likes.empty? %>
+          <div class="list-group-item text-muted">
+            No likes yet.
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Comments on your posts</span>
+        <span class="badge text-bg-secondary"><%= @post_comments.count %></span>
+      </div>
+
+      <div class="list-group list-group-flush">
+        <% @post_comments.each do |comment| %>
+          <%= link_to post_path(comment.post),
+                class: "list-group-item list-group-item-action" do %>
+            <div>
+              <div>
+                <span class="fw-bold"><%= comment.author.username %></span>
+                commented on your post.
+              </div>
+
+              <div class="text-muted small mb-1">
+                <%= time_ago_in_words(comment.created_at) %> ago
+              </div>
+
+              <div>
+                <%= truncate(comment.body, length: 90) %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if @post_comments.empty? %>
+          <div class="list-group-item text-muted">
+            No comments yet.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

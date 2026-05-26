@@ -1,0 +1,26 @@
+<% modal_size = local_assigns.fetch(:modal_size, "modal-lg") %>
+<% modal_id = local_assigns.fetch(:modal_id, dom_id(record, :form_modal)) %>
+
+<div class="modal fade"
+     id="<%= modal_id %>"
+     tabindex="-1"
+     aria-hidden="true">
+  <div class="modal-dialog <%= modal_size %> modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <%= title %>
+        </h5>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <%= render form_partial, form_locals %>
+      </div>
+    </div>
+  </div>
+</div>

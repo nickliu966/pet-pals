@@ -46,7 +46,7 @@
     "erb": "html"
   },
   "[ruby]": {
-    "editor.defaultFormatter": "mbessey.vscode-rufo",
+    "editor.defaultFormatter": "baer1.vscode-rufo-fork",
     "editor.formatOnSave": false
   },
   "[erb]": {

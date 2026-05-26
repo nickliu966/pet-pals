@@ -1,0 +1,135 @@
+<div class="fs-5 border-bottom mb-3">
+  <%= link_to user_pets_path(@pet.user.username), class: "text-decoration-none" do %>
+    ← Back to <%= @pet.user.username %>'s pets
+  <% end %>
+</div>
+
+<div class="card mb-4">
+  <% if @pet.image_url.present? %>
+    <%= image_tag @pet.image_url,
+          class: "card-img-top",
+          style: "height: 360px; object-fit: cover;" %>
+  <% end %>
+
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h1 class="card-title mb-1">
+          <%= @pet.name %>
+        </h1>
+
+        <p class="text-muted mb-2">
+          Owned by
+          <%= link_to @pet.user.username,
+                user_path(@pet.user.username),
+                class: "text-decoration-none" %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Species:</strong>
+          <%= @pet.species %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Breed:</strong>
+          <%= @pet.breed %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Gender:</strong>
+          <%= @pet.gender %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Size:</strong>
+          <%= @pet.size %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Energy level:</strong>
+          <%= @pet.energy_level %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Temperament:</strong>
+          <%= @pet.temperament %>
+        </p>
+
+        <p class="mb-1">
+          <strong>Vaccinated:</strong>
+          <%= @pet.vaccinated? ? "Yes" : "No" %>
+        </p>
+
+        <% if @pet.bio.present? %>
+          <p class="mt-2 mb-0">
+            <%= @pet.bio %>
+          </p>
+        <% end %>
+      </div>
+
+      <div>
+        <% if allowed_to?(:edit?, @pet) %>
+          <div class="dropdown">
+            <%= button_tag class: "btn btn-link text-decoration-none",
+                  data: { bs_toggle: "dropdown" },
+                  aria: { expanded: false } do %>
+              <i class="fa-solid fa-ellipsis"></i>
+            <% end %>
+
+            <ul class="dropdown-menu">
+              <li>
+                <button type="button"
+                        class="dropdown-item"
+                        data-bs-toggle="modal"
+                        data-bs-target="#<%= dom_id(@pet, :form_modal) %>">
+                  Edit
+                </button>
+              </li>
+
+              <li>
+                <%= button_to pet_path(@pet),
+                      method: :delete,
+                      class: "dropdown-item text-danger" do %>
+                  Delete
+                <% end %>
+              </li>
+            </ul>
+          </div>
+        <% else %>
+          <%= render "pet_friendships/pet_friend_button", pet: @pet %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>Posts with <%= @pet.name %></h3>
+
+<ul class="list-group list-group-flush mb-4">
+  <%= render partial: "posts/post",
+             collection: @pet.posts,
+             layout: "layouts/list_group" %>
+</ul>
+
+<h3>Walks hosted by <%= @pet.name %></h3>
+
+<ul class="list-group list-group-flush">
+  <%= render partial: "walk_events/walk_event",
+             collection: @pet.hosted_walk_events,
+             layout: "layouts/list_group" %>
+</ul>
+
+<% if allowed_to?(:edit?, @pet) %>
+  <% content_for :modals do %>
+    <%= render "shared/form_modal",
+          record: @pet,
+          modal_id: dom_id(@pet, :form_modal),
+          title: "Edit pet",
+          form_partial: "pets/form",
+          form_locals: {
+            pet: @pet,
+            return_to: request.fullpath,
+            modal: true
+          } %>
+  <% end %>
+<% end %>

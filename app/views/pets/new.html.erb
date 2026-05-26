@@ -1,0 +1,15 @@
+<% content_for :title, "New pet" %>
+
+<div class="card">
+  <div class="card-header">
+    New pet
+  </div>
+
+  <div class="card-body">
+    <%= render "form", pet: @pet %>
+  </div>
+</div>
+
+<%= link_to "Back to my pets",
+    user_pets_path(current_user.username),
+    class: "btn btn-outline-secondary" %>

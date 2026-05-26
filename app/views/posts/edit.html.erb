@@ -1,0 +1,9 @@
+<% content_for :title, "Edit post" %>
+
+<h1>Editing post</h1>
+
+<div class="card">
+  <div class="card-body">
+    <%= render "form", post: @post, return_to: params[:return_to] %>
+  </div>
+</div>

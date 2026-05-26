@@ -1,0 +1,166 @@
+<%= form_with(model: walk_event) do |form| %>
+  <% return_to = local_assigns[:return_to] %>
+  <% modal = local_assigns.fetch(:modal, false) %>
+
+  <% if return_to.present? %>
+    <%= hidden_field_tag :return_to, return_to %>
+  <% end %>
+
+  <% if walk_event.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% walk_event.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% host_user = walk_event.host_user || current_user %>
+
+  <% selected_host_pet_ids =
+       if walk_event.persisted?
+         walk_event.walk_participants
+                   .where(user: host_user)
+                   .where.not(pet_id: nil)
+                   .pluck(:pet_id)
+       else
+         []
+       end %>
+
+  <div class="form-group mb-3">
+    <label class="form-label">Pets you are bringing</label>
+
+    <div class="border rounded p-2">
+      <% if current_user.pets.any? %>
+        <% current_user.pets.each do |pet| %>
+          <div class="form-check">
+            <%= check_box_tag "walk_event[host_pet_ids][]",
+                  pet.id,
+                  selected_host_pet_ids.include?(pet.id),
+                  id: "walk_event_host_pet_ids_#{pet.id}",
+                  class: "form-check-input" %>
+
+            <%= label_tag "walk_event_host_pet_ids_#{pet.id}",
+                  pet.name,
+                  class: "form-check-label" %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-muted">
+          You have not added any pets yet.
+        </div>
+      <% end %>
+    </div>
+
+    <div class="form-text">
+      Optional. You can host a walk without bringing a pet.
+    </div>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :title %>
+    <%= form.text_field :title,
+          class: "form-control",
+          placeholder: "Evening walk at the park" %>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :note %>
+    <%= form.text_area :note,
+          class: "form-control",
+          rows: 3,
+          placeholder: "Any details about the walk?" %>
+  </div>
+
+  <div class="form-group mb-3"
+       data-controller="google-search">
+    <%= form.label :location_name, "Search location" %>
+
+    <div class="form-control mb-2"
+         data-google-search-target="searchBox">
+    </div>
+
+    <div data-google-search-target="map"
+         class="border rounded mb-2"
+         style="height: 240px;">
+    </div>
+
+    <%= form.text_field :location_name,
+          class: "form-control",
+          placeholder: "Selected location",
+          data: { google_search_target: "locationName" } %>
+
+    <%= form.hidden_field :latitude,
+          data: { google_search_target: "latitude" } %>
+
+    <%= form.hidden_field :longitude,
+          data: { google_search_target: "longitude" } %>
+
+    <%= form.hidden_field :google_place_id,
+          data: { google_search_target: "placeId" } %>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :start_time %>
+    <%= form.datetime_field :start_time,
+          class: "form-control" %>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :duration_minutes %>
+    <%= form.number_field :duration_minutes,
+          class: "form-control",
+          min: 1,
+          placeholder: "60" %>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :visibility %>
+
+    <%= form.select :visibility,
+          options_for_select(
+            WalkEvent.visibilities.keys.map { |visibility| [visibility.humanize, visibility] },
+            walk_event.visibility
+          ),
+          {},
+          class: "form-select" %>
+  </div>
+
+  <div class="form-group mb-3">
+    <%= form.label :max_participants, "Max participants" %>
+
+    <%= form.number_field :max_participants,
+          class: "form-control",
+          min: 1,
+          placeholder: "Leave blank for no limit" %>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2">
+    <% if modal %>
+      <button type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal">
+        Cancel
+      </button>
+    <% elsif walk_event.persisted? %>
+      <% cancel_path =
+           if return_to.present? && return_to.start_with?("/")
+             return_to
+           else
+             walk_event_path(walk_event)
+           end %>
+
+      <%= link_to "Cancel",
+            cancel_path,
+            class: "btn btn-outline-secondary" %>
+    <% else %>
+      <%= link_to "Cancel",
+            walk_events_path,
+            class: "btn btn-outline-secondary" %>
+    <% end %>
+
+    <%= form.submit walk_event.persisted? ? "Update walk" : "Create walk",
+          class: "btn btn-primary" %>
+  </div>
+<% end %>

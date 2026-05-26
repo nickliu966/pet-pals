@@ -1,0 +1,5 @@
+<%= form_with(model: user_friendship) do |form| %>
+  <%= form.hidden_field :receiver_id %>
+
+  <%= form.submit "Add friend", class: "btn btn-primary btn-sm" %>
+<% end %>

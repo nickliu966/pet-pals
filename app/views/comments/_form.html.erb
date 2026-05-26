@@ -1,0 +1,20 @@
+<%= form_with(model: comment) do |form| %>
+  <% if comment.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% comment.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group mb-2">
+    <%= form.label :body, "Comment", class: "visually-hidden" %>
+    <%= form.text_area :body, class: "form-control", placeholder: "Add a comment..." %>
+  </div>
+
+  <div>
+    <%= form.submit "Save comment", class: "btn btn-primary" %>
+  </div>
+<% end %>

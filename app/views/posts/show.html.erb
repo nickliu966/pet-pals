@@ -1,0 +1,9 @@
+<div class="fs-5 border-bottom mb-3">
+  <%= link_to posts_path, class: "text-decoration-none" do %>
+    ← Back to home
+  <% end %>
+</div>
+
+<%= render partial: "posts/post",
+      locals: { post: @post, expanded: true },
+      layout: "layouts/list_group" %>

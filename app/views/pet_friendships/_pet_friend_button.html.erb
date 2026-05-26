@@ -1,0 +1,46 @@
+<% my_pets = current_user.pets %>
+<% sent_friendship = PetFriendship.where(requester_pet: my_pets, receiver_pet: pet).first %>
+<% received_friendship = PetFriendship.where(requester_pet: pet, receiver_pet: my_pets).first %>
+<% friendship = sent_friendship || received_friendship %>
+
+<% if my_pets.any? %>
+  <% if friendship.present? && friendship.pending? %>
+    <% if sent_friendship.present? %>
+      <%= button_to "Requested",
+            pet_friendship_path(friendship),
+            method: :delete,
+            class: "btn btn-outline-primary rounded-pill" %>
+    <% else %>
+      <%= link_to "Respond",
+            pet_friendships_path,
+            class: "btn btn-outline-primary rounded-pill" %>
+    <% end %>
+
+  <% elsif friendship.present? && friendship.accepted? %>
+    <%= button_to "Pet Friends",
+          pet_friendship_path(friendship),
+          method: :delete,
+          class: "btn btn-primary rounded-pill" %>
+
+  <% else %>
+    <%= form_with(model: PetFriendship.new) do |form| %>
+      <div class="d-flex gap-2 align-items-center">
+        <%= form.collection_select :requester_pet_id,
+              my_pets,
+              :id,
+              :name,
+              {},
+              class: "form-select form-select-sm" %>
+
+        <%= form.hidden_field :receiver_pet_id, value: pet.id %>
+
+        <%= form.submit "Add to friend zone",
+              class: "btn btn-primary rounded-pill btn-sm" %>
+      </div>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= link_to "Create a pet first",
+        new_pet_path,
+        class: "btn btn-outline-primary rounded-pill btn-sm" %>
+<% end %>

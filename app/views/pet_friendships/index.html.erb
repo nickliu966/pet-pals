@@ -1,0 +1,208 @@
+<% content_for :title, "Pet Friends" %>
+
+<h1 class="mb-4">Pet Friends</h1>
+
+<h3 class="mt-4">Pending pet requests</h3>
+
+<ul class="list-group list-group-flush mb-4">
+  <% current_user.pets.each do |pet| %>
+    <% pet.received_pet_friendships.pending.each do |friendship| %>
+      <% requester_pet = friendship.requester_pet %>
+
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <% if requester_pet.image_url.present? %>
+              <%= image_tag requester_pet.image_url,
+                    class: "rounded-circle me-3",
+                    style: "width: 52px; height: 52px; object-fit: cover;" %>
+            <% end %>
+
+            <div>
+              <div>
+                <%= link_to requester_pet.name,
+                      pet_path(requester_pet),
+                      class: "text-decoration-none" %>
+              </div>
+
+              <div class="small text-muted">
+                <%= requester_pet.species %>
+                <% if requester_pet.breed.present? %>
+                  · <%= requester_pet.breed %>
+                <% end %>
+              </div>
+
+              <div class="small">
+                wants to be friends with
+                <%= link_to friendship.receiver_pet.name,
+                      pet_path(friendship.receiver_pet),
+                      class: "text-decoration-none" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <%= button_to "Accept",
+                  pet_friendship_path(friendship),
+                  method: :patch,
+                  params: { pet_friendship: { status: "accepted" } },
+                  class: "btn btn-sm btn-primary" %>
+
+            <%= button_to "Decline",
+                  pet_friendship_path(friendship),
+                  method: :patch,
+                  params: { pet_friendship: { status: "declined" } },
+                  class: "btn btn-sm btn-outline-secondary" %>
+          </div>
+        </div>
+      </li>
+    <% end %>
+  <% end %>
+</ul>
+
+<h3>Sent pet requests</h3>
+
+<ul class="list-group list-group-flush mb-4">
+  <% current_user.pets.each do |pet| %>
+    <% pet.sent_pet_friendships.pending.each do |friendship| %>
+      <% receiver_pet = friendship.receiver_pet %>
+
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <% if receiver_pet.image_url.present? %>
+              <%= image_tag receiver_pet.image_url,
+                    class: "rounded-circle me-3",
+                    style: "width: 52px; height: 52px; object-fit: cover;" %>
+            <% end %>
+
+            <div>
+              <div>
+                <%= link_to receiver_pet.name,
+                      pet_path(receiver_pet),
+                      class: "text-decoration-none" %>
+              </div>
+
+              <div class="small text-muted">
+                <%= receiver_pet.species %>
+                <% if receiver_pet.breed.present? %>
+                  · <%= receiver_pet.breed %>
+                <% end %>
+              </div>
+
+              <div class="small">
+                requested by
+                <%= link_to friendship.requester_pet.name,
+                      pet_path(friendship.requester_pet),
+                      class: "text-decoration-none" %>
+              </div>
+            </div>
+          </div>
+
+          <%= button_to "Cancel",
+                pet_friendship_path(friendship),
+                method: :delete,
+                class: "btn btn-sm btn-outline-danger" %>
+        </div>
+      </li>
+    <% end %>
+  <% end %>
+</ul>
+
+<h3>Your pets' friend zones</h3>
+
+<% current_user.pets.each do |pet| %>
+  <div class="mb-4">
+    <h5>
+      <%= link_to pet.name, pet_path(pet), class: "text-decoration-none" %>
+    </h5>
+
+    <ul class="list-group list-group-flush">
+      <% pet.sent_pet_friendships.accepted.each do |friendship| %>
+        <% friend_pet = friendship.receiver_pet %>
+
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <% if friend_pet.image_url.present? %>
+                <%= image_tag friend_pet.image_url,
+                      class: "rounded-circle me-3",
+                      style: "width: 52px; height: 52px; object-fit: cover;" %>
+              <% end %>
+
+              <div>
+                <div>
+                  <%= link_to friend_pet.name,
+                        pet_path(friend_pet),
+                        class: "text-decoration-none" %>
+                </div>
+
+                <div class="small text-muted">
+                  <%= friend_pet.species %>
+                  <% if friend_pet.breed.present? %>
+                    · <%= friend_pet.breed %>
+                  <% end %>
+                </div>
+
+                <div class="small">
+                  owned by
+                  <%= link_to friend_pet.user.username,
+                        user_path(friend_pet.user.username),
+                        class: "text-decoration-none" %>
+                </div>
+              </div>
+            </div>
+
+            <%= button_to "Remove",
+                  pet_friendship_path(friendship),
+                  method: :delete,
+                  class: "btn btn-sm btn-outline-danger" %>
+          </div>
+        </li>
+      <% end %>
+
+      <% pet.received_pet_friendships.accepted.each do |friendship| %>
+        <% friend_pet = friendship.requester_pet %>
+
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <% if friend_pet.image_url.present? %>
+                <%= image_tag friend_pet.image_url,
+                      class: "rounded-circle me-3",
+                      style: "width: 52px; height: 52px; object-fit: cover;" %>
+              <% end %>
+
+              <div>
+                <div>
+                  <%= link_to friend_pet.name,
+                        pet_path(friend_pet),
+                        class: "text-decoration-none" %>
+                </div>
+
+                <div class="small text-muted">
+                  <%= friend_pet.species %>
+                  <% if friend_pet.breed.present? %>
+                    · <%= friend_pet.breed %>
+                  <% end %>
+                </div>
+
+                <div class="small">
+                  owned by
+                  <%= link_to friend_pet.user.username,
+                        user_path(friend_pet.user.username),
+                        class: "text-decoration-none" %>
+                </div>
+              </div>
+            </div>
+
+            <%= button_to "Remove",
+                  pet_friendship_path(friendship),
+                  method: :delete,
+                  class: "btn btn-sm btn-outline-danger" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

@@ -1,0 +1,15 @@
+<% content_for :title, "New walk event" %>
+
+<div class="card">
+  <div class="card-header">
+    New walk event
+  </div>
+
+  <div class="card-body">
+    <%= render "form", walk_event: @walk_event %>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "Back to walks", walk_events_path, class: "btn btn-outline-secondary" %>
+</div>

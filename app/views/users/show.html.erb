@@ -1,0 +1,181 @@
+<% content_for :title, @user.username %>
+
+<% can_view_private_content = allowed_to?(:show?, @user) %>
+
+<% posts_count = @user.posts.count %>
+<% pets_count = @user.pets.count %>
+<% followers_count = @user.friended_by_users.count %>
+<% following_count = @user.owner_friends.count %>
+
+<div class="card mb-4">
+  <% if @user.profile_banner.attached? %>
+    <%= image_tag @user.profile_banner,
+          class: "card-img-top",
+          style: "height: 180px; object-fit: cover;" %>
+  <% end %>
+
+  <div class="card-body">
+    <div class="d-flex gap-4 align-items-start">
+      <div>
+        <% if @user.avatar_image.attached? %>
+          <%= image_tag @user.avatar_image,
+                class: "rounded-circle border",
+                style: "width: 110px; height: 110px; object-fit: cover;" %>
+        <% else %>
+          <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center"
+               style="width: 110px; height: 110px; font-size: 36px;">
+            <%= @user.username.first.upcase %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h1 class="mb-0">
+              <%= @user.username %>
+            </h1>
+
+            <% if @user.display_name.present? %>
+              <div class="text-muted">
+                <%= @user.display_name %>
+              </div>
+            <% end %>
+          </div>
+
+          <div>
+            <% if @user == current_user %>
+              <button type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editProfileModal">
+                Edit profile
+              </button>
+            <% else %>
+              <% sent_friendship = current_user.sent_user_friendships.find_by(receiver: @user) %>
+              <% received_friendship = current_user.received_user_friendships.find_by(requester: @user) %>
+              <% friendship = sent_friendship || received_friendship %>
+
+              <% if friendship.present? && friendship.accepted? %>
+                <%= button_to "Friends",
+                      user_friendship_path(friendship),
+                      method: :delete,
+                      class: "btn btn-primary btn-sm" %>
+              <% elsif friendship.present? && friendship.pending? %>
+                <% if sent_friendship.present? %>
+                  <%= button_to "Requested",
+                        user_friendship_path(friendship),
+                        method: :delete,
+                        class: "btn btn-outline-secondary btn-sm" %>
+                <% else %>
+                  <%= link_to "Respond",
+                        notifications_path,
+                        class: "btn btn-outline-primary btn-sm" %>
+                <% end %>
+              <% else %>
+                <%= button_to "Add friend",
+                      user_friendships_path,
+                      method: :post,
+                      params: { user_friendship: { receiver_id: @user.id } },
+                      class: "btn btn-primary btn-sm" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <% if can_view_private_content %>
+          <div class="d-flex gap-4 mb-3">
+            <div>
+              <strong><%= posts_count %></strong>
+              <span class="text-muted">posts</span>
+            </div>
+
+            <div>
+              <%= link_to user_pets_path(@user.username), class: "text-decoration-none text-dark" do %>
+                <strong><%= pets_count %></strong>
+                <span class="text-muted">pets</span>
+              <% end %>
+            </div>
+
+            <div>
+              <%= link_to followers_path(@user.username), class: "text-decoration-none text-dark" do %>
+                <strong><%= followers_count %></strong>
+                <span class="text-muted">followers</span>
+              <% end %>
+            </div>
+
+            <div>
+              <%= link_to follows_path(@user.username), class: "text-decoration-none text-dark" do %>
+                <strong><%= following_count %></strong>
+                <span class="text-muted">following</span>
+              <% end %>
+            </div>
+          </div>
+
+          <% if @user.bio.present? %>
+            <div class="profile-bio">
+              <%= simple_format(@user.bio, class: "mb-0") %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-muted mt-2">
+            <i class="fa-solid fa-lock me-1"></i>
+            This account is private.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if can_view_private_content %>
+  <h3>Posts</h3>
+
+  <ul class="list-group list-group-flush">
+    <%= render partial: "posts/post",
+               collection: @user.posts.default_order,
+               layout: "layouts/list_group" %>
+  </ul>
+<% else %>
+  <div class="card">
+    <div class="card-body text-center text-muted">
+      <div class="mb-2">
+        <i class="fa-solid fa-lock fa-lg"></i>
+      </div>
+
+      <div>
+        This account is private.
+      </div>
+
+      <div class="small">
+        Add them as a friend to see their posts and pets.
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if @user == current_user %>
+  <% content_for :modals do %>
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editProfileModalLabel">
+              Edit profile
+            </h5>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close">
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <%= render "users/profile_form", user: current_user %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -10,9 +10,119 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_13_202311) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_25_220136) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "author_id", null: false
+    t.bigint "post_id", null: false
+    t.text "body", null: false
+    t.integer "parent_comment_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_comments_on_author_id"
+    t.index ["post_id"], name: "index_comments_on_post_id"
+  end
+
+  create_table "likes", force: :cascade do |t|
+    t.bigint "fan_id", null: false
+    t.bigint "post_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fan_id"], name: "index_likes_on_fan_id"
+    t.index ["post_id"], name: "index_likes_on_post_id"
+  end
+
+  create_table "pet_friendships", force: :cascade do |t|
+    t.integer "requester_pet_id"
+    t.integer "receiver_pet_id"
+    t.integer "requested_by_user_id"
+    t.string "status", default: "pending", null: false
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "pets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.string "species"
+    t.string "breed"
+    t.string "gender"
+    t.date "birthday"
+    t.string "size"
+    t.string "energy_level"
+    t.string "temperament"
+    t.boolean "vaccinated"
+    t.boolean "neutered"
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "image_url"
+    t.index ["user_id"], name: "index_pets_on_user_id"
+  end
+
+  create_table "photos", force: :cascade do |t|
+    t.string "image"
+    t.text "caption"
+    t.bigint "owner_id", null: false
+    t.boolean "pinned", default: false, null: false
+    t.integer "comments_count", default: 0
+    t.integer "likes_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_photos_on_owner_id"
+  end
+
+  create_table "posts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "pet_id"
+    t.text "body"
+    t.string "visibility", default: "everyone", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "image_url"
+    t.integer "likes_count", default: 0, null: false
+    t.integer "comments_count", default: 0, null: false
+    t.string "location_name"
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.string "google_place_id"
+    t.bigint "walk_event_id"
+    t.index ["pet_id"], name: "index_posts_on_pet_id"
+    t.index ["user_id"], name: "index_posts_on_user_id"
+    t.index ["walk_event_id"], name: "index_posts_on_walk_event_id"
+  end
 
   create_table "solid_cable_messages", force: :cascade do |t|
     t.binary "channel", null: false
@@ -156,10 +266,91 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_13_202311) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "user_friendships", force: :cascade do |t|
+    t.integer "requester_id"
+    t.integer "receiver_id"
+    t.string "status", default: "pending", null: false
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.citext "username", null: false
+    t.citext "email"
+    t.text "bio"
+    t.string "city"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "private", default: false, null: false
+    t.integer "likes_count", default: 0, null: false
+    t.integer "comments_count", default: 0, null: false
+    t.integer "posts_count", default: 0, null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "display_name"
+    t.string "website"
+    t.datetime "notifications_read_at"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
+  create_table "walk_events", force: :cascade do |t|
+    t.bigint "host_user_id", null: false
+    t.bigint "host_pet_id", null: false
+    t.string "title", null: false
+    t.text "note"
+    t.string "location_name", null: false
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.datetime "start_time", null: false
+    t.integer "duration_minutes", null: false
+    t.string "visibility", default: "friends_of_either", null: false
+    t.integer "max_participants", default: 5, null: false
+    t.string "status", default: "scheduled", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "google_place_id"
+    t.index ["host_pet_id"], name: "index_walk_events_on_host_pet_id"
+    t.index ["host_user_id"], name: "index_walk_events_on_host_user_id"
+  end
+
+  create_table "walk_participants", force: :cascade do |t|
+    t.bigint "walk_event_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "pet_id"
+    t.string "status", default: "joined", null: false
+    t.datetime "joined_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pet_id"], name: "index_walk_participants_on_pet_id"
+    t.index ["user_id"], name: "index_walk_participants_on_user_id"
+    t.index ["walk_event_id"], name: "index_walk_participants_on_walk_event_id"
+  end
+
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "posts"
+  add_foreign_key "comments", "users", column: "author_id"
+  add_foreign_key "likes", "posts"
+  add_foreign_key "likes", "users", column: "fan_id"
+  add_foreign_key "pets", "users"
+  add_foreign_key "photos", "users", column: "owner_id"
+  add_foreign_key "posts", "pets"
+  add_foreign_key "posts", "users"
+  add_foreign_key "posts", "walk_events"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "walk_events", "pets", column: "host_pet_id"
+  add_foreign_key "walk_events", "users", column: "host_user_id"
+  add_foreign_key "walk_participants", "pets"
+  add_foreign_key "walk_participants", "users"
+  add_foreign_key "walk_participants", "walk_events"
 end

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Rails 8 Template" %></title>
+    <title><%= content_for(:title) || "PetPals" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -17,12 +17,52 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%= render 'shared/cdn_assets' %>
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <meta name="google_maps_api_key" content="<%= ENV.fetch("GOOGLE_MAPS_API_KEY", "") %>">
+
+    <script>
+      (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+        key: "<%= ENV.fetch("GOOGLE_MAPS_API_KEY", "") %>",
+        v: "weekly",
+      });
+    </script>
   </head>
 
   <body>
-    <%= yield %>
+    <%= render "shared/navbar" %>
+
+    <% if user_signed_in? %>
+      <div class="container app-shell-container">
+        <div class="app-layout">
+          <aside class="app-left">
+            <%= render "shared/left_sidebar" %>
+          </aside>
+
+          <main class="app-main">
+            <%= render "shared/flash" %>
+            <%= yield %>
+          </main>
+
+          <aside class="app-right">
+            <%= render "shared/right_sidebar" %>
+            <%= yield :right_sidebar %>
+          </aside>
+        </div>
+      </div>
+
+      <%= render "shared/post_modal" %>
+      <%= render "shared/quick_action_modals" %>
+    <% else %>
+      <main class="container py-4">
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </main>
+    <% end %>
+
+    <%= yield :modals %>
   </body>
 </html>

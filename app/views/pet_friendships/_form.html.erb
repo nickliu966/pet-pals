@@ -1,0 +1,6 @@
+<%= form_with(model: pet_friendship) do |form| %>
+  <%= form.hidden_field :requester_pet_id %>
+  <%= form.hidden_field :receiver_pet_id %>
+
+  <%= form.submit "Add to friend zone", class: "btn btn-primary btn-sm" %>
+<% end %>

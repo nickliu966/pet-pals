@@ -1,0 +1,14 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
+  <div class="container">
+    <%= link_to "PetPals", root_path, class: "navbar-brand fw-bold" %>
+
+    <% if user_signed_in? %>
+      <div class="navbar-nav ms-auto align-items-center">
+        <%= link_to "Home", root_path, class: "nav-link" %>
+        <%= link_to "Feed", feed_path, class: "nav-link" %>
+        <%= link_to "Walks", walk_events_path, class: "nav-link" %>
+        <%= link_to "Network", network_path, class: "nav-link" %>
+      </div>
+    <% end %>
+  </div>
+</nav>

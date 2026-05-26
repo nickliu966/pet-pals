@@ -1,0 +1,186 @@
+<%= form_with(model: post) do |form| %>
+  <% return_to = local_assigns[:return_to] %>
+  <% modal = local_assigns.fetch(:modal, false) %>
+
+  <% if return_to.present? %>
+    <%= hidden_field_tag :return_to, return_to %>
+  <% end %>
+
+  <% if post.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% post.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group mb-2">
+    <%= form.label :pet_id, "Featured pet" %>
+
+    <%= form.collection_select :pet_id,
+          current_user.pets,
+          :id,
+          :name,
+          { prompt: "None" },
+          class: "form-select" %>
+
+    <div class="form-text">
+      Leave blank for wildlife, park, or general posts.
+    </div>
+  </div>
+
+  <% fixed_walk_event = local_assigns[:walk_event] %>
+
+  <% if fixed_walk_event.present? %>
+    <%= form.hidden_field :walk_event_id, value: fixed_walk_event.id %>
+
+    <div class="alert alert-light border">
+      Posting to
+      <strong><%= fixed_walk_event.title %></strong>
+    </div>
+  <% else %>
+    <div class="form-text mb-2">
+      To link this post to a walk, find the walk from the Walks page and use “Share post.”
+    </div>
+  <% end %>
+
+  <div class="form-group mb-2">
+    <%= form.label :body, "Caption" %>
+    <%= form.text_area :body,
+          class: "form-control",
+          rows: 4,
+          placeholder: "What is happening?" %>
+  </div>
+
+  <div class="form-group mb-2">
+    <%= form.label :visibility %>
+
+    <%= form.select :visibility,
+        [
+          ["Everyone", "everyone"],
+          ["Owner friends only", "user_friends_only"],
+          ["Pet friends only", "pet_friends_only"],
+          ["Friends of either", "friends_of_either"]
+        ],
+        {},
+        class: "form-select" %>
+
+    <div class="form-text">
+      Choose who can see this post.
+    </div>
+  </div>
+
+  <% if post.respond_to?(:images) && post.images.attached? %>
+    <div class="mb-2">
+      <div class="form-label">Current photos</div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <% post.images.each do |image| %>
+          <%= image_tag image,
+                class: "rounded border",
+                style: "width: 96px; height: 96px; object-fit: cover;" %>
+        <% end %>
+      </div>
+    </div>
+  <% elsif post.respond_to?(:image) && post.image.attached? %>
+    <div class="mb-2">
+      <div class="form-label">Current photo</div>
+
+      <%= image_tag post.image,
+            class: "rounded border",
+            style: "width: 120px; height: 120px; object-fit: cover;" %>
+    </div>
+  <% elsif post.image_url.present? %>
+    <div class="mb-2">
+      <div class="form-label">Current image URL</div>
+
+      <%= image_tag post.image_url,
+            class: "rounded border",
+            style: "width: 120px; height: 120px; object-fit: cover;" %>
+    </div>
+  <% end %>
+
+  <div class="form-group mb-2">
+    <%= form.label :images, "Photos" %>
+
+    <%= form.file_field :images,
+          multiple: true,
+          class: "form-control",
+          accept: "image/*" %>
+
+    <div class="form-text">
+      You can select multiple photos.
+    </div>
+  </div>
+
+  <div class="form-group mb-3"
+       data-controller="google-search">
+    <%= form.label :location_name, "Location" %>
+
+    <div class="form-control mb-2"
+         data-google-search-target="searchBox">
+    </div>
+
+    <div data-google-search-target="map"
+         class="border rounded mb-2"
+         style="height: 180px;">
+    </div>
+
+    <%= form.text_field :location_name,
+          class: "form-control",
+          placeholder: "Selected location",
+          data: { google_search_target: "locationName" } %>
+
+    <%= form.hidden_field :latitude,
+          data: { google_search_target: "latitude" } %>
+
+    <%= form.hidden_field :longitude,
+          data: { google_search_target: "longitude" } %>
+
+    <%= form.hidden_field :google_place_id,
+          data: { google_search_target: "placeId" } %>
+  </div>
+
+  <div class="form-group mb-3">
+    <%= form.label :visibility %>
+    <%= form.select :visibility,
+          options_for_select(
+            Post.visibilities.keys.map { |visibility| [visibility.humanize, visibility] },
+            post.visibility
+          ),
+          {},
+          class: "form-select" %>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2">
+    <% if modal %>
+      <button type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal">
+        Cancel
+      </button>
+    <% elsif post.persisted? %>
+      <% cancel_path =
+         if return_to.present? && return_to.start_with?("/")
+           return_to
+         else
+           post_path(post)
+         end %>
+
+      <%= link_to "Cancel",
+          cancel_path,
+          class: "btn btn-outline-secondary" %>
+    <% else %>
+      <button type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal">
+        Cancel
+      </button>
+    <% end %>
+
+    <%= form.submit post.persisted? ? "Update post" : "Create post",
+        class: "btn btn-primary" %>
+  </div>
+<% end %>
