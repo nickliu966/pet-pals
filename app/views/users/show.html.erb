@@ -133,8 +133,9 @@
 
   <ul class="list-group list-group-flush">
     <%= render partial: "posts/post",
-           collection: @posts,
-           layout: "layouts/list_group" %>
+      collection: @posts,
+      layout: "layouts/list_group",
+      locals: { render_edit_modal: false } %>
   <% else %>
     <div class="card">
       <div class="card-body text-center text-muted">

@@ -1,6 +1,8 @@
 <div id="<%= dom_id(post) %>">
   <% expanded = local_assigns.fetch(:expanded, false) %>
+  <% render_edit_modal = local_assigns.fetch(:render_edit_modal, true) %>
   <% comments_modal_id = dom_id(post, :comments_modal) %>
+
   <% post_images = post.respond_to?(:images) ? post.images.to_a : [] %>
   <% post_comments =
        if post.comments.loaded?
@@ -150,12 +152,18 @@
           <% end %>
 
           <div class="dropdown-menu dropdown-menu-end p-0 post-actions-menu">
-            <button type="button"
-                    class="dropdown-item"
-                    data-bs-toggle="modal"
-                    data-bs-target="#<%= dom_id(post, :form_modal) %>">
-              Edit
-            </button>
+            <% if render_edit_modal %>
+              <button type="button"
+                      class="dropdown-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#<%= dom_id(post, :form_modal) %>">
+                Edit
+              </button>
+            <% else %>
+              <%= link_to "Edit",
+        edit_post_path(post, return_to: "#{request.fullpath}##{dom_id(post)}"),
+        class: "dropdown-item" %>
+            <% end %>
 
             <div class="dropdown-divider m-0"></div>
 
@@ -227,7 +235,7 @@
           modal_comments: post_comments %>
   <% end %>
 
-  <% if allowed_to?(:edit?, post) %>
+  <% if allowed_to?(:edit?, post) && render_edit_modal %>
     <% content_for :modals do %>
       <%= render "shared/form_modal",
             record: post,
