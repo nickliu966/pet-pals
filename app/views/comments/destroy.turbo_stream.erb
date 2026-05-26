@@ -1,5 +1,8 @@
-<%= turbo_stream.remove @comment %>
-<%= turbo_stream.remove dom_id(@comment, :modal) %>
+<% if @expanded %>
+  <%= turbo_stream.remove @comment %>
+<% else %>
+  <%= turbo_stream.remove dom_id(@comment, :modal) %>
+<% end %>
 
 <%= turbo_stream.replace dom_id(@post, :comments_summary),
       partial: "posts/comments_summary",
