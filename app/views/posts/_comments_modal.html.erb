@@ -1,3 +1,13 @@
+<% post_images = local_assigns.fetch(:post_images) { post.respond_to?(:images) ? post.images.to_a : [] } %>
+<% modal_comments =
+     local_assigns.fetch(:modal_comments) do
+       if post.comments.loaded?
+         post.comments.sort_by(&:created_at)
+       else
+         post.comments.default_order
+       end
+     end %>
+
 <div class="modal fade"
      id="<%= comments_modal_id %>"
      tabindex="-1"
@@ -12,15 +22,15 @@
                   class: "w-100",
                   style: "max-height: 80vh; object-fit: contain; background: black;" %>
 
-          <% elsif post.respond_to?(:images) && post.images.attached? %>
-            <% if post.images.count == 1 %>
-              <%= image_tag post.images.first,
+          <% elsif post_images.any? %>
+            <% if post_images.one? %>
+              <%= image_tag post_images.first,
                     class: "w-100",
                     style: "max-height: 80vh; object-fit: contain;" %>
             <% else %>
               <div id="<%= dom_id(post, :modal_images) %>" class="carousel slide w-100">
                 <div class="carousel-inner">
-                  <% post.images.each_with_index do |image, index| %>
+                  <% post_images.each_with_index do |image, index| %>
                     <div class="carousel-item <%= "active" if index == 0 %>">
                       <%= image_tag image,
                             class: "d-block w-100",
@@ -84,8 +94,8 @@
               <div class="mb-3">
                 <strong>
                   <%= link_to post.user.username,
-              user_path(post.user.username),
-              class: "text-dark text-decoration-none" %>
+                        user_path(post.user.username),
+                        class: "text-dark text-decoration-none" %>
                 </strong>
 
                 <%= post.body %>
@@ -93,7 +103,7 @@
             <% end %>
 
             <div id="<%= dom_id(post, :modal_comments) %>">
-              <% post.comments.default_order.each do |comment| %>
+              <% modal_comments.each do |comment| %>
                 <%= render "comments/modal_comment", comment: comment %>
               <% end %>
             </div>
