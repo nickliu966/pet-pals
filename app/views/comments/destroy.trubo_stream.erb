@@ -1,0 +1,10 @@
+<%= turbo_stream.remove @comment %>
+<%= turbo_stream.remove dom_id(@comment, :modal) %>
+
+<%= turbo_stream.replace dom_id(@post, :comments_summary),
+      partial: "posts/comments_summary",
+      locals: {
+        post: @post,
+        expanded: @expanded,
+        comments_modal_id: dom_id(@post, :comments_modal)
+      } %>

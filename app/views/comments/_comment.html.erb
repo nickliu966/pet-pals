@@ -34,6 +34,7 @@
           <li>
             <%= button_to comment_path(comment),
                 method: :delete,
+                params: { expanded: true },
                 class: "dropdown-item text-danger" do %>
               Delete
             <% end %>

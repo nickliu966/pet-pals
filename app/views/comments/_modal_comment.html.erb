@@ -1,0 +1,13 @@
+<div id="<%= dom_id(comment, :modal) %>" class="mb-3">
+  <strong>
+    <%= link_to comment.author.username,
+          user_path(comment.author.username),
+          class: "text-dark text-decoration-none" %>
+  </strong>
+
+  <%= comment.body %>
+
+  <div class="small text-muted">
+    <%= time_ago_in_words(comment.created_at) %> ago
+  </div>
+</div>

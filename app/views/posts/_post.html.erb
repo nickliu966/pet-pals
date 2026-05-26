@@ -219,36 +219,10 @@
     <% end %>
 
     <div id="<%= dom_id(post, :comments_summary) %>">
-      <% if post.comments.count > 0 %>
-        <% if expanded %>
-          <div class="text-muted mb-1">
-            <%= pluralize(post.comments.count, "comment") %>
-          </div>
-        <% else %>
-          <button type="button"
-              class="btn btn-link text-muted text-decoration-none p-0 mb-1"
-              data-bs-toggle="modal"
-              data-bs-target="#<%= comments_modal_id %>">
-            View all <%= pluralize(post.comments.count, "comment") %>
-          </button>
-        <% end %>
-      <% end %>
-
-      <% unless expanded %>
-        <% latest_comment = post.comments.default_order.first %>
-
-        <% if latest_comment.present? %>
-          <div class="small">
-            <strong>
-              <%= link_to latest_comment.author.username,
-                user_path(latest_comment.author.username),
-                class: "text-dark text-decoration-none" %>
-            </strong>
-
-            <%= latest_comment.body %>
-          </div>
-        <% end %>
-      <% end %>
+      <%= render "posts/comments_summary",
+        post: post,
+        expanded: expanded,
+        comments_modal_id: comments_modal_id %>
     </div>
   </div>
 
@@ -257,22 +231,8 @@
       <%= render post.comments.default_order %>
     </ul>
 
-    <div id="<%= dom_id(post, :comment_form) %>" class="border-top p-3">
-      <%= form_with(model: Comment.new) do |form| %>
-        <%= form.hidden_field :post_id, value: post.id %>
-
-        <div class="form-group mb-2">
-          <%= form.label :body, "Add a comment", class: "visually-hidden" %>
-          <%= form.text_area :body,
-                class: "form-control",
-                placeholder: "Add a comment..." %>
-        </div>
-
-        <div class="d-grid">
-          <%= form.submit "Comment", class: "btn btn-primary" %>
-        </div>
-      <% end %>
-    </div>
+    <%= render "comments/expanded_form", post: post %>
+  
   <% else %>
     <%= render "posts/comments_modal",
           post: post,
