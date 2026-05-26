@@ -118,22 +118,24 @@
 
     <div class="d-flex justify-content-between align-items-center mb-2">
       <div class="d-flex gap-3 align-items-center fs-4">
-        <% if like.present? %>
-          <%= button_to like,
-                method: :delete,
-                class: "btn btn-link text-danger p-0 border-0 fs-4" do %>
-            <i class="fa-solid fa-heart"></i>
-          <% end %>
-        <% else %>
-          <%= form_with(model: Like.new) do |form| %>
-            <%= form.hidden_field :post_id, value: post.id %>
+        <div id="<%= dom_id(post, :like_button) %>">
+          <% if like.present? %>
+            <%= button_to like,
+            method: :delete,
+            class: "btn btn-link text-danger p-0 border-0 fs-4" do %>
+              <i class="fa-solid fa-heart"></i>
+            <% end %>
+          <% else %>
+            <%= form_with(model: Like.new) do |form| %>
+              <%= form.hidden_field :post_id, value: post.id %>
 
-            <button type="submit"
-                    class="btn btn-link text-dark p-0 border-0 fs-4">
-              <i class="fa-regular fa-heart"></i>
-            </button>
+              <button type="submit"
+                class="btn btn-link text-dark p-0 border-0 fs-4">
+                <i class="fa-regular fa-heart"></i>
+              </button>
+            <% end %>
           <% end %>
-        <% end %>
+        </div>
 
         <% if expanded %>
           <%= link_to "##{dom_id(post, :comment_form)}",
@@ -200,7 +202,7 @@
       <% end %>
     </div>
 
-    <div class="fw-bold mb-1">
+    <div id="<%= dom_id(post, :likes_count) %>" class="fw-bold mb-1">
       <%= pluralize(post.likes_count, "like") %>
     </div>
 
@@ -216,40 +218,42 @@
       </div>
     <% end %>
 
-    <% if post.comments.count > 0 %>
-      <% if expanded %>
-        <div class="text-muted mb-1">
-          <%= pluralize(post.comments.count, "comment") %>
-        </div>
-      <% else %>
-        <button type="button"
-                class="btn btn-link text-muted text-decoration-none p-0 mb-1"
-                data-bs-toggle="modal"
-                data-bs-target="#<%= comments_modal_id %>">
-          View all <%= pluralize(post.comments.count, "comment") %>
-        </button>
+    <div id="<%= dom_id(post, :comments_summary) %>">
+      <% if post.comments.count > 0 %>
+        <% if expanded %>
+          <div class="text-muted mb-1">
+            <%= pluralize(post.comments.count, "comment") %>
+          </div>
+        <% else %>
+          <button type="button"
+              class="btn btn-link text-muted text-decoration-none p-0 mb-1"
+              data-bs-toggle="modal"
+              data-bs-target="#<%= comments_modal_id %>">
+            View all <%= pluralize(post.comments.count, "comment") %>
+          </button>
+        <% end %>
       <% end %>
-    <% end %>
 
-    <% unless expanded %>
-      <% latest_comment = post.comments.default_order.first %>
+      <% unless expanded %>
+        <% latest_comment = post.comments.default_order.first %>
 
-      <% if latest_comment.present? %>
-        <div class="small">
-          <strong>
-            <%= link_to latest_comment.author.username,
-                  user_path(latest_comment.author.username),
-                  class: "text-dark text-decoration-none" %>
-          </strong>
+        <% if latest_comment.present? %>
+          <div class="small">
+            <strong>
+              <%= link_to latest_comment.author.username,
+                user_path(latest_comment.author.username),
+                class: "text-dark text-decoration-none" %>
+            </strong>
 
-          <%= latest_comment.body %>
-        </div>
+            <%= latest_comment.body %>
+          </div>
+        <% end %>
       <% end %>
-    <% end %>
+    </div>
   </div>
 
   <% if expanded %>
-    <ul class="list-group list-group-flush border-top">
+    <ul id="<%= dom_id(post, :comments) %>" class="list-group list-group-flush border-top">
       <%= render post.comments.default_order %>
     </ul>
 
