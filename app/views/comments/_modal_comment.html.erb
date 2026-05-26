@@ -1,5 +1,5 @@
 <div id="<%= dom_id(comment, :modal) %>" class="mb-3">
-  <div class="d-flex justify-content-between align-items-start">
+  <div class="d-flex justify-content-between align-items-start gap-2">
     <div>
       <strong>
         <%= link_to comment.author.username,
@@ -15,24 +15,17 @@
     </div>
 
     <% if current_user == comment.author %>
-      <div class="dropdown">
-        <%= button_tag class: "btn btn-sm btn-link text-decoration-none",
-            data: { bs_toggle: "dropdown" },
-            aria: { expanded: false } do %>
-          <i class="fa-solid fa-ellipsis"></i>
-        <% end %>
+      <%= form_with url: comment_path(comment, format: :turbo_stream),
+      method: :delete,
+      class: "m-0",
+      data: { turbo: true } do %>
+        <%= hidden_field_tag :expanded, false %>
 
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <%= button_to comment_path(comment),
-                method: :delete,
-                params: { expanded: false },
-                class: "dropdown-item text-danger" do %>
-              Delete
-            <% end %>
-          </li>
-        </ul>
-      </div>
+        <button type="submit"
+          class="btn btn-sm btn-link text-danger text-decoration-none p-0">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      <% end %>
     <% end %>
   </div>
 </div>

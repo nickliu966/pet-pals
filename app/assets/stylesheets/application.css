@@ -22,3 +22,47 @@
     display: none !important;
   }
 }
+
+.fade-out {
+  animation: fadeOut 450ms ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 450ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.highlight {
+  animation: highlight 600ms ease-out;
+}
+
+@keyframes highlight {
+  from {
+    background-color: #fff3cd;
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
