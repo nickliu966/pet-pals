@@ -90,49 +90,61 @@ class WalkParticipantsController < ApplicationController
 
   def accept
     @walk_participant = WalkParticipant.find(params.fetch(:id))
+
+    if @walk_participant.user == current_user && @walk_participant.joined?
+      redirect_to safe_walk_participant_return_to(@walk_participant.walk_event),
+                  notice: "You already accepted this invitation."
+      return
+    end
+
     authorize! @walk_participant
 
-    @walk_event = @walk_participant.walk_event
+    walk_event = @walk_participant.walk_event
 
     @walk_participant.update!(
       status: "joined",
       joined_at: Time.current,
     )
 
-    broadcast_walk_event_participation(@walk_event)
+    broadcast_walk_event_participation(walk_event)
 
-    respond_to do |format|
-      format.html do
-        redirect_to walk_event_path(@walk_event),
-                    notice: "You accepted the invitation."
-      end
-
-      format.turbo_stream
-    end
+    redirect_to safe_walk_participant_return_to(walk_event),
+                notice: "You accepted the invitation."
   end
 
   def decline
     @walk_participant = WalkParticipant.find(params.fetch(:id))
+
+    if @walk_participant.user == current_user && @walk_participant.cancelled?
+      redirect_to safe_walk_participant_return_to(@walk_participant.walk_event),
+                  notice: "You already declined this invitation."
+      return
+    end
+
     authorize! @walk_participant
 
-    @walk_event = @walk_participant.walk_event
+    walk_event = @walk_participant.walk_event
     viewer = @walk_participant.user
 
     @walk_participant.update!(status: "cancelled")
 
-    broadcast_walk_event_participation(@walk_event, extra_viewers: [viewer])
+    broadcast_walk_event_participation(walk_event, extra_viewers: [viewer])
 
-    respond_to do |format|
-      format.html do
-        redirect_to walk_event_path(@walk_event),
-                    notice: "You declined the invitation."
-      end
-
-      format.turbo_stream
-    end
+    redirect_to safe_walk_participant_return_to(walk_event),
+                notice: "You declined the invitation."
   end
 
   private
+
+  def safe_walk_participant_return_to(walk_event)
+    return_to = params[:return_to].presence
+
+    if return_to&.start_with?("/")
+      return_to
+    else
+      walk_event_path(walk_event)
+    end
+  end
 
   def broadcast_walk_event_participation(walk_event, extra_viewers: [])
     walk_event.reload
