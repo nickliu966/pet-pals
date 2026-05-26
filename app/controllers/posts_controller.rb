@@ -73,6 +73,8 @@ class PostsController < ApplicationController
   def update
     authorize! @post
 
+    @expanded = params[:expanded] == "true"
+
     permitted_params = post_params
 
     if visibility_only_update?(permitted_params)
