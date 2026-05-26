@@ -7,11 +7,11 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :posts do
-    resources :comments, only: [:index]
-    resources :likes, only: [:index]
+    resources :comments, only: [ :index ]
+    resources :likes, only: [ :index ]
   end
 
-  resources :pets, except: [:index]
+  resources :pets, except: [ :index ]
 
   resources :comments
   resources :likes
@@ -22,17 +22,17 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :walk_participants, only: [:create, :update, :destroy] do
+  resources :walk_participants, only: [ :create, :update, :destroy ] do
     member do
       patch :accept
       patch :decline
     end
   end
 
-  resources :user_friendships, only: [:index, :create, :update, :destroy]
-  resources :pet_friendships, only: [:index, :create, :update, :destroy]
+  resources :user_friendships, only: [ :index, :create, :update, :destroy ]
+  resources :pet_friendships, only: [ :index, :create, :update, :destroy ]
 
-  resources :users, only: [:index]
+  resources :users, only: [ :index ]
 
   get "network" => "network#index", as: :network
   get "feed" => "posts#index", as: :feed

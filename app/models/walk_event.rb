@@ -21,14 +21,14 @@ class WalkEvent < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either",
+    friends_of_either: "friends_of_either"
   }
 
   enum :status, {
     scheduled: "scheduled",
     full: "full",
     cancelled: "cancelled",
-    completed: "completed",
+    completed: "completed"
   }
 
   validates :title, presence: true
@@ -95,7 +95,7 @@ class WalkEvent < ApplicationRecord
   end
 
   def confirmed_participants
-    walk_participants.where(status: ["joined", "attended"])
+    walk_participants.where(status: [ "joined", "attended" ])
   end
 
   def joined_by?(user)
@@ -161,7 +161,7 @@ class WalkEvent < ApplicationRecord
       "start_time",
       "visibility",
       "status",
-      "created_at",
+      "created_at"
     ]
   end
 
@@ -169,7 +169,7 @@ class WalkEvent < ApplicationRecord
     [
       "host_user",
       "walk_participants",
-      "posts",
+      "posts"
     ]
   end
 

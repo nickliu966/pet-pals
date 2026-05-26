@@ -1,5 +1,5 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
+  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @q = WalkEvent.ransack(params[:q])
@@ -145,7 +145,7 @@ class WalkEventsController < ApplicationController
       :duration_minutes,
       :visibility,
       :max_participants,
-      :status,
+      :status
     ])
   end
 end

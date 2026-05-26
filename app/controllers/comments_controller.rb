@@ -1,5 +1,5 @@
 class CommentsController < ApplicationController
-  before_action :set_comment, only: [:edit, :update, :destroy]
+  before_action :set_comment, only: [ :edit, :update, :destroy ]
 
   def create
     @comment = Comment.new(comment_params)
@@ -52,6 +52,6 @@ class CommentsController < ApplicationController
   end
 
   def comment_params
-    params.expect(comment: [:post_id, :body, :parent_comment_id])
+    params.expect(comment: [ :post_id, :body, :parent_comment_id ])
   end
 end

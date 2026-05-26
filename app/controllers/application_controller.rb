@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(
       :sign_up,
-      keys: [:username],
+      keys: [ :username ],
     )
 
     devise_parameter_sanitizer.permit(
@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
         :website,
         :private,
         :avatar_image,
-        :profile_banner,
+        :profile_banner
       ],
     )
   end

@@ -5,7 +5,7 @@ task sample_data: :environment do
   Faker::Config.random = Random.new(42)
 
   ActiveRecord::Base.connection.tables.each do |table|
-    next if ["schema_migrations", "ar_internal_metadata"].include?(table)
+    next if [ "schema_migrations", "ar_internal_metadata" ].include?(table)
 
     quoted_table = ActiveRecord::Base.connection.quote_table_name(table)
     ActiveRecord::Base.connection.execute("TRUNCATE TABLE #{quoted_table} RESTART IDENTITY CASCADE")
@@ -185,13 +185,13 @@ task sample_data: :environment do
   puts "Creating owner friendships..."
 
   [
-    [alice, sarah, "accepted"],
-    [alice, emily, "accepted"],
-    [sarah, nick, "accepted"],
-    [nick, emily, "accepted"],
-    [bob, carol, "accepted"],
-    [bob, alice, "pending"],
-    [carol, sarah, "pending"]
+    [ alice, sarah, "accepted" ],
+    [ alice, emily, "accepted" ],
+    [ sarah, nick, "accepted" ],
+    [ nick, emily, "accepted" ],
+    [ bob, carol, "accepted" ],
+    [ bob, alice, "pending" ],
+    [ carol, sarah, "pending" ]
   ].each do |requester, receiver, status|
     UserFriendship.create!(
       requester: requester,
@@ -203,12 +203,12 @@ task sample_data: :environment do
   puts "Creating pet friendships..."
 
   [
-    [max, coco, alice, "accepted"],
-    [max, biscuit, alice, "accepted"],
-    [coco, biscuit, sarah, "accepted"],
-    [mochi, milo, nick, "accepted"],
-    [luna, max, bob, "pending"],
-    [milo, coco, carol, "pending"]
+    [ max, coco, alice, "accepted" ],
+    [ max, biscuit, alice, "accepted" ],
+    [ coco, biscuit, sarah, "accepted" ],
+    [ mochi, milo, nick, "accepted" ],
+    [ luna, max, bob, "pending" ],
+    [ milo, coco, carol, "pending" ]
   ].each do |requester_pet, receiver_pet, requested_by_user, status|
     PetFriendship.create!(
       requester_pet: requester_pet,
@@ -267,7 +267,7 @@ task sample_data: :environment do
   puts "Creating comments and likes..."
 
   posts.each do |post|
-    [alice, nick, sarah, emily].each do |fan|
+    [ alice, nick, sarah, emily ].each do |fan|
       next if fan == post.user
 
       Like.find_or_create_by!(

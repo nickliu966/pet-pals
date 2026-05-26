@@ -33,13 +33,13 @@ class WalkParticipant < ApplicationRecord
          joined: "joined",
          cancelled: "cancelled",
          attended: "attended",
-         no_show: "no_show",
+         no_show: "no_show"
        }
 
   validates :user_id,
             uniqueness: {
-              scope: [:walk_event_id, :pet_id],
-              message: "has already joined this walk with this pet",
+              scope: [ :walk_event_id, :pet_id ],
+              message: "has already joined this walk with this pet"
             }
 
   validate :pet_must_belong_to_user

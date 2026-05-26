@@ -1,5 +1,5 @@
 class WalkParticipantsController < ApplicationController
-  before_action :set_walk_participant, only: [:update, :destroy]
+  before_action :set_walk_participant, only: [ :update, :destroy ]
 
   def create
     walk_event = WalkEvent.find(walk_participant_params.fetch(:walk_event_id))
@@ -110,18 +110,18 @@ class WalkParticipantsController < ApplicationController
   end
 
   def walk_participant_params
-    params.expect(walk_participant: [:walk_event_id, :pet_id])
+    params.expect(walk_participant: [ :walk_event_id, :pet_id ])
   end
 
   def walk_participant_update_params
-    params.expect(walk_participant: [:status])
+    params.expect(walk_participant: [ :status ])
   end
 
   def walk_participant_params
     params.expect(
       walk_participant: [
         :walk_event_id,
-        pet_ids: [],
+        pet_ids: []
       ],
     )
   end

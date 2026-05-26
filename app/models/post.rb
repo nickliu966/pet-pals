@@ -49,7 +49,7 @@ class Post < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either",
+    friends_of_either: "friends_of_either"
   }
 
   validate :walk_event_must_be_available_to_user

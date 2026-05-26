@@ -1,5 +1,5 @@
 class PetsController < ApplicationController
-  before_action :set_pet, only: [:show, :edit, :update, :destroy]
+  before_action :set_pet, only: [ :show, :edit, :update, :destroy ]
 
   def show
   end
@@ -77,7 +77,7 @@ class PetsController < ApplicationController
         :vaccinated,
         :bio,
         :image_url,
-        :image,
+        :image
       ],
     )
   end
