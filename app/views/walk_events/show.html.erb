@@ -11,15 +11,79 @@
   <% end %>
 </div>
 
+<% content_for :right_sidebar do %>
+  <% if allowed_to?(:invite_participant?, @walk_event) %>
+    <% owner_friends = (current_user.owner_friends + current_user.friended_by_users).uniq %>
+
+    <% already_invited_or_joined_user_ids =
+         @walk_event.walk_participants
+                    .where.not(status: "cancelled")
+                    .pluck(:user_id) %>
+
+    <% invitable_users =
+         owner_friends.reject { |friend| already_invited_or_joined_user_ids.include?(friend.id) } %>
+
+    <div class="card mt-3">
+      <div class="card-body">
+        <h5 class="card-title">Invite a friend</h5>
+
+        <% if invitable_users.any? %>
+          <%= form_with url: invite_participant_walk_event_path(@walk_event), method: :post do %>
+            <div class="mb-2">
+              <%= select_tag :user_id,
+                    options_from_collection_for_select(invitable_users, :id, :username),
+                    class: "form-select" %>
+            </div>
+
+            <%= submit_tag "Invite", class: "btn btn-outline-primary w-100" %>
+          <% end %>
+        <% else %>
+          <p class="text-muted mb-0">
+            No available friends to invite.
+          </p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
 <%= render @walk_event, show_view_button: false %>
+
+<% invitation = @walk_event.walk_participants.find_by(user: current_user, status: "invited") %>
+
+<% if invitation.present? %>
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">You were invited to this walk</h5>
+
+      <p class="text-muted mb-3">
+        Accept the invitation before appearing as a participant.
+      </p>
+
+      <div class="d-flex gap-2">
+        <%= button_to "Accept",
+              accept_walk_participant_path(invitation),
+              method: :patch,
+              class: "btn btn-primary" %>
+
+        <%= button_to "Decline",
+              decline_walk_participant_path(invitation),
+              method: :patch,
+              class: "btn btn-outline-secondary" %>
+      </div>
+    </div>
+  </div>
+<% end %>
 
 <hr>
 
 <h3>Joining people and pets</h3>
 
-<% if @walk_event.walk_participants.any? %>
+<% confirmed_participants = @walk_event.confirmed_participants.includes(:pet, :user) %>
+
+<% if confirmed_participants.any? %>
   <ul class="list-group list-group-flush mb-3">
-    <% @walk_event.walk_participants.includes(:pet, :user).each do |participant| %>
+    <% confirmed_participants.each do |participant| %>
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <div>
           <strong>

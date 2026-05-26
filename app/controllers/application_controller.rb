@@ -22,6 +22,7 @@ class ApplicationController < ActionController::Base
         :username,
         :display_name,
         :bio,
+        :city,
         :website,
         :private,
         :avatar_image,

@@ -4,6 +4,23 @@ class WalkParticipantsController < ApplicationController
   def create
     walk_event = WalkEvent.find(walk_participant_params.fetch(:walk_event_id))
 
+    invited_participant =
+      walk_event.walk_participants.find_by(
+        user: current_user,
+        status: "invited",
+      )
+
+    if invited_participant.present?
+      invited_participant.update!(
+        status: "joined",
+        joined_at: Time.current,
+      )
+
+      redirect_to walk_event_path(walk_event),
+                  notice: "You joined this walk."
+      return
+    end
+
     pet_ids = Array(walk_participant_params[:pet_ids]).reject(&:blank?)
     pets = current_user.pets.where(id: pet_ids)
 
@@ -63,6 +80,29 @@ class WalkParticipantsController < ApplicationController
                 notice: "Participant was removed."
   end
 
+  def accept
+    @walk_participant = WalkParticipant.find(params.fetch(:id))
+    authorize! @walk_participant
+
+    @walk_participant.update!(
+      status: "joined",
+      joined_at: Time.current,
+    )
+
+    redirect_to walk_event_path(@walk_participant.walk_event),
+                notice: "You accepted the invitation."
+  end
+
+  def decline
+    @walk_participant = WalkParticipant.find(params.fetch(:id))
+    authorize! @walk_participant
+
+    @walk_participant.update!(status: "cancelled")
+
+    redirect_to walk_event_path(@walk_participant.walk_event),
+                notice: "You declined the invitation."
+  end
+
   private
 
   def set_walk_participant
@@ -76,8 +116,6 @@ class WalkParticipantsController < ApplicationController
   def walk_participant_update_params
     params.expect(walk_participant: [:status])
   end
-
-  private
 
   def walk_participant_params
     params.expect(

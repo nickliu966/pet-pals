@@ -47,6 +47,29 @@ class WalkParticipant < ApplicationRecord
 
   before_validation :set_defaults
 
+  def accept
+    @walk_participant = WalkParticipant.find(params.fetch(:id))
+    authorize! @walk_participant
+
+    @walk_participant.update!(
+      status: "joined",
+      joined_at: Time.current,
+    )
+
+    redirect_to walk_event_path(@walk_participant.walk_event),
+                notice: "You accepted the invitation."
+  end
+
+  def decline
+    @walk_participant = WalkParticipant.find(params.fetch(:id))
+    authorize! @walk_participant
+
+    @walk_participant.update!(status: "cancelled")
+
+    redirect_to walk_event_path(@walk_participant.walk_event),
+                notice: "You declined the invitation."
+  end
+
   private
 
   def set_defaults

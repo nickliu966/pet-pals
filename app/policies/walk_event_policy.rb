@@ -15,6 +15,14 @@ class WalkEventPolicy < ApplicationPolicy
     edit?
   end
 
+  def invite_participant?
+    host?
+  end
+
+  def mark_attended?
+    record.attendance_claimable_by?(user)
+  end
+
   private
 
   def host?

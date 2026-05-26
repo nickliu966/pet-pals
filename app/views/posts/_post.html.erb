@@ -54,7 +54,7 @@
 
   <div class="p-3 pb-2">
     <div class="d-flex justify-content-between align-items-start mb-2">
-      <div>
+      <div class="me-3">
         <strong>
           <%= link_to post.user.username,
                 user_path(post.user.username),
@@ -62,14 +62,23 @@
         </strong>
 
         <% if post.pet.present? %>
-          <span class="text-muted">with</span>
+          <span class="text-muted ms-1">with</span>
+
           <%= link_to post.pet.name,
                 pet_path(post.pet),
                 class: "text-decoration-none" %>
         <% end %>
 
+        <% if post.walk_event.present? %>
+          <span class="text-muted ms-1">from</span>
+
+          <%= link_to post.walk_event.title,
+                walk_event_path(post.walk_event),
+                class: "text-decoration-none" %>
+        <% end %>
+
         <% if post.location_name.present? %>
-          <span class="text-muted">at</span>
+          <span class="text-muted ms-1">at</span>
 
           <% if post.latitude.present? && post.longitude.present? %>
             <%= link_to post.location_name,
@@ -82,15 +91,7 @@
         <% end %>
       </div>
 
-      <% if post.walk_event.present? %>
-        <span class="text-muted">from</span>
-
-        <%= link_to post.walk_event.title,
-        walk_event_path(post.walk_event),
-        class: "text-decoration-none" %>
-      <% end %>
-
-      <div class="text-end">
+      <div class="text-end flex-shrink-0">
         <% edited = post.updated_at > post.created_at + 1.minute %>
 
         <% if edited %>
@@ -150,18 +151,51 @@
       </div>
 
       <% if allowed_to?(:edit?, post) %>
-        <div class="d-flex gap-2">
-          <button type="button"
-            class="btn btn-sm btn-outline-secondary"
-            data-bs-toggle="modal"
-            data-bs-target="#<%= dom_id(post, :form_modal) %>">
-            Edit
-          </button>
+        <div class="dropdown">
+          <%= button_tag type: "button",
+          class: "btn btn-link text-decoration-none p-0",
+          data: { bs_toggle: "dropdown" },
+          aria: { expanded: false } do %>
+            <i class="fa-solid fa-ellipsis"></i>
+          <% end %>
 
-          <%= button_to "Delete",
-          post_path(post),
-          method: :delete,
-          class: "btn btn-sm btn-outline-danger" %>
+          <div class="dropdown-menu dropdown-menu-end p-0 post-actions-menu">
+            <button type="button"
+              class="dropdown-item"
+              data-bs-toggle="modal"
+              data-bs-target="#<%= dom_id(post, :form_modal) %>">
+              Edit
+            </button>
+
+            <div class="dropdown-divider m-0"></div>
+
+            <div class="p-3 border-bottom">
+              <%= form_with model: post, url: post_path(post), method: :patch, local: true do |form| %>
+                <%= hidden_field_tag :return_to, "#{request.fullpath}##{dom_id(post)}" %>
+
+                <%= form.label :visibility, "Visibility", class: "form-label small fw-semibold mb-1" %>
+
+                <%= form.select :visibility,
+                      options_for_select(
+                        [
+                          ["Everyone", "everyone"],
+                          ["Owner friends only", "user_friends_only"],
+                          ["Pet friends only", "pet_friends_only"],
+                          ["Friends of either", "friends_of_either"]
+                        ],
+                        post.visibility
+                      ),
+                      {},
+                      class: "form-select form-select-sm",
+                      onchange: "this.form.requestSubmit()" %>
+              <% end %>
+            </div>
+
+            <%= button_to "Delete",
+            post_path(post),
+            method: :delete,
+            class: "dropdown-item text-danger rounded-0" %>
+          </div>
         </div>
       <% end %>
     </div>
@@ -244,15 +278,15 @@
   <% if allowed_to?(:edit?, post) %>
     <% content_for :modals do %>
       <%= render "shared/form_modal",
-          record: post,
-          modal_id: dom_id(post, :form_modal),
-          title: "Edit post",
-          form_partial: "posts/form",
-          form_locals: {
-            post: post,
-            return_to: "#{request.fullpath}##{dom_id(post)}",
-            modal: true
-          } %>
+            record: post,
+            modal_id: dom_id(post, :form_modal),
+            title: "Edit post",
+            form_partial: "posts/form",
+            form_locals: {
+              post: post,
+              return_to: "#{request.fullpath}##{dom_id(post)}",
+              modal: true
+            } %>
     <% end %>
   <% end %>
 </div>

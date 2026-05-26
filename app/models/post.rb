@@ -58,6 +58,10 @@ class Post < ApplicationRecord
 
   private
 
+  def set_defaults
+    self.visibility ||= "everyone"
+  end
+
   def walk_event_must_be_available_to_user
     return if walk_event.blank? || user.blank?
 

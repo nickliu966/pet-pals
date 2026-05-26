@@ -81,6 +81,25 @@ class WalkEventsController < ApplicationController
       .order(start_time: :asc)
   end
 
+  def invite_participant
+    @walk_event = WalkEvent.find(params.fetch(:id))
+    authorize! @walk_event, to: :invite_participant?
+
+    invitee = User.find(params.fetch(:user_id))
+
+    participant = @walk_event.walk_participants.find_or_initialize_by(
+      user: invitee,
+      pet: nil,
+    )
+
+    participant.status = "invited"
+    participant.joined_at ||= Time.current
+    participant.save!
+
+    redirect_to walk_event_path(@walk_event),
+                notice: "#{invitee.username} was invited."
+  end
+
   private
 
   def set_walk_event

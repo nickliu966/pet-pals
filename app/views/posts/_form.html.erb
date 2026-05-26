@@ -54,6 +54,24 @@
           placeholder: "What is happening?" %>
   </div>
 
+  <div class="form-group mb-2">
+    <%= form.label :visibility %>
+
+    <%= form.select :visibility,
+        [
+          ["Everyone", "everyone"],
+          ["Owner friends only", "user_friends_only"],
+          ["Pet friends only", "pet_friends_only"],
+          ["Friends of either", "friends_of_either"]
+        ],
+        {},
+        class: "form-select" %>
+
+    <div class="form-text">
+      Choose who can see this post.
+    </div>
+  </div>
+
   <% if post.respond_to?(:images) && post.images.attached? %>
     <div class="mb-2">
       <div class="form-label">Current photos</div>

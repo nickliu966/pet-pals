@@ -52,7 +52,7 @@
           <% end %>
         </div>
 
-        <%= link_to "Participants: #{walk_event.walk_participants.count}",
+        <%= link_to "Participants: #{walk_event.confirmed_participants.count}",
               walk_event_path(walk_event, return_to: request.fullpath),
               class: "text-decoration-none" %>
       </div>
@@ -63,18 +63,62 @@
         </div>
 
         <% if allowed_to?(:edit?, walk_event) %>
-          <div class="d-flex gap-2">
-            <button type="button"
-                    class="btn btn-sm btn-outline-secondary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#<%= dom_id(walk_event, :form_modal) %>">
-              Edit
-            </button>
+          <div class="dropdown">
+            <%= button_tag type: "button",
+                  class: "btn btn-link text-decoration-none p-0",
+                  data: {
+                    bs_toggle: "dropdown",
+                    bs_auto_close: "outside"
+                  },
+                  aria: { expanded: false } do %>
+              <i class="fa-solid fa-ellipsis"></i>
+            <% end %>
 
-            <%= button_to "Delete",
+            <div class="dropdown-menu dropdown-menu-end p-0 walk-actions-menu">
+              <button type="button"
+          class="dropdown-item py-2"
+          data-bs-toggle="modal"
+          data-bs-target="#<%= dom_id(walk_event, :form_modal) %>">
+                Edit
+              </button>
+
+              <div class="dropdown-divider m-0"></div>
+
+              <div class="px-2 py-2 border-bottom">
+                <%= form_with model: walk_event,
+          url: walk_event_path(walk_event),
+          method: :patch,
+          local: true do |form| %>
+
+                  <%= hidden_field_tag :return_to, "#{request.fullpath}##{dom_id(walk_event)}" %>
+
+                  <div class="d-flex align-items-center justify-content-between gap-1">
+                    <span class="small fw-semibold text-muted">
+                      Visibility
+                    </span>
+
+                    <%= form.select :visibility,
+                          options_for_select(
+                            [
+                              ["Everyone", "everyone"],
+                              ["Owner friends only", "user_friends_only"],
+                              ["Pet friends only", "pet_friends_only"],
+                              ["Friends of either", "friends_of_either"]
+                            ],
+                            walk_event.visibility
+                          ),
+                          {},
+                          class: "form-select form-select-sm walk-visibility-select",
+                          onchange: "this.form.requestSubmit()" %>
+                  </div>
+                <% end %>
+              </div>
+
+              <%= button_to "Delete",
                   walk_event_path(walk_event),
                   method: :delete,
-                  class: "btn btn-sm btn-outline-danger" %>
+                  class: "dropdown-item text-danger rounded-0 py-2" %>
+            </div>
           </div>
         <% elsif show_view_button %>
           <%= link_to "View / Join",
@@ -84,10 +128,11 @@
       </div>
     </div>
   </div>
+</div>
 
-  <% if allowed_to?(:edit?, walk_event) %>
-    <% content_for :modals do %>
-      <%= render "shared/form_modal",
+<% if allowed_to?(:edit?, walk_event) %>
+  <% content_for :modals do %>
+    <%= render "shared/form_modal",
           record: walk_event,
           modal_id: dom_id(walk_event, :form_modal),
           title: "Edit walk",
@@ -97,6 +142,5 @@
             return_to: "#{request.fullpath}##{dom_id(walk_event)}",
             modal: true
           } %>
-    <% end %>
   <% end %>
-</div>
+<% end %>

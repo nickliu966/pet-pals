@@ -30,6 +30,11 @@
     <p><%= f.password_field :current_password, autocomplete: "current-password" %></p>
   </div>
 
+  <div class="form-check mb-3">
+    <%= f.check_box :private, class: "form-check-input" %>
+    <%= f.label :private, "Make my profile private", class: "form-check-label" %>
+  </div>
+
   <div class="actions">
     <%= f.submit "Update" %>
   </div>
