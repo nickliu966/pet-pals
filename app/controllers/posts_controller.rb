@@ -2,38 +2,15 @@ class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
 
   def index
-    post_ids = []
+    @posts = preload_post_feed_associations(
+      Post.visible_to(current_user).default_order
+    )
 
-    # 1. Always include my own posts
-    post_ids += current_user.posts.pluck(:id)
-
-    # 2. Include owner-friend posts
-    owner_friends = (current_user.owner_friends + current_user.friended_by_users).uniq
-
-    post_ids += Post.where(user: owner_friends)
-                    .where(visibility: ["everyone", "user_friends_only", "friends_of_either"])
-                    .pluck(:id)
-
-    # 3. Include pet-friend posts
-    pet_friends = []
-
-    current_user.pets.each do |pet|
-      pet_friends += pet.pet_friends
-      pet_friends += pet.friended_by_pets
-    end
-
-    pet_friends = pet_friends.uniq
-
-    post_ids += Post.where(pet: pet_friends)
-                    .where(visibility: ["everyone", "pet_friends_only", "friends_of_either"])
-                    .pluck(:id)
-
-    @posts = preload_post_feed_associations(Post.where(id: post_ids.uniq).default_order)
     prepare_current_user_likes_for(@posts)
   end
 
   def discover
-    posts = Post.everyone
+    posts = Post.visible_to(current_user)
 
     if nearby_filter?
       posts = posts.near_coordinates(
@@ -45,6 +22,12 @@ class PostsController < ApplicationController
 
     @posts = preload_post_feed_associations(posts.default_order)
     prepare_current_user_likes_for(@posts)
+
+    if turbo_frame_request?
+      render partial: "posts/discover_results",
+             locals: { posts: @posts },
+             layout: false
+    end
   end
 
   def show

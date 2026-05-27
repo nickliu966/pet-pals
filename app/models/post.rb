@@ -51,12 +51,39 @@ class Post < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either"
+    friends_of_either: "friends_of_either",
   }
 
   validate :walk_event_must_be_available_to_user
 
   scope :default_order, -> { order(created_at: :desc) }
+
+  def self.visible_to(user)
+    post_ids = []
+
+    post_ids += user.posts.pluck(:id)
+
+    owner_friends = (user.owner_friends + user.friended_by_users).uniq
+
+    post_ids += where(visibility: "everyone").pluck(:id)
+
+    post_ids += where(user: owner_friends)
+      .where(visibility: ["user_friends_only", "friends_of_either"])
+      .pluck(:id)
+
+    pet_friends = []
+
+    user.pets.each do |pet|
+      pet_friends += pet.pet_friends
+      pet_friends += pet.friended_by_pets
+    end
+
+    post_ids += where(pet: pet_friends.uniq)
+      .where(visibility: ["pet_friends_only", "friends_of_either"])
+      .pluck(:id)
+
+    where(id: post_ids.uniq)
+  end
 
   private
 

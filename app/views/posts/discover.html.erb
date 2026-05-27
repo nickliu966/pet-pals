@@ -10,11 +10,4 @@
   <h1 class="mb-0">Discover</h1>
 </div>
 
-<%= turbo_frame_tag nearby_results_frame_id do %>
-  <ul id="discover_posts" class="list-group list-group-flush">
-    <%= render partial: "posts/post",
-          collection: @posts,
-          layout: "layouts/list_group",
-          locals: { render_edit_modal: false } %>
-  </ul>
-<% end %>
+<%= render "posts/discover_results", posts: @posts %>

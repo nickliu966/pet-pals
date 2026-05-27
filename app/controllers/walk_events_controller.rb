@@ -2,7 +2,7 @@ class WalkEventsController < ApplicationController
   before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
 
   def index
-    @q = WalkEvent.everyone.ransack(params[:q])
+    @q = WalkEvent.visible_to(current_user).ransack(params[:q])
 
     walk_events = @q.result(distinct: true)
 
