@@ -56,18 +56,24 @@
                 <% end %>
               </div>
 
-              <div class="d-flex gap-2">
-                <%= button_to "Accept",
-                        accept_walk_participant_path(invitation),
+              <div id="<%= dom_id(friendship, :notification_actions) %>" class="d-flex gap-2">
+                <% if friendship.status == "pending" %>
+                  <%= button_to "Accept",
+                        user_friendship_path(friendship, format: :turbo_stream),
                         method: :patch,
-                        params: { return_to: notifications_path },
+                        params: { user_friendship: { status: "accepted" } },
                         class: "btn btn-primary btn-sm" %>
 
-                <%= button_to "Decline",
-                        decline_walk_participant_path(invitation),
+                  <%= button_to "Decline",
+                        user_friendship_path(friendship, format: :turbo_stream),
                         method: :patch,
-                        params: { return_to: notifications_path },
+                        params: { user_friendship: { status: "declined" } },
                         class: "btn btn-outline-secondary btn-sm" %>
+                <% else %>
+                  <span class="btn btn-sm btn-outline-secondary disabled">
+                    <%= friendship.status.titleize %>
+                  </span>
+                <% end %>
               </div>
             </div>
           </div>
@@ -105,18 +111,24 @@
                 </div>
               </div>
 
-              <div class="d-flex gap-2">
-                <%= button_to "Accept",
-                      pet_friendship_path(friendship),
-                      method: :patch,
-                      params: { pet_friendship: { status: "accepted" } },
-                      class: "btn btn-primary btn-sm" %>
+              <div id="<%= dom_id(friendship, :notification_actions) %>" class="d-flex gap-2">
+                <% if friendship.status == "pending" %>
+                  <%= button_to "Accept",
+                        pet_friendship_path(friendship, format: :turbo_stream),
+                        method: :patch,
+                        params: { pet_friendship: { status: "accepted" } },
+                        class: "btn btn-primary btn-sm" %>
 
-                <%= button_to "Decline",
-                      pet_friendship_path(friendship),
-                      method: :patch,
-                      params: { pet_friendship: { status: "declined" } },
-                      class: "btn btn-outline-secondary btn-sm" %>
+                  <%= button_to "Decline",
+                        pet_friendship_path(friendship, format: :turbo_stream),
+                        method: :patch,
+                        params: { pet_friendship: { status: "declined" } },
+                        class: "btn btn-outline-secondary btn-sm" %>
+                <% else %>
+                  <span class="btn btn-sm btn-outline-secondary disabled">
+                    <%= friendship.status.titleize %>
+                  </span>
+                <% end %>
               </div>
             </div>
           </div>
@@ -176,11 +188,13 @@
                 <%= button_to "Accept",
                       accept_walk_participant_path(invitation),
                       method: :patch,
+                      params: { return_to: notifications_path },
                       class: "btn btn-primary btn-sm" %>
 
                 <%= button_to "Decline",
                       decline_walk_participant_path(invitation),
                       method: :patch,
+                      params: { return_to: notifications_path },
                       class: "btn btn-outline-secondary btn-sm" %>
               </div>
             </div>

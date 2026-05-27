@@ -1,0 +1,7 @@
+<%= turbo_stream.replace dom_id(@user_friendship, :notification_actions) do %>
+  <div id="<%= dom_id(@user_friendship, :notification_actions) %>" class="d-flex gap-2">
+    <span class="btn btn-sm btn-outline-secondary disabled">
+      <%= @user_friendship.status.titleize %>
+    </span>
+  </div>
+<% end %>
