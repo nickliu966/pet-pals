@@ -23,14 +23,14 @@ class WalkEvent < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either"
+    friends_of_either: "friends_of_either",
   }
 
   enum :status, {
     scheduled: "scheduled",
     full: "full",
     cancelled: "cancelled",
-    completed: "completed"
+    completed: "completed",
   }
 
   validates :title, presence: true
@@ -97,7 +97,7 @@ class WalkEvent < ApplicationRecord
   end
 
   def confirmed_participants
-    walk_participants.where(status: [ "joined", "attended" ])
+    walk_participants.where(status: ["joined", "attended"])
   end
 
   def joined_by?(user)
@@ -163,7 +163,7 @@ class WalkEvent < ApplicationRecord
       "start_time",
       "visibility",
       "status",
-      "created_at"
+      "created_at",
     ]
   end
 
@@ -171,8 +171,45 @@ class WalkEvent < ApplicationRecord
     [
       "host_user",
       "walk_participants",
-      "posts"
+      "posts",
     ]
+  end
+
+  def self.visible_to(user)
+    walk_event_ids = []
+
+    # Public walks
+    walk_event_ids += where(visibility: "everyone").pluck(:id)
+
+    # Walks I host
+    walk_event_ids += where(host_user: user).pluck(:id)
+
+    # Walks I am invited to / joined / attended
+    walk_event_ids += WalkParticipant
+      .where(user: user)
+      .where.not(status: "cancelled")
+      .pluck(:walk_event_id)
+
+    # Walks hosted by my owner friends
+    owner_friends = (user.owner_friends + user.friended_by_users).uniq
+
+    walk_event_ids += where(host_user: owner_friends)
+      .where(visibility: ["user_friends_only", "friends_of_either"])
+      .pluck(:id)
+
+    # Walks hosted by my pet friends
+    pet_friends = []
+
+    user.pets.each do |pet|
+      pet_friends += pet.pet_friends
+      pet_friends += pet.friended_by_pets
+    end
+
+    walk_event_ids += where(host_pet: pet_friends.uniq)
+      .where(visibility: ["pet_friends_only", "friends_of_either"])
+      .pluck(:id)
+
+    where(id: walk_event_ids.uniq)
   end
 
   private
