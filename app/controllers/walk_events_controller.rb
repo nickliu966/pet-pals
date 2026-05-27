@@ -1,12 +1,20 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
 
   def index
-    @q = WalkEvent.ransack(params[:q])
+    @q = WalkEvent.everyone.ransack(params[:q])
 
-    @walk_events = @q
-      .result(distinct: true)
-      .order(start_time: :asc)
+    walk_events = @q.result(distinct: true)
+
+    if nearby_filter?
+      walk_events = walk_events.near_coordinates(
+        params[:latitude],
+        params[:longitude],
+        nearby_radius_miles,
+      )
+    end
+
+    @walk_events = walk_events.order(start_time: :asc)
   end
 
   def show
@@ -102,6 +110,16 @@ class WalkEventsController < ApplicationController
 
   private
 
+  def nearby_filter?
+    params[:near_me] == "1" &&
+      params[:latitude].present? &&
+      params[:longitude].present?
+  end
+
+  def nearby_radius_miles
+    params[:radius_miles].presence
+  end
+
   def set_walk_event
     @walk_event = WalkEvent.find(params.expect(:id))
   end
@@ -134,18 +152,18 @@ class WalkEventsController < ApplicationController
 
   def walk_event_params
     params.expect(walk_event: [
-      :host_pet_id,
-      :title,
-      :note,
-      :location_name,
-      :latitude,
-      :longitude,
-      :google_place_id,
-      :start_time,
-      :duration_minutes,
-      :visibility,
-      :max_participants,
-      :status
-    ])
+                    :host_pet_id,
+                    :title,
+                    :note,
+                    :location_name,
+                    :latitude,
+                    :longitude,
+                    :google_place_id,
+                    :start_time,
+                    :duration_minutes,
+                    :visibility,
+                    :max_participants,
+                    :status,
+                  ])
   end
 end
