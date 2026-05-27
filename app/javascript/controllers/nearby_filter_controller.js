@@ -28,8 +28,8 @@ export default class extends Controller {
       },
       {
         enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 60000
+        timeout: 3000,
+        maximumAge: Infinity
       }
     )
   }
