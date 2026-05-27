@@ -1,5 +1,5 @@
 class UserFriendshipsController < ApplicationController
-  before_action :set_user_friendship, only: [ :update, :destroy ]
+  before_action :set_user_friendship, only: [:update, :destroy]
 
   def index
     @received_requests = current_user.received_user_friendships.pending
@@ -31,10 +31,19 @@ class UserFriendshipsController < ApplicationController
 
     respond_to do |format|
       if @user_friendship.update(user_friendship_params)
-        format.html { redirect_back fallback_location: user_friendships_path, notice: "Friend request was successfully updated." }
+        format.html do
+          redirect_back fallback_location: user_friendships_path,
+                        notice: "Friend request was successfully updated."
+        end
+
         format.json { render :show, status: :ok, location: @user_friendship }
+        format.turbo_stream
       else
-        format.html { redirect_back fallback_location: user_friendships_path, alert: @user_friendship.errors.full_messages.to_sentence }
+        format.html do
+          redirect_back fallback_location: user_friendships_path,
+                        alert: @user_friendship.errors.full_messages.to_sentence
+        end
+
         format.json { render json: @user_friendship.errors, status: :unprocessable_entity }
       end
     end
@@ -58,6 +67,6 @@ class UserFriendshipsController < ApplicationController
   end
 
   def user_friendship_params
-    params.expect(user_friendship: [ :receiver_id, :status ])
+    params.expect(user_friendship: [:receiver_id, :status])
   end
 end
