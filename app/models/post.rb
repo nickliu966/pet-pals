@@ -31,6 +31,8 @@
 #  fk_rails_...  (walk_event_id => walk_events.id)
 #
 class Post < ApplicationRecord
+  include NearbySearchable
+
   has_many_attached :images
 
   belongs_to :user

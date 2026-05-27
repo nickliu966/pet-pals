@@ -1,4 +1,6 @@
 class WalkEvent < ApplicationRecord
+  include NearbySearchable
+
   belongs_to :host_user,
              class_name: "User"
 

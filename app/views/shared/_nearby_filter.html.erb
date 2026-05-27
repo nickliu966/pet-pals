@@ -1,0 +1,82 @@
+<% frame_id = local_assigns[:frame_id] %>
+
+<% nearby_active =
+     params[:near_me] == "1" &&
+     params[:latitude].present? &&
+     params[:longitude].present? %>
+
+<% radius_miles = nearby_active ? params[:radius_miles].presence : "" %>
+
+<% form_data = { controller: "nearby-filter" } %>
+<% if frame_id.present? %>
+  <% form_data[:turbo_frame] = frame_id %>
+  <% form_data[:turbo_action] = "advance" %>
+<% end %>
+
+<div class="card mt-3">
+  <div class="card-body">
+    <h5 class="card-title">Nearby</h5>
+
+    <%= form_with url: request.path,
+          method: :get,
+          data: form_data,
+          html: { class: "nearby-filter-form" } do %>
+
+      <%= hidden_field_tag :near_me, "1" %>
+
+      <%= hidden_field_tag :latitude,
+            params[:latitude],
+            data: { nearby_filter_target: "latitude" } %>
+
+      <%= hidden_field_tag :longitude,
+            params[:longitude],
+            data: { nearby_filter_target: "longitude" } %>
+
+      <div class="mb-2">
+        <%= label_tag :radius_miles, "Distance", class: "form-label small mb-1" %>
+
+        <%= select_tag :radius_miles,
+              options_for_select(
+                [
+                  ["Any distance", ""],
+                  ["Within 1 mile", "1"],
+                  ["Within 5 miles", "5"],
+                  ["Within 10 miles", "10"],
+                  ["Within 25 miles", "25"],
+                  ["Within 50 miles", "50"],
+                  ["Within 100 miles", "100"],
+                  ["Within 250 miles", "250"]
+                ],
+                radius_miles
+              ),
+              class: "form-select form-select-sm" %>
+      </div>
+
+      <button type="button"
+              class="btn btn-primary btn-sm w-100 mb-2"
+              data-action="click->nearby-filter#use">
+        Use my location
+      </button>
+
+      <% if nearby_active %>
+        <%= link_to "Clear nearby filter",
+              request.path,
+              class: "btn btn-outline-secondary btn-sm w-100 mb-2",
+              data: frame_id.present? ? { turbo_frame: frame_id, turbo_action: "advance" } : {} %>
+      <% end %>
+
+      <div class="small text-muted" data-nearby-filter-target="status">
+        <% if nearby_active %>
+          Showing public results
+          <% if radius_miles.present? %>
+            within <%= pluralize(radius_miles.to_i, "mile") %>.
+          <% else %>
+            at any distance.
+          <% end %>
+        <% else %>
+          Choose a distance, then use your location.
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

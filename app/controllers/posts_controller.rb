@@ -33,7 +33,17 @@ class PostsController < ApplicationController
   end
 
   def discover
-    @posts = preload_post_feed_associations(Post.everyone.default_order)
+    posts = Post.everyone
+
+    if nearby_filter?
+      posts = posts.near_coordinates(
+        params[:latitude],
+        params[:longitude],
+        nearby_radius_miles,
+      )
+    end
+
+    @posts = preload_post_feed_associations(posts.default_order)
     prepare_current_user_likes_for(@posts)
   end
 
@@ -142,6 +152,16 @@ class PostsController < ApplicationController
   end
 
   private
+
+  def nearby_filter?
+    params[:near_me] == "1" &&
+      params[:latitude].present? &&
+      params[:longitude].present?
+  end
+
+  def nearby_radius_miles
+    params[:radius_miles].presence
+  end
 
   def preload_post_feed_associations(posts)
     posts.includes(

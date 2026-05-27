@@ -10,3 +10,6 @@ application.register("hello", HelloController)
 
 import ModalController from "controllers/modal_controller"
 application.register("modal", ModalController)
+
+import NearbyFilterController from "controllers/nearby_filter_controller"
+application.register("nearby-filter", NearbyFilterController)
