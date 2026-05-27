@@ -23,3 +23,11 @@
         walk_event: @walk_event,
         viewer: current_user
       } %>
+
+<%= turbo_stream.replace dom_id(@walk_participant, :notification_actions) do %>
+  <div id="<%= dom_id(@walk_participant, :notification_actions) %>" class="d-flex gap-2">
+    <span class="btn btn-sm btn-outline-secondary disabled">
+      Accepted
+    </span>
+  </div>
+<% end %>

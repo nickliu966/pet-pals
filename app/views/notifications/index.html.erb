@@ -184,15 +184,15 @@
                 <% end %>
               </div>
 
-              <div class="d-flex gap-2">
+              <div id="<%= dom_id(invitation, :notification_actions) %>" class="d-flex gap-2">
                 <%= button_to "Accept",
-                      accept_walk_participant_path(invitation),
+                      accept_walk_participant_path(invitation, format: :turbo_stream),
                       method: :patch,
                       params: { return_to: notifications_path },
                       class: "btn btn-primary btn-sm" %>
 
                 <%= button_to "Decline",
-                      decline_walk_participant_path(invitation),
+                      decline_walk_participant_path(invitation, format: :turbo_stream),
                       method: :patch,
                       params: { return_to: notifications_path },
                       class: "btn btn-outline-secondary btn-sm" %>
