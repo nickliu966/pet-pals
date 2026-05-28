@@ -1,7 +1,7 @@
 <% content_for :title, "Notifications" %>
 
 <% request_count = @owner_requests.count + @pet_requests.count + @walk_invitations.count %>
-<% activity_count = @post_likes.count + @post_comments.count %>
+<% activity_count = @post_likes.count + @post_comments.count + @post_mentions.count %>
 
 <div class="mb-4">
   <div class="page-kicker">Stay updated</div>
@@ -259,6 +259,56 @@
   </div>
 
   <div class="tab-pane fade" id="activity-pane" role="tabpanel">
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Mentions</div>
+          <div class="text-muted small">Posts where someone mentioned you or your pet.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @post_mentions.count %>
+        </span>
+      </div>
+
+      <div>
+        <% @post_mentions.each do |mention| %>
+          <%= link_to post_path(mention.post, return_to: notifications_path),
+            class: "notification-row d-block text-decoration-none text-dark" do %>
+            <div class="d-flex align-items-center gap-3">
+              <% if mention.mentioner.avatar_image.attached? %>
+                <%= image_tag mention.mentioner.avatar_image,
+                  class: "rounded-circle notification-avatar" %>
+              <% else %>
+                <div class="notification-avatar-fallback">
+                  <%= mention.mentioner.username.first.upcase %>
+                </div>
+              <% end %>
+
+              <div class="notification-copy">
+                <span class="fw-bold"><%= mention.mentioner.username %></span>
+
+                <% if mention.mentioned_pet.present? %>
+                  mentioned <span class="fw-bold"><%= mention.mentioned_pet.name %></span> in a post.
+                <% else %>
+                  mentioned you in a post.
+                <% end %>
+
+                <div class="text-muted small">
+                  <%= time_ago_in_words(mention.created_at) %> ago
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if @post_mentions.empty? %>
+          <div class="notification-row text-muted">
+            No mentions yet.
+          </div>
+        <% end %>
+      </div>
+    </div>
     <div class="card section-card mb-4">
       <div class="section-card-header d-flex justify-content-between align-items-center">
         <div>

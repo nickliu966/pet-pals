@@ -7,7 +7,7 @@ class NotificationsController < ApplicationController
       WalkParticipant
         .invited
         .where(user: current_user)
-        .includes(:pet, walk_event: [ :host_user, :host_pet ])
+        .includes(:pet, walk_event: [:host_user, :host_pet])
         .order(created_at: :desc)
 
     @post_likes = Like.where(post: current_user.posts)
@@ -17,6 +17,13 @@ class NotificationsController < ApplicationController
     @post_comments = Comment.where(post: current_user.posts)
                             .where.not(author: current_user.id)
                             .order(created_at: :desc)
+
+    @post_mentions =
+      Mention
+        .where(recipient: current_user)
+        .where.not(mentioner: current_user)
+        .includes(:post, :mentioner, :mentioned_pet)
+        .order(created_at: :desc)
 
     current_user.update(notifications_read_at: Time.current)
   end

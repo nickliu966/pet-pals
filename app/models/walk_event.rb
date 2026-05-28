@@ -1,3 +1,34 @@
+# == Schema Information
+#
+# Table name: walk_events
+#
+#  id               :bigint           not null, primary key
+#  duration_minutes :integer          not null
+#  latitude         :decimal(, )
+#  location_name    :string           not null
+#  longitude        :decimal(, )
+#  max_participants :integer          default(5), not null
+#  note             :text
+#  start_time       :datetime         not null
+#  status           :string           default("scheduled"), not null
+#  title            :string           not null
+#  visibility       :string           default("friends_of_either"), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  google_place_id  :string
+#  host_pet_id      :bigint           not null
+#  host_user_id     :bigint           not null
+#
+# Indexes
+#
+#  index_walk_events_on_host_pet_id   (host_pet_id)
+#  index_walk_events_on_host_user_id  (host_user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (host_pet_id => pets.id)
+#  fk_rails_...  (host_user_id => users.id)
+#
 class WalkEvent < ApplicationRecord
   include NearbySearchable
 
