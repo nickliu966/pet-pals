@@ -1,0 +1,21 @@
+<%= turbo_stream.append dom_id(@post, :comments), @comment %>
+
+<%= turbo_stream.append dom_id(@post, :modal_comments),
+      partial: "comments/modal_comment",
+      locals: { comment: @comment } %>
+
+<%= turbo_stream.replace dom_id(@post, :comments_summary),
+      partial: "posts/comments_summary",
+      locals: {
+        post: @post,
+        expanded: @expanded,
+        comments_modal_id: dom_id(@post, :comments_modal)
+      } %>
+
+<%= turbo_stream.replace dom_id(@post, :comment_form),
+      partial: "comments/expanded_form",
+      locals: { post: @post } %>
+
+<%= turbo_stream.replace dom_id(@post, :modal_comment_form),
+      partial: "comments/modal_form",
+      locals: { post: @post } %>

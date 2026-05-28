@@ -1,15 +1,41 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
 
   def index
-    @q = WalkEvent.ransack(params[:q])
+    @q = WalkEvent.visible_to(current_user).ransack(params[:q])
 
-    @walk_events = @q
-      .result(distinct: true)
-      .order(start_time: :asc)
+    walk_events = @q.result(distinct: true)
+
+    if nearby_filter?
+      walk_events = walk_events.near_coordinates(
+        params[:latitude],
+        params[:longitude],
+        nearby_radius_miles,
+      )
+    end
+
+    @walk_events =
+      preload_walk_event_card_associations(
+        walk_events.order(start_time: :asc)
+      ).to_a
   end
 
   def show
+    @walk_event =
+      WalkEvent
+        .includes(
+          :host_user,
+          :host_pet,
+          walk_participants: [:user, :pet],
+          posts: [
+            :user,
+            :pet,
+            :walk_event,
+            { images_attachments: :blob },
+            { comments: :author },
+          ],
+        )
+        .find(@walk_event.id)
   end
 
   def new
@@ -76,9 +102,10 @@ class WalkEventsController < ApplicationController
       current_user.hosted_walk_events.pluck(:id) +
       current_user.joined_walk_events.pluck(:id)
 
-    @walk_events = WalkEvent
-      .where(id: walk_event_ids.uniq)
-      .order(start_time: :asc)
+    @walk_events =
+      preload_walk_event_card_associations(
+        WalkEvent.where(id: walk_event_ids.uniq).order(start_time: :asc)
+      )
   end
 
   def invite_participant
@@ -101,6 +128,24 @@ class WalkEventsController < ApplicationController
   end
 
   private
+
+  def preload_walk_event_card_associations(walk_events)
+    walk_events.includes(
+      :host_user,
+      :host_pet,
+      walk_participants: [:user, :pet],
+    )
+  end
+
+  def nearby_filter?
+    params[:near_me] == "1" &&
+      params[:latitude].present? &&
+      params[:longitude].present?
+  end
+
+  def nearby_radius_miles
+    params[:radius_miles].presence
+  end
 
   def set_walk_event
     @walk_event = WalkEvent.find(params.expect(:id))
@@ -134,18 +179,18 @@ class WalkEventsController < ApplicationController
 
   def walk_event_params
     params.expect(walk_event: [
-      :host_pet_id,
-      :title,
-      :note,
-      :location_name,
-      :latitude,
-      :longitude,
-      :google_place_id,
-      :start_time,
-      :duration_minutes,
-      :visibility,
-      :max_participants,
-      :status
-    ])
+                    :host_pet_id,
+                    :title,
+                    :note,
+                    :location_name,
+                    :latitude,
+                    :longitude,
+                    :google_place_id,
+                    :start_time,
+                    :duration_minutes,
+                    :visibility,
+                    :max_participants,
+                    :status,
+                  ])
   end
 end

@@ -112,7 +112,7 @@ class User < ApplicationRecord
     uniqueness: true,
     format: {
       with: /\A[\w_\.]+\z/i,
-      message: "can only contain letters, numbers, periods, and underscores"
+      message: "can only contain letters, numbers, periods, and underscores",
     }
 
   validates :website, url: { allow_blank: true }
@@ -127,7 +127,7 @@ class User < ApplicationRecord
       "username",
       "display_name",
       "city",
-      "bio"
+      "bio",
     ]
   end
 
@@ -148,8 +148,66 @@ class User < ApplicationRecord
     profile_banner.purge_later
   end
 
+  def following_users
+    User.where(
+      id: sent_user_friendships
+        .where(status: "accepted")
+        .select(:receiver_id),
+    ).where.not(id: id)
+  end
+
+  def follower_users
+    User.where(
+      id: received_user_friendships
+        .where(status: "accepted")
+        .select(:requester_id),
+    ).where.not(id: id)
+  end
+
+  def follows?(other_user)
+    return false if other_user.nil?
+    return false if other_user == self
+
+    sent_user_friendships
+      .where(receiver: other_user, status: "accepted")
+      .exists?
+  end
+
+  def followed_by?(other_user)
+    return false if other_user.nil?
+    return false if other_user == self
+
+    received_user_friendships
+      .where(requester: other_user, status: "accepted")
+      .exists?
+  end
+
+  def pending_follow_request_to?(other_user)
+    return false if other_user.nil?
+    return false if other_user == self
+
+    sent_user_friendships
+      .where(receiver: other_user, status: "pending")
+      .exists?
+  end
+
+  def pending_follow_request_from?(other_user)
+    return false if other_user.nil?
+    return false if other_user == self
+
+    received_user_friendships
+      .where(requester: other_user, status: "pending")
+      .exists?
+  end
+
   def friends_with?(other_user)
-    owner_friends.exists?(id: other_user.id) ||
-      friended_by_users.exists?(id: other_user.id)
+    follows?(other_user) && followed_by?(other_user)
+  end
+
+  def mutual_friends
+    following_ids = following_users.pluck(:id)
+    follower_ids = follower_users.pluck(:id)
+
+    User.where(id: following_ids & follower_ids).where.not(id: id)
   end
 end

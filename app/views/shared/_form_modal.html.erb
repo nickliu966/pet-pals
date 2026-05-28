@@ -18,7 +18,7 @@
                 aria-label="Close"></button>
       </div>
 
-      <div class="modal-body">
+      <div id="<%= dom_id(record, :form_modal_body) %>" class="modal-body">
         <%= render form_partial, form_locals %>
       </div>
     </div>

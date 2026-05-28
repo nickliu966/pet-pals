@@ -1,5 +1,5 @@
 class WalkParticipantsController < ApplicationController
-  before_action :set_walk_participant, only: [ :update, :destroy ]
+  before_action :set_walk_participant, only: [:update, :destroy]
 
   def create
     walk_event = WalkEvent.find(walk_participant_params.fetch(:walk_event_id))
@@ -15,6 +15,8 @@ class WalkParticipantsController < ApplicationController
         status: "joined",
         joined_at: Time.current,
       )
+
+      broadcast_walk_event_participation(walk_event)
 
       redirect_to walk_event_path(walk_event),
                   notice: "You joined this walk."
@@ -51,6 +53,8 @@ class WalkParticipantsController < ApplicationController
       notice = "You are already joining this walk."
     end
 
+    broadcast_walk_event_participation(walk_event)
+
     redirect_to walk_event_path(walk_event, return_to: params[:return_to]),
                 notice: notice
   end
@@ -74,7 +78,11 @@ class WalkParticipantsController < ApplicationController
     authorize! @walk_participant
 
     walk_event = @walk_participant.walk_event
+    removed_user = @walk_participant.user
+
     @walk_participant.destroy
+
+    broadcast_walk_event_participation(walk_event, extra_viewers: [removed_user])
 
     redirect_to walk_event_path(walk_event),
                 notice: "Participant was removed."
@@ -82,46 +90,154 @@ class WalkParticipantsController < ApplicationController
 
   def accept
     @walk_participant = WalkParticipant.find(params.fetch(:id))
+
+    if @walk_participant.user == current_user && @walk_participant.joined?
+      respond_to do |format|
+        format.html do
+          redirect_to safe_walk_participant_return_to(@walk_participant.walk_event),
+                      notice: "You already accepted this invitation."
+        end
+
+        format.turbo_stream
+      end
+
+      return
+    end
+
     authorize! @walk_participant
+
+    @walk_event = @walk_participant.walk_event
 
     @walk_participant.update!(
       status: "joined",
       joined_at: Time.current,
     )
 
-    redirect_to walk_event_path(@walk_participant.walk_event),
-                notice: "You accepted the invitation."
+    broadcast_walk_event_participation(@walk_event)
+
+    respond_to do |format|
+      format.html do
+        redirect_to safe_walk_participant_return_to(@walk_event),
+                    notice: "You accepted the invitation."
+      end
+
+      format.turbo_stream
+    end
   end
 
   def decline
     @walk_participant = WalkParticipant.find(params.fetch(:id))
+
+    if @walk_participant.user == current_user && @walk_participant.cancelled?
+      respond_to do |format|
+        format.html do
+          redirect_to safe_walk_participant_return_to(@walk_participant.walk_event),
+                      notice: "You already declined this invitation."
+        end
+
+        format.turbo_stream
+      end
+
+      return
+    end
+
     authorize! @walk_participant
+
+    @walk_event = @walk_participant.walk_event
+    viewer = @walk_participant.user
 
     @walk_participant.update!(status: "cancelled")
 
-    redirect_to walk_event_path(@walk_participant.walk_event),
-                notice: "You declined the invitation."
+    broadcast_walk_event_participation(@walk_event, extra_viewers: [viewer])
+
+    respond_to do |format|
+      format.html do
+        redirect_to safe_walk_participant_return_to(@walk_event),
+                    notice: "You declined the invitation."
+      end
+
+      format.turbo_stream
+    end
   end
 
   private
+
+  def safe_walk_participant_return_to(walk_event)
+    return_to = params[:return_to].presence
+
+    if return_to&.start_with?("/")
+      return_to
+    else
+      walk_event_path(walk_event)
+    end
+  end
+
+  def broadcast_walk_event_participation(walk_event, extra_viewers: [])
+    walk_event.reload
+
+    Turbo::StreamsChannel.broadcast_replace_to(
+      walk_event,
+      target: helpers.dom_id(walk_event, :participant_count),
+      partial: "walk_events/participant_count",
+      locals: { walk_event: walk_event },
+    )
+
+    viewers =
+      [
+        walk_event.host_user,
+        *walk_event.confirmed_participants.includes(:user).map(&:user),
+        *extra_viewers,
+      ].compact.uniq
+
+    viewers.each do |viewer|
+      Turbo::StreamsChannel.broadcast_replace_to(
+        participant_list_stream_for(walk_event, viewer),
+        target: helpers.dom_id(walk_event, :participant_list),
+        partial: "walk_events/participant_list",
+        locals: {
+          walk_event: walk_event,
+          viewer: viewer,
+        },
+      )
+
+      Turbo::StreamsChannel.broadcast_replace_to(
+        join_controls_stream_for(walk_event, viewer),
+        target: helpers.dom_id(walk_event, :join_controls),
+        partial: "walk_events/join_controls",
+        locals: {
+          walk_event: walk_event,
+          viewer: viewer,
+          return_to: nil,
+        },
+      )
+    end
+  end
+
+  def participant_list_stream_for(walk_event, viewer)
+    "walk_event_#{walk_event.id}_participant_list_user_#{viewer.id}"
+  end
+
+  def join_controls_stream_for(walk_event, viewer)
+    "walk_event_#{walk_event.id}_join_controls_user_#{viewer.id}"
+  end
 
   def set_walk_participant
     @walk_participant = WalkParticipant.find(params.expect(:id))
   end
 
   def walk_participant_params
-    params.expect(walk_participant: [ :walk_event_id, :pet_id ])
+    params.expect(walk_participant: [:walk_event_id, :pet_id])
   end
 
   def walk_participant_update_params
-    params.expect(walk_participant: [ :status ])
+    params.expect(walk_participant: [:status])
   end
 
   def walk_participant_params
     params.expect(
       walk_participant: [
         :walk_event_id,
-        pet_ids: []
+        pet_ids: [],
       ],
     )
   end

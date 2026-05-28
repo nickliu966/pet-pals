@@ -4,8 +4,9 @@
 
 <% posts_count = @user.posts.count %>
 <% pets_count = @user.pets.count %>
-<% followers_count = @user.friended_by_users.count %>
-<% following_count = @user.owner_friends.count %>
+<% followers_count = @user.follower_users.count %>
+<% following_count = @user.following_users.count %>
+<% friends_count = @user.mutual_friends.count %>
 
 <div class="card mb-4">
   <% if @user.profile_banner.attached? %>
@@ -46,38 +47,45 @@
           <div>
             <% if @user == current_user %>
               <button type="button"
-                      class="btn btn-sm btn-outline-secondary"
+                      class="btn btn-sm btn-outline-secondary profile-follow-button"
                       data-bs-toggle="modal"
                       data-bs-target="#editProfileModal">
                 Edit profile
               </button>
             <% else %>
-              <% sent_friendship = current_user.sent_user_friendships.find_by(receiver: @user) %>
-              <% received_friendship = current_user.received_user_friendships.find_by(requester: @user) %>
-              <% friendship = sent_friendship || received_friendship %>
+              <% sent_follow = current_user.sent_user_friendships.find_by(receiver: @user) %>
+              <% received_follow = current_user.received_user_friendships.find_by(requester: @user) %>
 
-              <% if friendship.present? && friendship.accepted? %>
-                <%= button_to "Friends",
-                      user_friendship_path(friendship),
+              <% if sent_follow&.accepted? %>
+                <%= button_to "Unfollow",
+                      user_friendship_path(sent_follow),
                       method: :delete,
-                      class: "btn btn-primary btn-sm" %>
-              <% elsif friendship.present? && friendship.pending? %>
-                <% if sent_friendship.present? %>
-                  <%= button_to "Requested",
-                        user_friendship_path(friendship),
-                        method: :delete,
-                        class: "btn btn-outline-secondary btn-sm" %>
-                <% else %>
-                  <%= link_to "Respond",
-                        notifications_path,
-                        class: "btn btn-outline-primary btn-sm" %>
-                <% end %>
-              <% else %>
-                <%= button_to "Add friend",
+                      class: "btn btn-sm btn-outline-danger profile-follow-button" %>
+
+              <% elsif sent_follow&.pending? %>
+                <%= button_to "Cancel request",
+                      user_friendship_path(sent_follow),
+                      method: :delete,
+                      class: "btn btn-sm btn-outline-secondary profile-follow-button" %>
+
+              <% elsif received_follow&.accepted? %>
+                <%= button_to "Follow back",
                       user_friendships_path,
                       method: :post,
                       params: { user_friendship: { receiver_id: @user.id } },
-                      class: "btn btn-primary btn-sm" %>
+                      class: "btn btn-sm btn-primary profile-follow-button" %>
+
+              <% elsif received_follow&.pending? %>
+                <%= link_to "Respond",
+                      notifications_path,
+                      class: "btn btn-sm btn-outline-primary profile-follow-button" %>
+
+              <% else %>
+                <%= button_to (@user.private? ? "Request" : "Follow"),
+                      user_friendships_path,
+                      method: :post,
+                      params: { user_friendship: { receiver_id: @user.id } },
+                      class: "btn btn-sm btn-primary profile-follow-button" %>
               <% end %>
             <% end %>
           </div>
@@ -87,29 +95,32 @@
           <div class="d-flex gap-4 mb-3">
             <div>
               <strong><%= posts_count %></strong>
-              <span class="text-muted">posts</span>
+              posts
             </div>
 
-            <div>
-              <%= link_to user_pets_path(@user.username), class: "text-decoration-none text-dark" do %>
-                <strong><%= pets_count %></strong>
-                <span class="text-muted">pets</span>
-              <% end %>
-            </div>
+            <%= link_to user_pets_path(@user.username),
+                  class: "text-dark text-decoration-none" do %>
+              <strong><%= pets_count %></strong>
+              pets
+            <% end %>
 
-            <div>
-              <%= link_to followers_path(@user.username), class: "text-decoration-none text-dark" do %>
-                <strong><%= followers_count %></strong>
-                <span class="text-muted">followers</span>
-              <% end %>
-            </div>
+            <%= link_to followers_path(@user.username),
+                  class: "text-dark text-decoration-none" do %>
+              <strong><%= followers_count %></strong>
+              followers
+            <% end %>
 
-            <div>
-              <%= link_to follows_path(@user.username), class: "text-decoration-none text-dark" do %>
-                <strong><%= following_count %></strong>
-                <span class="text-muted">following</span>
-              <% end %>
-            </div>
+            <%= link_to follows_path(@user.username),
+                  class: "text-dark text-decoration-none" do %>
+              <strong><%= following_count %></strong>
+              following
+            <% end %>
+
+            <%= link_to user_friends_path(@user.username),
+                  class: "text-dark text-decoration-none" do %>
+              <strong><%= friends_count %></strong>
+              friends
+            <% end %>
           </div>
 
           <% if @user.bio.present? %>
@@ -131,11 +142,18 @@
 <% if can_view_private_content %>
   <h3>Posts</h3>
 
-  <ul class="list-group list-group-flush">
-    <%= render partial: "posts/post",
-               collection: @user.posts.default_order,
-               layout: "layouts/list_group" %>
-  </ul>
+  <% if @posts.any? %>
+    <ul class="list-group list-group-flush">
+      <%= render partial: "posts/post",
+            collection: @posts,
+            layout: "layouts/list_group",
+            locals: { render_edit_modal: false } %>
+    </ul>
+  <% else %>
+    <p class="text-muted">
+      No posts yet.
+    </p>
+  <% end %>
 <% else %>
   <div class="card">
     <div class="card-body text-center text-muted">
@@ -148,7 +166,7 @@
       </div>
 
       <div class="small">
-        Add them as a friend to see their posts and pets.
+        Request to follow them to see their posts and pets.
       </div>
     </div>
   </div>
@@ -156,7 +174,11 @@
 
 <% if @user == current_user %>
   <% content_for :modals do %>
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal fade"
+         id="editProfileModal"
+         tabindex="-1"
+         aria-labelledby="editProfileModalLabel"
+         aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">

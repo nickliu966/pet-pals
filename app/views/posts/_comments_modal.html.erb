@@ -1,3 +1,13 @@
+<% post_images = local_assigns.fetch(:post_images) { post.respond_to?(:images) ? post.images.to_a : [] } %>
+<% modal_comments =
+     local_assigns.fetch(:modal_comments) do
+       if post.comments.loaded?
+         post.comments.sort_by(&:created_at)
+       else
+         post.comments.default_order
+       end
+     end %>
+
 <div class="modal fade"
      id="<%= comments_modal_id %>"
      tabindex="-1"
@@ -12,15 +22,15 @@
                   class: "w-100",
                   style: "max-height: 80vh; object-fit: contain; background: black;" %>
 
-          <% elsif post.respond_to?(:images) && post.images.attached? %>
-            <% if post.images.count == 1 %>
-              <%= image_tag post.images.first,
+          <% elsif post_images.any? %>
+            <% if post_images.one? %>
+              <%= image_tag post_images.first,
                     class: "w-100",
                     style: "max-height: 80vh; object-fit: contain;" %>
             <% else %>
               <div id="<%= dom_id(post, :modal_images) %>" class="carousel slide w-100">
                 <div class="carousel-inner">
-                  <% post.images.each_with_index do |image, index| %>
+                  <% post_images.each_with_index do |image, index| %>
                     <div class="carousel-item <%= "active" if index == 0 %>">
                       <%= image_tag image,
                             class: "d-block w-100",
@@ -92,40 +102,20 @@
               </div>
             <% end %>
 
-            <% post.comments.default_order.each do |comment| %>
-              <div class="mb-3">
-                <strong>
-                  <%= link_to comment.author.username,
-                        user_path(comment.author.username),
-                        class: "text-dark text-decoration-none" %>
-                </strong>
-
-                <%= comment.body %>
-
-                <div class="small text-muted">
-                  <%= time_ago_in_words(comment.created_at) %> ago
-                </div>
-              </div>
-            <% end %>
+            <div id="<%= dom_id(post, :modal_comments) %>">
+              <% modal_comments.each do |comment| %>
+                <%= render "comments/modal_comment", comment: comment %>
+              <% end %>
+            </div>
           </div>
 
           <div class="p-3 border-top">
-            <div class="fw-bold mb-2">
-              <%= pluralize(post.likes_count, "like") %>
-            </div>
+            <%= render "posts/likes_count",
+                  post: post,
+                  target_id: dom_id(post, :modal_likes_count),
+                  class_name: "fw-bold mb-2" %>
 
-            <%= form_with(model: Comment.new) do |form| %>
-              <%= form.hidden_field :post_id, value: post.id %>
-
-              <div class="input-group">
-                <%= form.text_field :body,
-                      class: "form-control",
-                      placeholder: "Add a comment..." %>
-
-                <%= form.submit "Post",
-                      class: "btn btn-primary" %>
-              </div>
-            <% end %>
+            <%= render "comments/modal_form", post: post %>
           </div>
         </div>
       </div>

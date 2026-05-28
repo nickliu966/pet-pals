@@ -1,11 +1,13 @@
 <% content_for :title, "Home" %>
 
+<% nearby_results_frame_id = "discover_posts_frame" %>
+
+<% content_for :right_sidebar do %>
+  <%= render "shared/nearby_filter", frame_id: nearby_results_frame_id %>
+<% end %>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0">Discover</h1>
 </div>
 
-<ul id="discover_posts" class="list-group list-group-flush">
-  <%= render partial: "posts/post",
-             collection: @posts,
-             layout: "layouts/list_group" %>
-</ul>
+<%= render "posts/discover_results", posts: @posts %>

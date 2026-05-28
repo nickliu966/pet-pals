@@ -1,0 +1,33 @@
+<%= turbo_stream.replace dom_id(@walk_event, :participant_count),
+      partial: "walk_events/participant_count",
+      locals: { walk_event: @walk_event } %>
+
+<%= turbo_stream.replace dom_id(@walk_event, :participant_list),
+      partial: "walk_events/participant_list",
+      locals: {
+        walk_event: @walk_event,
+        viewer: current_user
+      } %>
+
+<%= turbo_stream.replace dom_id(@walk_event, :join_controls),
+      partial: "walk_events/join_controls",
+      locals: {
+        walk_event: @walk_event,
+        viewer: current_user,
+        return_to: nil
+      } %>
+
+<%= turbo_stream.replace dom_id(@walk_event, :invitation_card),
+      partial: "walk_events/invitation_card",
+      locals: {
+        walk_event: @walk_event,
+        viewer: current_user
+      } %>
+
+<%= turbo_stream.replace dom_id(@walk_participant, :notification_actions) do %>
+  <div id="<%= dom_id(@walk_participant, :notification_actions) %>" class="d-flex gap-2">
+    <span class="btn btn-sm btn-outline-secondary disabled">
+      Declined
+    </span>
+  </div>
+<% end %>

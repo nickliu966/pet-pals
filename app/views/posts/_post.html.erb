@@ -1,6 +1,15 @@
 <div id="<%= dom_id(post) %>">
   <% expanded = local_assigns.fetch(:expanded, false) %>
+  <% render_edit_modal = local_assigns.fetch(:render_edit_modal, true) %>
   <% comments_modal_id = dom_id(post, :comments_modal) %>
+
+  <% post_images = post.respond_to?(:images) ? post.images.to_a : [] %>
+  <% post_comments =
+       if post.comments.loaded?
+         post.comments.sort_by(&:created_at)
+       else
+         post.comments.default_order
+       end %>
 
   <% if post.respond_to?(:video) && post.video.attached? %>
     <%= video_tag post.video,
@@ -8,15 +17,15 @@
           class: "w-100",
           style: "max-height: 420px; object-fit: cover; background: black;" %>
 
-  <% elsif post.respond_to?(:images) && post.images.attached? %>
-    <% if post.images.count == 1 %>
-      <%= image_tag post.images.first,
+  <% elsif post_images.any? %>
+    <% if post_images.one? %>
+      <%= image_tag post_images.first,
             class: "w-100",
             style: "height: 360px; object-fit: cover;" %>
     <% else %>
       <div id="postImages<%= post.id %>" class="carousel slide">
         <div class="carousel-inner">
-          <% post.images.each_with_index do |image, index| %>
+          <% post_images.each_with_index do |image, index| %>
             <div class="carousel-item <%= "active" if index == 0 %>">
               <%= image_tag image,
                     class: "d-block w-100",
@@ -114,26 +123,9 @@
   </div>
 
   <div class="px-3 pb-3">
-    <% like = current_user.likes.find_by(post: post) %>
-
     <div class="d-flex justify-content-between align-items-center mb-2">
       <div class="d-flex gap-3 align-items-center fs-4">
-        <% if like.present? %>
-          <%= button_to like,
-                method: :delete,
-                class: "btn btn-link text-danger p-0 border-0 fs-4" do %>
-            <i class="fa-solid fa-heart"></i>
-          <% end %>
-        <% else %>
-          <%= form_with(model: Like.new) do |form| %>
-            <%= form.hidden_field :post_id, value: post.id %>
-
-            <button type="submit"
-                    class="btn btn-link text-dark p-0 border-0 fs-4">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          <% end %>
-        <% end %>
+        <%= render "posts/like_button", post: post %>
 
         <% if expanded %>
           <%= link_to "##{dom_id(post, :comment_form)}",
@@ -153,25 +145,32 @@
       <% if allowed_to?(:edit?, post) %>
         <div class="dropdown">
           <%= button_tag type: "button",
-          class: "btn btn-link text-decoration-none p-0",
-          data: { bs_toggle: "dropdown" },
-          aria: { expanded: false } do %>
+                class: "btn btn-link text-decoration-none p-0",
+                data: { bs_toggle: "dropdown" },
+                aria: { expanded: false } do %>
             <i class="fa-solid fa-ellipsis"></i>
           <% end %>
 
           <div class="dropdown-menu dropdown-menu-end p-0 post-actions-menu">
-            <button type="button"
-              class="dropdown-item"
-              data-bs-toggle="modal"
-              data-bs-target="#<%= dom_id(post, :form_modal) %>">
-              Edit
-            </button>
+            <% if render_edit_modal %>
+              <button type="button"
+                      class="dropdown-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#<%= dom_id(post, :form_modal) %>">
+                Edit
+              </button>
+            <% else %>
+              <%= link_to "Edit",
+        edit_post_path(post, return_to: "#{request.fullpath}##{dom_id(post)}"),
+        class: "dropdown-item" %>
+            <% end %>
 
             <div class="dropdown-divider m-0"></div>
 
             <div class="p-3 border-bottom">
               <%= form_with model: post, url: post_path(post), method: :patch, local: true do |form| %>
                 <%= hidden_field_tag :return_to, "#{request.fullpath}##{dom_id(post)}" %>
+                <%= hidden_field_tag :expanded, expanded %>
 
                 <%= form.label :visibility, "Visibility", class: "form-label small fw-semibold mb-1" %>
 
@@ -192,17 +191,15 @@
             </div>
 
             <%= button_to "Delete",
-            post_path(post),
-            method: :delete,
-            class: "dropdown-item text-danger rounded-0" %>
+                  post_path(post),
+                  method: :delete,
+                  class: "dropdown-item text-danger rounded-0" %>
           </div>
         </div>
       <% end %>
     </div>
 
-    <div class="fw-bold mb-1">
-      <%= pluralize(post.likes_count, "like") %>
-    </div>
+    <%= render "posts/likes_count", post: post %>
 
     <% if post.body.present? %>
       <div class="mb-1">
@@ -216,66 +213,29 @@
       </div>
     <% end %>
 
-    <% if post.comments.count > 0 %>
-      <% if expanded %>
-        <div class="text-muted mb-1">
-          <%= pluralize(post.comments.count, "comment") %>
-        </div>
-      <% else %>
-        <button type="button"
-                class="btn btn-link text-muted text-decoration-none p-0 mb-1"
-                data-bs-toggle="modal"
-                data-bs-target="#<%= comments_modal_id %>">
-          View all <%= pluralize(post.comments.count, "comment") %>
-        </button>
-      <% end %>
-    <% end %>
-
-    <% unless expanded %>
-      <% latest_comment = post.comments.default_order.first %>
-
-      <% if latest_comment.present? %>
-        <div class="small">
-          <strong>
-            <%= link_to latest_comment.author.username,
-                  user_path(latest_comment.author.username),
-                  class: "text-dark text-decoration-none" %>
-          </strong>
-
-          <%= latest_comment.body %>
-        </div>
-      <% end %>
-    <% end %>
+    <div id="<%= dom_id(post, :comments_summary) %>">
+      <%= render "posts/comments_summary",
+            post: post,
+            expanded: expanded,
+            comments_modal_id: comments_modal_id %>
+    </div>
   </div>
 
   <% if expanded %>
-    <ul class="list-group list-group-flush border-top">
-      <%= render post.comments.default_order %>
+    <ul id="<%= dom_id(post, :comments) %>" class="list-group list-group-flush border-top">
+      <%= render post_comments %>
     </ul>
 
-    <div id="<%= dom_id(post, :comment_form) %>" class="border-top p-3">
-      <%= form_with(model: Comment.new) do |form| %>
-        <%= form.hidden_field :post_id, value: post.id %>
-
-        <div class="form-group mb-2">
-          <%= form.label :body, "Add a comment", class: "visually-hidden" %>
-          <%= form.text_area :body,
-                class: "form-control",
-                placeholder: "Add a comment..." %>
-        </div>
-
-        <div class="d-grid">
-          <%= form.submit "Comment", class: "btn btn-primary" %>
-        </div>
-      <% end %>
-    </div>
+    <%= render "comments/expanded_form", post: post %>
   <% else %>
     <%= render "posts/comments_modal",
           post: post,
-          comments_modal_id: comments_modal_id %>
+          comments_modal_id: comments_modal_id,
+          post_images: post_images,
+          modal_comments: post_comments %>
   <% end %>
 
-  <% if allowed_to?(:edit?, post) %>
+  <% if allowed_to?(:edit?, post) && render_edit_modal %>
     <% content_for :modals do %>
       <%= render "shared/form_modal",
             record: post,
@@ -285,7 +245,8 @@
             form_locals: {
               post: post,
               return_to: "#{request.fullpath}##{dom_id(post)}",
-              modal: true
+              modal: true,
+              expanded: expanded
             } %>
     <% end %>
   <% end %>

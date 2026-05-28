@@ -1,4 +1,6 @@
 class WalkEvent < ApplicationRecord
+  include NearbySearchable
+
   belongs_to :host_user,
              class_name: "User"
 
@@ -21,14 +23,14 @@ class WalkEvent < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either"
+    friends_of_either: "friends_of_either",
   }
 
   enum :status, {
     scheduled: "scheduled",
     full: "full",
     cancelled: "cancelled",
-    completed: "completed"
+    completed: "completed",
   }
 
   validates :title, presence: true
@@ -95,7 +97,7 @@ class WalkEvent < ApplicationRecord
   end
 
   def confirmed_participants
-    walk_participants.where(status: [ "joined", "attended" ])
+    walk_participants.where(status: ["joined", "attended"])
   end
 
   def joined_by?(user)
@@ -161,7 +163,7 @@ class WalkEvent < ApplicationRecord
       "start_time",
       "visibility",
       "status",
-      "created_at"
+      "created_at",
     ]
   end
 
@@ -169,8 +171,58 @@ class WalkEvent < ApplicationRecord
     [
       "host_user",
       "walk_participants",
-      "posts"
+      "posts",
     ]
+  end
+
+  def self.visible_to(user)
+    following_user_ids =
+      UserFriendship
+        .where(requester: user, status: "accepted")
+        .pluck(:receiver_id)
+
+    follower_user_ids =
+      UserFriendship
+        .where(receiver: user, status: "accepted")
+        .pluck(:requester_id)
+
+    friend_user_ids = following_user_ids & follower_user_ids
+
+    user_pet_ids = user.pets.pluck(:id)
+
+    pet_friend_ids =
+      PetFriendship
+        .accepted
+        .where(requester_pet_id: user_pet_ids)
+        .pluck(:receiver_pet_id) +
+      PetFriendship
+        .accepted
+        .where(receiver_pet_id: user_pet_ids)
+        .pluck(:requester_pet_id)
+
+    walk_event_ids = []
+
+    walk_event_ids += where(visibility: "everyone").pluck(:id)
+
+    walk_event_ids += where(host_user: user).pluck(:id)
+
+    walk_event_ids +=
+      WalkParticipant
+        .where(user: user)
+        .where.not(status: "cancelled")
+        .pluck(:walk_event_id)
+
+    walk_event_ids +=
+      where(host_user_id: friend_user_ids)
+        .where(visibility: ["user_friends_only", "friends_of_either"])
+        .pluck(:id)
+
+    walk_event_ids +=
+      where(host_pet_id: pet_friend_ids.uniq)
+        .where(visibility: ["pet_friends_only", "friends_of_either"])
+        .pluck(:id)
+
+    where(id: walk_event_ids.uniq)
   end
 
   private

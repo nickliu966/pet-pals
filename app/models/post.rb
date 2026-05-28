@@ -31,6 +31,8 @@
 #  fk_rails_...  (walk_event_id => walk_events.id)
 #
 class Post < ApplicationRecord
+  include NearbySearchable
+
   has_many_attached :images
 
   belongs_to :user
@@ -49,12 +51,55 @@ class Post < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either"
+    friends_of_either: "friends_of_either",
   }
 
   validate :walk_event_must_be_available_to_user
 
   scope :default_order, -> { order(created_at: :desc) }
+
+  def self.visible_to(user)
+    following_user_ids =
+      UserFriendship
+        .where(requester: user, status: "accepted")
+        .pluck(:receiver_id)
+
+    follower_user_ids =
+      UserFriendship
+        .where(receiver: user, status: "accepted")
+        .pluck(:requester_id)
+
+    friend_user_ids = following_user_ids & follower_user_ids
+
+    user_pet_ids = user.pets.pluck(:id)
+
+    pet_friend_ids =
+      PetFriendship
+        .accepted
+        .where(requester_pet_id: user_pet_ids)
+        .pluck(:receiver_pet_id) +
+      PetFriendship
+        .accepted
+        .where(receiver_pet_id: user_pet_ids)
+        .pluck(:requester_pet_id)
+
+    post_ids = []
+
+    post_ids += where(user: user).pluck(:id)
+    post_ids += where(visibility: "everyone").pluck(:id)
+
+    post_ids +=
+      where(user_id: friend_user_ids)
+        .where(visibility: ["user_friends_only", "friends_of_either"])
+        .pluck(:id)
+
+    post_ids +=
+      where(pet_id: pet_friend_ids.uniq)
+        .where(visibility: ["pet_friends_only", "friends_of_either"])
+        .pluck(:id)
+
+    where(id: post_ids.uniq)
+  end
 
   private
 

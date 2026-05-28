@@ -107,8 +107,9 @@
 
 <ul class="list-group list-group-flush mb-4">
   <%= render partial: "posts/post",
-             collection: @pet.posts,
-             layout: "layouts/list_group" %>
+      collection: @pet.posts,
+      layout: "layouts/list_group",
+      locals: { render_edit_modal: false } %>
 </ul>
 
 <h3>Walks hosted by <%= @pet.name %></h3>
