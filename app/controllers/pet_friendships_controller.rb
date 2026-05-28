@@ -1,5 +1,5 @@
 class PetFriendshipsController < ApplicationController
-  before_action :set_pet_friendship, only: [:update, :destroy]
+  before_action :set_pet_friendship, only: [ :update, :destroy ]
 
   def index
     user_pet_ids = current_user.pets.select(:id)
@@ -75,6 +75,6 @@ class PetFriendshipsController < ApplicationController
   end
 
   def pet_friendship_params
-    params.expect(pet_friendship: [:requester_pet_id, :receiver_pet_id, :status])
+    params.expect(pet_friendship: [ :requester_pet_id, :receiver_pet_id, :status ])
   end
 end

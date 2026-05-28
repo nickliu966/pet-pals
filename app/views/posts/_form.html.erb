@@ -16,8 +16,8 @@
     </div>
   <% end %>
 
-  <div class="form-group mb-2">
-    <%= form.label :pet_id, "Featured pet" %>
+  <div class="form-group mb-3">
+    <%= form.label :pet_id, "Featured pet", class: "form-label fw-semibold" %>
 
     <%= form.collection_select :pet_id,
           current_user.pets,
@@ -41,21 +41,21 @@
       <strong><%= fixed_walk_event.title %></strong>
     </div>
   <% else %>
-    <div class="form-text mb-2">
+    <div class="form-text mb-3">
       To link this post to a walk, find the walk from the Walks page and use “Share post.”
     </div>
   <% end %>
 
-  <div class="form-group mb-2">
-    <%= form.label :body, "Caption" %>
+  <div class="form-group mb-3">
+    <%= form.label :body, "Caption", class: "form-label fw-semibold" %>
     <%= form.text_area :body,
           class: "form-control",
           rows: 4,
           placeholder: "What is happening?" %>
   </div>
 
-  <div class="form-group mb-2">
-    <%= form.label :visibility %>
+  <div class="form-group mb-3">
+    <%= form.label :visibility, class: "form-label fw-semibold" %>
 
     <%= form.select :visibility,
         [
@@ -73,8 +73,8 @@
   </div>
 
   <% if post.respond_to?(:images) && post.images.attached? %>
-    <div class="mb-2">
-      <div class="form-label">Current photos</div>
+    <div class="mb-3">
+      <div class="form-label fw-semibold">Current photos</div>
 
       <div class="d-flex flex-wrap gap-2">
         <% post.images.each do |image| %>
@@ -85,16 +85,16 @@
       </div>
     </div>
   <% elsif post.respond_to?(:image) && post.image.attached? %>
-    <div class="mb-2">
-      <div class="form-label">Current photo</div>
+    <div class="mb-3">
+      <div class="form-label fw-semibold">Current photo</div>
 
       <%= image_tag post.image,
             class: "rounded border",
             style: "width: 120px; height: 120px; object-fit: cover;" %>
     </div>
   <% elsif post.image_url.present? %>
-    <div class="mb-2">
-      <div class="form-label">Current image URL</div>
+    <div class="mb-3">
+      <div class="form-label fw-semibold">Current image URL</div>
 
       <%= image_tag post.image_url,
             class: "rounded border",
@@ -102,8 +102,8 @@
     </div>
   <% end %>
 
-  <div class="form-group mb-2">
-    <%= form.label :images, "Photos" %>
+  <div class="form-group mb-3">
+    <%= form.label :images, "Photos", class: "form-label fw-semibold" %>
 
     <%= form.file_field :images,
           multiple: true,
@@ -117,7 +117,7 @@
 
   <div class="form-group mb-3"
        data-controller="google-search">
-    <%= form.label :location_name, "Location" %>
+    <%= form.label :location_name, "Location", class: "form-label fw-semibold" %>
 
     <div class="form-control mb-2"
          data-google-search-target="searchBox">
@@ -143,22 +143,11 @@
           data: { google_search_target: "placeId" } %>
   </div>
 
-  <div class="form-group mb-3">
-    <%= form.label :visibility %>
-    <%= form.select :visibility,
-          options_for_select(
-            Post.visibilities.keys.map { |visibility| [visibility.humanize, visibility] },
-            post.visibility
-          ),
-          {},
-          class: "form-select" %>
-  </div>
-
   <div class="d-flex justify-content-end gap-2">
     <% if modal %>
       <button type="button"
-            class="btn btn-outline-secondary"
-            data-bs-dismiss="modal">
+              class="btn btn-outline-secondary rounded-pill px-4"
+              data-bs-dismiss="modal">
         Cancel
       </button>
     <% elsif post.persisted? %>
@@ -171,16 +160,17 @@
 
       <%= link_to "Cancel",
           cancel_path,
-          class: "btn btn-outline-secondary" %>
+          class: "btn btn-outline-secondary rounded-pill px-4" %>
     <% else %>
       <button type="button"
-            class="btn btn-outline-secondary"
-            data-bs-dismiss="modal">
+              class="btn btn-outline-secondary rounded-pill px-4"
+              data-bs-dismiss="modal">
         Cancel
       </button>
     <% end %>
 
     <%= form.submit post.persisted? ? "Update post" : "Create post",
-        class: "btn btn-primary" %>
+      class: "btn btn-primary rounded-pill px-4",
+      data: { turbo_submits_with: post.persisted? ? "Updating..." : "Posting..." } %>
   </div>
 <% end %>

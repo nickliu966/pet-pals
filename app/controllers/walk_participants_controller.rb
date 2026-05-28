@@ -1,5 +1,5 @@
 class WalkParticipantsController < ApplicationController
-  before_action :set_walk_participant, only: [:update, :destroy]
+  before_action :set_walk_participant, only: [ :update, :destroy ]
 
   def create
     walk_event = WalkEvent.find(walk_participant_params.fetch(:walk_event_id))
@@ -82,7 +82,7 @@ class WalkParticipantsController < ApplicationController
 
     @walk_participant.destroy
 
-    broadcast_walk_event_participation(walk_event, extra_viewers: [removed_user])
+    broadcast_walk_event_participation(walk_event, extra_viewers: [ removed_user ])
 
     redirect_to walk_event_path(walk_event),
                 notice: "Participant was removed."
@@ -148,7 +148,7 @@ class WalkParticipantsController < ApplicationController
 
     @walk_participant.update!(status: "cancelled")
 
-    broadcast_walk_event_participation(@walk_event, extra_viewers: [viewer])
+    broadcast_walk_event_participation(@walk_event, extra_viewers: [ viewer ])
 
     respond_to do |format|
       format.html do
@@ -186,7 +186,7 @@ class WalkParticipantsController < ApplicationController
       [
         walk_event.host_user,
         *walk_event.confirmed_participants.includes(:user).map(&:user),
-        *extra_viewers,
+        *extra_viewers
       ].compact.uniq
 
     viewers.each do |viewer|
@@ -196,7 +196,7 @@ class WalkParticipantsController < ApplicationController
         partial: "walk_events/participant_list",
         locals: {
           walk_event: walk_event,
-          viewer: viewer,
+          viewer: viewer
         },
       )
 
@@ -207,7 +207,7 @@ class WalkParticipantsController < ApplicationController
         locals: {
           walk_event: walk_event,
           viewer: viewer,
-          return_to: nil,
+          return_to: nil
         },
       )
     end
@@ -226,18 +226,18 @@ class WalkParticipantsController < ApplicationController
   end
 
   def walk_participant_params
-    params.expect(walk_participant: [:walk_event_id, :pet_id])
+    params.expect(walk_participant: [ :walk_event_id, :pet_id ])
   end
 
   def walk_participant_update_params
-    params.expect(walk_participant: [:status])
+    params.expect(walk_participant: [ :status ])
   end
 
   def walk_participant_params
     params.expect(
       walk_participant: [
         :walk_event_id,
-        pet_ids: [],
+        pet_ids: []
       ],
     )
   end

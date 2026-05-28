@@ -4,79 +4,95 @@
   <% end %>
 </div>
 
-<div class="card mb-4">
-  <% if @pet.image_url.present? %>
+<div class="card mb-4 overflow-hidden">
+  <% if @pet.image.attached? %>
+    <%= image_tag @pet.image,
+          class: "card-img-top",
+          style: "height: 320px; object-fit: cover;",
+          loading: "eager",
+          decoding: "async" %>
+  <% elsif @pet.image_url.present? %>
     <%= image_tag @pet.image_url,
           class: "card-img-top",
-          style: "height: 360px; object-fit: cover;" %>
+          style: "height: 320px; object-fit: cover;",
+          loading: "eager",
+          decoding: "async" %>
   <% end %>
 
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-start">
-      <div>
-        <h1 class="card-title mb-1">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+      <div class="min-width-0">
+        <div class="page-kicker mb-1">
+          Pet profile
+        </div>
+
+        <h1 class="card-title page-title mb-1">
           <%= @pet.name %>
         </h1>
 
-        <p class="text-muted mb-2">
+        <p class="text-muted mb-3">
           Owned by
           <%= link_to @pet.user.username,
                 user_path(@pet.user.username),
-                class: "text-decoration-none" %>
+                class: "text-decoration-none fw-semibold" %>
         </p>
 
-        <p class="mb-1">
-          <strong>Species:</strong>
-          <%= @pet.species %>
-        </p>
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="small text-muted">Species</div>
+            <div class="fw-semibold"><%= @pet.species.presence || "Unknown" %></div>
+          </div>
 
-        <p class="mb-1">
-          <strong>Breed:</strong>
-          <%= @pet.breed %>
-        </p>
+          <div class="col-6">
+            <div class="small text-muted">Breed</div>
+            <div class="fw-semibold"><%= @pet.breed.presence || "Unknown" %></div>
+          </div>
 
-        <p class="mb-1">
-          <strong>Gender:</strong>
-          <%= @pet.gender %>
-        </p>
+          <div class="col-6">
+            <div class="small text-muted">Gender</div>
+            <div class="fw-semibold"><%= @pet.gender.presence || "Unknown" %></div>
+          </div>
 
-        <p class="mb-1">
-          <strong>Size:</strong>
-          <%= @pet.size %>
-        </p>
+          <div class="col-6">
+            <div class="small text-muted">Size</div>
+            <div class="fw-semibold"><%= @pet.size.presence || "Unknown" %></div>
+          </div>
 
-        <p class="mb-1">
-          <strong>Energy level:</strong>
-          <%= @pet.energy_level %>
-        </p>
+          <div class="col-6">
+            <div class="small text-muted">Energy</div>
+            <div class="fw-semibold"><%= @pet.energy_level.presence || "Unknown" %></div>
+          </div>
 
-        <p class="mb-1">
-          <strong>Temperament:</strong>
-          <%= @pet.temperament %>
-        </p>
+          <div class="col-6">
+            <div class="small text-muted">Vaccinated</div>
+            <div class="fw-semibold"><%= @pet.vaccinated? ? "Yes" : "No" %></div>
+          </div>
+        </div>
 
-        <p class="mb-1">
-          <strong>Vaccinated:</strong>
-          <%= @pet.vaccinated? ? "Yes" : "No" %>
-        </p>
+        <% if @pet.temperament.present? %>
+          <p class="mb-2">
+            <strong>Temperament:</strong>
+            <%= @pet.temperament %>
+          </p>
+        <% end %>
 
         <% if @pet.bio.present? %>
-          <p class="mt-2 mb-0">
+          <p class="mb-0 text-muted">
             <%= @pet.bio %>
           </p>
         <% end %>
       </div>
 
-      <div>
+      <div class="flex-shrink-0">
         <% if allowed_to?(:edit?, @pet) %>
           <div class="dropdown">
             <%= button_tag class: "btn btn-link text-decoration-none",
-                  data: { bs_toggle: "dropdown" },
-                  aria: { expanded: false } do %>
+                  data: { bs_toggle: "dropdown", bs_boundary: "viewport" },
+                  aria: { expanded: false, label: "Pet actions" } do %>
               <i class="fa-solid fa-ellipsis"></i>
             <% end %>
 
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu dropdown-menu-end">
               <li>
                 <button type="button"
                         class="dropdown-item"
@@ -103,22 +119,76 @@
   </div>
 </div>
 
-<h3>Posts with <%= @pet.name %></h3>
+<section class="mb-4">
+  <div class="d-flex justify-content-between align-items-end mb-3">
+    <div>
+      <div class="page-kicker mb-1">
+        Moments
+      </div>
 
-<ul class="list-group list-group-flush mb-4">
-  <%= render partial: "posts/post",
-      collection: @pet.posts,
-      layout: "layouts/list_group",
-      locals: { render_edit_modal: false } %>
-</ul>
+      <h2 class="h3 mb-0">
+        Posts with <%= @pet.name %>
+      </h2>
+    </div>
+  </div>
 
-<h3>Walks hosted by <%= @pet.name %></h3>
+  <% pet_posts = @pet.posts.default_order %>
 
-<ul class="list-group list-group-flush">
-  <%= render partial: "walk_events/walk_event",
-             collection: @pet.hosted_walk_events,
-             layout: "layouts/list_group" %>
-</ul>
+  <% if pet_posts.any? %>
+    <ul class="list-group list-group-flush mb-4">
+      <%= render partial: "posts/post",
+            collection: pet_posts,
+            layout: "layouts/list_group",
+            locals: { render_edit_modal: false } %>
+    </ul>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-icon mx-auto mb-3">
+        <i class="fa-regular fa-images"></i>
+      </div>
+
+      <h3 class="h5">
+        No posts yet
+      </h3>
+
+      <p class="text-muted mb-0">
+        Posts featuring <%= @pet.name %> will appear here.
+      </p>
+    </div>
+  <% end %>
+</section>
+
+<section>
+  <div class="page-kicker mb-1">
+    Walks
+  </div>
+
+  <h2 class="h3 mb-3">
+    Walks hosted by <%= @pet.name %>
+  </h2>
+
+  <% if @pet.hosted_walk_events.any? %>
+    <ul class="list-group list-group-flush">
+      <%= render partial: "walk_events/walk_event",
+            collection: @pet.hosted_walk_events,
+            layout: "layouts/list_group" %>
+    </ul>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-icon mx-auto mb-3">
+        <i class="fa-solid fa-person-walking"></i>
+      </div>
+
+      <h3 class="h5">
+        No hosted walks yet
+      </h3>
+
+      <p class="text-muted mb-0">
+        Walks hosted by <%= @pet.name %> will appear here.
+      </p>
+    </div>
+  <% end %>
+</section>
 
 <% if allowed_to?(:edit?, @pet) %>
   <% content_for :modals do %>

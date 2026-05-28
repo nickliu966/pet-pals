@@ -1,66 +1,59 @@
-.app-layout {
-  display: grid;
-  grid-template-columns: 180px minmax(0, 540px) 260px;
-  gap: 24px;
-  align-items: start;
-  padding-top: 24px;
+.app-shell-container,
+.container.app-shell-container {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 
-.left-sidebar {
-  position: sticky;
-  top: 80px;
-}
-
-.main-content {
-  min-width: 0;
-}
-
-.right-sidebar {
-  position: sticky;
-  top: 80px;
-}
-
-@media (max-width: 1100px) {
-  .app-layout {
-    grid-template-columns: 180px minmax(0, 560px);
-  }
-
-  .right-sidebar {
-    display: none;
-  }
-}
-
-@media (max-width: 800px) {
-  .app-layout {
-    display: block;
-  }
-
-  .left-sidebar {
-    position: static;
-    margin-bottom: 20px;
-  }
-}
-
-.app-shell-container {
-  max-width: 1120px;
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  width: 1028px;
+  max-width: 1028px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .app-layout {
+  width: 1028px;
+  max-width: 1028px;
+  margin-left: auto;
+  margin-right: auto;
   display: grid;
   grid-template-columns: 180px 560px 240px;
   gap: 24px;
   align-items: start;
   padding-top: 24px;
+  padding-bottom: 48px;
 }
 
 .app-left,
 .app-right {
   position: sticky;
-  top: 80px;
+  top: 82px;
+}
+
+.app-left {
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
 }
 
 .app-main {
+  width: 560px;
   min-width: 0;
+  max-width: 560px;
+}
+
+.app-right {
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
 }
 
 .app-main .card,
@@ -68,77 +61,21 @@
   width: 100%;
 }
 
-@media (max-width: 1050px) {
-  .app-layout {
-    grid-template-columns: 180px minmax(0, 560px);
-  }
-
-  .app-right {
-    display: none;
-  }
-}
-
-@media (max-width: 760px) {
-  .app-layout {
-    display: block;
-  }
-
-  .app-left {
-    position: static;
-    margin-bottom: 20px;
-  }
+.left-sidebar {
+  display: block;
 }
 
 .profile-bio {
   max-width: 420px;
-  line-height: 1.4;
+  line-height: 1.45;
   word-break: normal;
   overflow-wrap: break-word;
 }
 
-[id^="post_"] {
-  scroll-margin-top: 90px;
-}
-
-.post-actions-menu {
-  min-width: 18rem;
-}
-
-.post-actions-menu form {
-  margin: 0;
-}
-
-.post-actions-menu form.button_to {
-  display: block;
-  margin: 0;
-}
-
-.post-actions-menu .dropdown-item {
-  white-space: normal;
-}
-
-.record-actions-menu {
-  min-width: 18rem;
-}
-
-.record-actions-menu form {
-  margin: 0;
-}
-
-.record-actions-menu form.button_to {
-  display: block;
-  margin: 0;
-}
-
-.record-actions-menu .dropdown-item {
-  white-space: normal;
-}
-
-.walk-actions-menu {
-  width: 11.5rem !important;
-  min-width: 11.5rem !important;
-  max-width: 11.5rem !important;
-  font-size: 0.9rem;
+[id^="post_"],
+[id^="walk_event_"],
+[id^="pet_"] {
+  scroll-margin-top: 96px;
 }
 
 .walk-actions-menu form {
@@ -152,6 +89,16 @@
 
 .walk-actions-menu .dropdown-item {
   white-space: normal;
+}
+
+.walk-actions-menu {
+  width: 11.5rem !important;
+  min-width: 11.5rem !important;
+  max-width: 11.5rem !important;
+  font-size: 0.9rem;
+}
+
+.walk-actions-menu .dropdown-item {
   padding-top: 0.35rem;
   padding-bottom: 0.35rem;
 }
@@ -163,4 +110,93 @@
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
   padding-left: 0.35rem;
+}
+
+@media (min-width: 800px) and (max-width: 1159px) {
+  .navbar-inner {
+    width: 764px;
+    max-width: 764px;
+  }
+
+  .app-layout {
+    width: 764px;
+    max-width: 764px;
+    grid-template-columns: 180px 560px;
+    gap: 24px;
+  }
+
+  .app-left {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+  }
+
+  .app-main {
+    width: 560px;
+    max-width: 560px;
+  }
+
+  .app-right {
+    display: none;
+  }
+}
+
+@media (max-width: 799px) {
+  .navbar-inner {
+    width: auto;
+    max-width: none;
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+
+  .app-layout {
+    width: auto;
+    max-width: none;
+    margin-left: 12px;
+    margin-right: 12px;
+    display: block;
+    padding-top: 16px;
+  }
+
+  .app-left {
+    position: static;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    margin-bottom: 16px;
+  }
+
+  .app-main {
+    width: auto;
+    max-width: none;
+  }
+
+  .app-right {
+    display: none;
+  }
+
+  .left-sidebar .card {
+    display: none;
+  }
+
+  .left-sidebar .list-group {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .left-sidebar .list-group-item {
+    margin-bottom: 0;
+    text-align: center !important;
+    font-size: 0.85rem;
+  }
+
+  .left-sidebar .list-group-item i {
+    display: block;
+    margin: 0 auto 0.2rem;
+  }
+
+  .left-sidebar form.button_to {
+    display: none;
+  }
 }

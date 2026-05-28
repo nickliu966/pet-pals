@@ -9,11 +9,15 @@
 <% sent_pet_requests = current_user.pets.flat_map { |pet| pet.sent_pet_friendships.pending } %>
 <% pet_request_count = received_pet_requests.count + sent_pet_requests.count %>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0">Network</h1>
+<div class="mb-4">
+  <div class="page-kicker">Your social graph</div>
+  <h1 class="page-title mb-1">Network</h1>
+  <p class="page-subtitle mb-0">
+    Manage owner friendships, pet friendships, and pending connection requests.
+  </p>
 </div>
 
-<ul class="nav nav-pills mb-4" id="network-tabs" role="tablist">
+<ul class="nav nav-pills app-tab-pills mb-4" id="network-tabs" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active"
             id="owner-tab"
@@ -22,7 +26,7 @@
             type="button"
             role="tab">
       Owner friends
-      <span class="badge text-bg-secondary"><%= owner_friends.count %></span>
+      <span class="badge text-bg-light"><%= owner_friends.count %></span>
     </button>
   </li>
 
@@ -34,19 +38,24 @@
             type="button"
             role="tab">
       Pet friends
-      <span class="badge text-bg-secondary"><%= current_user.pets.count %></span>
+      <span class="badge text-bg-light"><%= current_user.pets.count %></span>
     </button>
   </li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="owner-network" role="tabpanel">
-    <div class="card mb-4">
-      <div class="card-body">
+    <div class="network-card mb-4">
+      <div class="network-card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Owner friends</h5>
+          <div>
+            <div class="section-card-title">Owner friends</div>
+            <div class="text-muted small">
+              People you have connected with.
+            </div>
+          </div>
 
-          <button class="btn btn-outline-primary btn-sm"
+          <button class="btn btn-outline-primary btn-sm rounded-pill px-3"
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#owner-requests">
@@ -56,11 +65,11 @@
         </div>
 
         <div class="collapse mb-3" id="owner-requests">
-          <div class="border rounded p-3">
-            <h6>Pending requests</h6>
+          <div class="request-panel">
+            <div class="fw-bold mb-2">Pending owner requests</div>
 
             <% received_owner_requests.each do |friendship| %>
-              <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div class="d-flex justify-content-between align-items-center gap-3 border-bottom py-2">
                 <div>
                   <%= link_to friendship.requester.username,
                         user_path(friendship.requester.username),
@@ -68,24 +77,24 @@
                   wants to be your friend.
                 </div>
 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-shrink-0">
                   <%= button_to "Accept",
                         user_friendship_path(friendship),
                         method: :patch,
                         params: { user_friendship: { status: "accepted" } },
-                        class: "btn btn-primary btn-sm" %>
+                        class: "btn btn-primary btn-sm rounded-pill px-3" %>
 
                   <%= button_to "Decline",
                         user_friendship_path(friendship),
                         method: :patch,
                         params: { user_friendship: { status: "declined" } },
-                        class: "btn btn-outline-secondary btn-sm" %>
+                        class: "btn btn-outline-secondary btn-sm rounded-pill px-3" %>
                 </div>
               </div>
             <% end %>
 
             <% sent_owner_requests.each do |friendship| %>
-              <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div class="d-flex justify-content-between align-items-center gap-3 border-bottom py-2">
                 <div>
                   Requested
                   <%= link_to friendship.receiver.username,
@@ -96,7 +105,7 @@
                 <%= button_to "Cancel",
                       user_friendship_path(friendship),
                       method: :delete,
-                      class: "btn btn-outline-danger btn-sm" %>
+                      class: "btn btn-outline-danger btn-sm rounded-pill px-3" %>
               </div>
             <% end %>
 
@@ -106,45 +115,63 @@
           </div>
         </div>
 
-        <div class="list-group list-group-flush">
-          <% owner_friends.each do |user| %>
-            <%= link_to user_path(user.username),
-                  class: "list-group-item list-group-item-action px-0" do %>
-              <div class="d-flex align-items-center">
-                <% if user.avatar_image.attached? %>
-                  <%= image_tag user.avatar_image,
-                        class: "rounded-circle me-3",
-                        style: "width: 48px; height: 48px; object-fit: cover;" %>
-                <% else %>
-                  <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center me-3"
-                       style="width: 48px; height: 48px;">
-                    <%= user.username.first.upcase %>
+        <% if owner_friends.any? %>
+          <div class="vstack gap-2">
+            <% owner_friends.each do |user| %>
+              <%= link_to user_path(user.username),
+                    class: "network-friend-card" do %>
+                <div class="d-flex align-items-center gap-3 min-width-0">
+                  <% if user.avatar_image.attached? %>
+                    <%= image_tag user.avatar_image,
+                          class: "rounded-circle owner-card-avatar flex-shrink-0" %>
+                  <% else %>
+                    <div class="owner-card-avatar-fallback flex-shrink-0">
+                      <%= user.username.first.upcase %>
+                    </div>
+                  <% end %>
+
+                  <div class="min-width-0">
+                    <div class="fw-bold text-truncate"><%= user.username %></div>
+
+                    <% if user.display_name.present? %>
+                      <div class="text-muted small text-truncate"><%= user.display_name %></div>
+                    <% end %>
                   </div>
-                <% end %>
-
-                <div>
-                  <div class="fw-bold"><%= user.username %></div>
-                  <div class="text-muted small"><%= user.display_name %></div>
                 </div>
-              </div>
-            <% end %>
-          <% end %>
 
-          <% if owner_friends.empty? %>
-            <div class="text-muted">No owner friends yet.</div>
-          <% end %>
-        </div>
+                <span class="text-muted">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-user-group"></i>
+            </div>
+            <h5 class="mb-1">No owner friends yet</h5>
+            <p class="text-muted mb-0">
+              Search for owners and send a connection request.
+            </p>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
 
   <div class="tab-pane fade" id="pet-network" role="tabpanel">
-    <div class="card mb-4">
-      <div class="card-body">
+    <div class="network-card mb-4">
+      <div class="network-card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Pet friends</h5>
+          <div>
+            <div class="section-card-title">Pet friends</div>
+            <div class="text-muted small">
+              Friendships grouped by your pets.
+            </div>
+          </div>
 
-          <button class="btn btn-outline-primary btn-sm"
+          <button class="btn btn-outline-primary btn-sm rounded-pill px-3"
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#pet-requests">
@@ -154,11 +181,11 @@
         </div>
 
         <div class="collapse mb-3" id="pet-requests">
-          <div class="border rounded p-3">
-            <h6>Pending pet requests</h6>
+          <div class="request-panel">
+            <div class="fw-bold mb-2">Pending pet requests</div>
 
             <% received_pet_requests.each do |friendship| %>
-              <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div class="d-flex justify-content-between align-items-center gap-3 border-bottom py-2">
                 <div>
                   <%= link_to friendship.requester_pet.name,
                         pet_path(friendship.requester_pet),
@@ -169,24 +196,24 @@
                         class: "text-decoration-none fw-bold" %>.
                 </div>
 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-shrink-0">
                   <%= button_to "Accept",
                         pet_friendship_path(friendship),
                         method: :patch,
                         params: { pet_friendship: { status: "accepted" } },
-                        class: "btn btn-primary btn-sm" %>
+                        class: "btn btn-primary btn-sm rounded-pill px-3" %>
 
                   <%= button_to "Decline",
                         pet_friendship_path(friendship),
                         method: :patch,
                         params: { pet_friendship: { status: "declined" } },
-                        class: "btn btn-outline-secondary btn-sm" %>
+                        class: "btn btn-outline-secondary btn-sm rounded-pill px-3" %>
                 </div>
               </div>
             <% end %>
 
             <% sent_pet_requests.each do |friendship| %>
-              <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div class="d-flex justify-content-between align-items-center gap-3 border-bottom py-2">
                 <div>
                   <%= friendship.requester_pet.name %> requested
                   <%= link_to friendship.receiver_pet.name,
@@ -197,7 +224,7 @@
                 <%= button_to "Cancel",
                       pet_friendship_path(friendship),
                       method: :delete,
-                      class: "btn btn-outline-danger btn-sm" %>
+                      class: "btn btn-outline-danger btn-sm rounded-pill px-3" %>
               </div>
             <% end %>
 
@@ -207,42 +234,66 @@
           </div>
         </div>
 
-        <% current_user.pets.each do |pet| %>
-          <div class="mb-4">
-            <h6 class="mb-2">
-              <%= link_to pet.name, pet_path(pet), class: "text-decoration-none" %>
-            </h6>
+        <% if current_user.pets.any? %>
+          <% current_user.pets.each do |pet| %>
+            <% pet_friends = (pet.pet_friends + pet.friended_by_pets).uniq %>
 
-            <div class="list-group list-group-flush">
-              <% (pet.pet_friends + pet.friended_by_pets).uniq.each do |friend_pet| %>
-                <%= link_to pet_path(friend_pet),
-                      class: "list-group-item list-group-item-action px-0" do %>
-                  <div class="d-flex align-items-center">
-                    <% if friend_pet.image_url.present? %>
-                      <%= image_tag friend_pet.image_url,
-                            class: "rounded-circle me-3",
-                            style: "width: 48px; height: 48px; object-fit: cover;" %>
-                    <% else %>
-                      <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center me-3"
-                           style="width: 48px; height: 48px;">
-                        <i class="fa-solid fa-paw"></i>
+            <div class="network-pet-section">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <h6 class="mb-0">
+                  <%= link_to pet.name, pet_path(pet), class: "text-decoration-none" %>
+                </h6>
+
+                <span class="badge text-bg-secondary rounded-pill">
+                  <%= pluralize(pet_friends.count, "friend") %>
+                </span>
+              </div>
+
+              <% if pet_friends.any? %>
+                <div class="vstack gap-2">
+                  <% pet_friends.each do |friend_pet| %>
+                    <%= link_to pet_path(friend_pet),
+                          class: "network-friend-card" do %>
+                      <div class="d-flex align-items-center gap-3 min-width-0">
+                        <% if friend_pet.image_url.present? %>
+                          <%= image_tag friend_pet.image_url,
+                                class: "rounded-circle owner-card-avatar flex-shrink-0" %>
+                        <% else %>
+                          <div class="owner-card-avatar-fallback flex-shrink-0">
+                            <i class="fa-solid fa-paw"></i>
+                          </div>
+                        <% end %>
+
+                        <div class="min-width-0">
+                          <div class="fw-bold text-truncate"><%= friend_pet.name %></div>
+                          <div class="text-muted small text-truncate">
+                            owned by <%= friend_pet.user.username %>
+                          </div>
+                        </div>
                       </div>
+
+                      <span class="text-muted">
+                        <i class="fa-solid fa-chevron-right"></i>
+                      </span>
                     <% end %>
-
-                    <div>
-                      <div class="fw-bold"><%= friend_pet.name %></div>
-                      <div class="text-muted small">
-                        owned by <%= friend_pet.user.username %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-              <% end %>
-
-              <% if (pet.pet_friends + pet.friended_by_pets).uniq.empty? %>
-                <div class="text-muted">No pet friends yet.</div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="text-muted small">
+                  No pet friends yet.
+                </div>
               <% end %>
             </div>
+          <% end %>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-paw"></i>
+            </div>
+            <h5 class="mb-1">No pets yet</h5>
+            <p class="text-muted mb-0">
+              Add a pet before building pet friendships.
+            </p>
           </div>
         <% end %>
       </div>

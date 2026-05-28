@@ -31,40 +31,48 @@
     <% notifications_read_at = current_user.notifications_read_at || Time.at(0) %>
 
     <% owner_request_count =
-         current_user.pending_received_user_friendships
-                     .where("created_at > ?", notifications_read_at)
-                     .count %>
+        current_user.pending_received_user_friendships
+                    .where("created_at > ?", notifications_read_at)
+                    .count %>
 
     <% pet_request_count =
-         PetFriendship.pending
+        PetFriendship.pending
                       .where(receiver_pet: current_user.pets)
                       .where("created_at > ?", notifications_read_at)
                       .count %>
 
     <% walk_invitation_count =
-         WalkParticipant.invited
+        WalkParticipant.invited
                         .where(user: current_user)
                         .where("updated_at > ?", notifications_read_at)
                         .count %>
 
     <% post_like_count =
-         Like.where(post: current_user.posts)
-             .where.not(fan: current_user)
-             .where("created_at > ?", notifications_read_at)
-             .count %>
+        Like.where(post: current_user.posts)
+            .where.not(fan: current_user)
+            .where("created_at > ?", notifications_read_at)
+            .count %>
 
     <% post_comment_count =
-         Comment.where(post: current_user.posts)
+        Comment.where(post: current_user.posts)
                 .where.not(author: current_user)
                 .where("created_at > ?", notifications_read_at)
                 .count %>
 
+    <% post_mention_count =
+        Mention.where(recipient: current_user)
+                .where.not(mentioner: current_user)
+                .where(post: Post.visible_to(current_user))
+                .where("created_at > ?", notifications_read_at)
+                .count %>
+
     <% notification_count =
-         owner_request_count +
-         pet_request_count +
-         walk_invitation_count +
-         post_like_count +
-         post_comment_count %>
+        owner_request_count +
+        pet_request_count +
+        walk_invitation_count +
+        post_like_count +
+        post_comment_count +
+        post_mention_count %>
 
     <%= link_to notifications_path,
       class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>

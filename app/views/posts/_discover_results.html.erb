@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "discover_posts_frame" do %>
+<%= turbo_frame_tag "discover_posts_frame", target: "_top" do %>
   <% if posts.any? %>
     <ul id="discover_posts" class="list-group list-group-flush">
       <%= render partial: "posts/post",
@@ -7,22 +7,24 @@
             locals: { render_edit_modal: false } %>
     </ul>
   <% else %>
-    <div class="card my-3">
-      <div class="card-body text-center text-muted">
-        <% if params[:near_me] == "1" && params[:radius_miles].present? %>
-          <h5 class="card-title">No nearby posts found</h5>
-          <p class="mb-0">
-            There are no public posts within
-            <%= pluralize(params[:radius_miles].to_i, "mile") %>
-            of your current location.
-          </p>
-        <% else %>
-          <h5 class="card-title">No public posts found</h5>
-          <p class="mb-0">
-            Public posts will appear here when people share them.
-          </p>
-        <% end %>
+    <div class="empty-state my-3">
+      <div class="empty-state-icon">
+        <i class="fa-solid fa-compass"></i>
       </div>
+
+      <% if params[:near_me] == "1" && params[:radius_miles].present? %>
+        <h5 class="mb-1">No nearby posts found</h5>
+        <p class="text-muted mb-0">
+          There are no public posts within
+          <%= pluralize(params[:radius_miles].to_i, "mile") %>
+          of your current location.
+        </p>
+      <% else %>
+        <h5 class="mb-1">No public posts found</h5>
+        <p class="text-muted mb-0">
+          Public posts will appear here when people share them.
+        </p>
+      <% end %>
     </div>
   <% end %>
 <% end %>

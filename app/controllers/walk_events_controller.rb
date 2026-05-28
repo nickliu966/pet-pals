@@ -1,5 +1,5 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
+  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @q = WalkEvent.visible_to(current_user).ransack(params[:q])
@@ -26,13 +26,13 @@ class WalkEventsController < ApplicationController
         .includes(
           :host_user,
           :host_pet,
-          walk_participants: [:user, :pet],
+          walk_participants: [ :user, :pet ],
           posts: [
             :user,
             :pet,
             :walk_event,
             { images_attachments: :blob },
-            { comments: :author },
+            { comments: :author }
           ],
         )
         .find(@walk_event.id)
@@ -47,12 +47,11 @@ class WalkEventsController < ApplicationController
   end
 
   def create
-    @walk_event = current_user.hosted_walk_events.build(walk_event_params)
+    @walk_event = current_user.hosted_walk_events.build(normalized_walk_event_params)
     @walk_event.status = "scheduled"
 
     respond_to do |format|
       if @walk_event.save
-        # Host pets are stored through walk_participants, not directly on walk_events.
         sync_host_pets
 
         return_to = params[:return_to].presence
@@ -71,7 +70,7 @@ class WalkEventsController < ApplicationController
     authorize! @walk_event
 
     respond_to do |format|
-      if @walk_event.update(walk_event_params)
+      if @walk_event.update(normalized_walk_event_params)
         sync_host_pets
 
         return_to = params[:return_to].presence
@@ -133,7 +132,7 @@ class WalkEventsController < ApplicationController
     walk_events.includes(
       :host_user,
       :host_pet,
-      walk_participants: [:user, :pet],
+      walk_participants: [ :user, :pet ],
     )
   end
 
@@ -151,15 +150,10 @@ class WalkEventsController < ApplicationController
     @walk_event = WalkEvent.find(params.expect(:id))
   end
 
-  # Get selected host pet ids from the form.
   def host_pet_ids
     Array(params.dig(:walk_event, :host_pet_ids)).reject(&:blank?)
   end
 
-  # Keep the host's walk participants in sync with the selected pets.
-  # Host pets are not stored directly on the walk event.
-  # They are stored as walk_participant records.
-  # So when the host edits the checkboxes, we need to update those related records.
   def sync_host_pets
     host_user = @walk_event.host_user
     selected_pets = host_user.pets.where(id: host_pet_ids)
@@ -177,6 +171,24 @@ class WalkEventsController < ApplicationController
     end
   end
 
+  def normalized_walk_event_params
+    attrs = walk_event_params.to_h.with_indifferent_access
+
+    if attrs[:host_pet_id].blank? && host_pet_ids.any?
+      attrs[:host_pet_id] = host_pet_ids.first
+    end
+
+    if attrs[:duration_minutes].present?
+      attrs[:duration_minutes] = attrs[:duration_minutes].to_s.strip.to_i
+    end
+
+    if attrs[:max_participants].present?
+      attrs[:max_participants] = attrs[:max_participants].to_s.strip.to_i
+    end
+
+    attrs
+  end
+
   def walk_event_params
     params.expect(walk_event: [
                     :host_pet_id,
@@ -190,7 +202,7 @@ class WalkEventsController < ApplicationController
                     :duration_minutes,
                     :visibility,
                     :max_participants,
-                    :status,
+                    :status
                   ])
   end
 end

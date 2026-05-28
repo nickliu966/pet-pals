@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_25_220136) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_28_151953) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -61,6 +61,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_220136) do
     t.datetime "updated_at", null: false
     t.index ["fan_id"], name: "index_likes_on_fan_id"
     t.index ["post_id"], name: "index_likes_on_post_id"
+  end
+
+  create_table "mentions", force: :cascade do |t|
+    t.bigint "post_id", null: false
+    t.bigint "mentioner_id", null: false
+    t.bigint "recipient_id", null: false
+    t.bigint "mentioned_pet_id"
+    t.string "mention_text", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mentioned_pet_id"], name: "index_mentions_on_mentioned_pet_id"
+    t.index ["mentioner_id"], name: "index_mentions_on_mentioner_id"
+    t.index ["post_id", "recipient_id", "mentioned_pet_id", "mention_text"], name: "index_mentions_on_post_recipient_pet_and_text", unique: true
+    t.index ["post_id"], name: "index_mentions_on_post_id"
+    t.index ["recipient_id"], name: "index_mentions_on_recipient_id"
   end
 
   create_table "pet_friendships", force: :cascade do |t|
@@ -337,6 +352,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_220136) do
   add_foreign_key "comments", "users", column: "author_id"
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users", column: "fan_id"
+  add_foreign_key "mentions", "pets", column: "mentioned_pet_id"
+  add_foreign_key "mentions", "posts"
+  add_foreign_key "mentions", "users", column: "mentioner_id"
+  add_foreign_key "mentions", "users", column: "recipient_id"
   add_foreign_key "pets", "users"
   add_foreign_key "photos", "users", column: "owner_id"
   add_foreign_key "posts", "pets"

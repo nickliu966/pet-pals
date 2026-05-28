@@ -1,11 +1,17 @@
 <% content_for :title, "Notifications" %>
 
 <% request_count = @owner_requests.count + @pet_requests.count + @walk_invitations.count %>
-<% activity_count = @post_likes.count + @post_comments.count %>
+<% activity_count = @post_likes.count + @post_comments.count + @post_mentions.count %>
 
-<h1 class="mb-4">Notifications</h1>
+<div class="mb-4">
+  <div class="page-kicker">Stay updated</div>
+  <h1 class="page-title mb-1">Notifications</h1>
+  <p class="page-subtitle mb-0">
+    Review new friend requests, walk invitations, likes, and comments.
+  </p>
+</div>
 
-<ul class="nav nav-pills mb-4" id="notification-tabs" role="tablist">
+<ul class="nav nav-pills app-tab-pills mb-4" id="notification-tabs" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active"
             id="requests-tab"
@@ -14,7 +20,7 @@
             type="button"
             role="tab">
       Requests
-      <span class="badge text-bg-secondary"><%= request_count %></span>
+      <span class="badge text-bg-light"><%= request_count %></span>
     </button>
   </li>
 
@@ -26,51 +32,69 @@
             type="button"
             role="tab">
       Post activity
-      <span class="badge text-bg-secondary"><%= activity_count %></span>
+      <span class="badge text-bg-light"><%= activity_count %></span>
     </button>
   </li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="requests-pane" role="tabpanel">
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Follow requests</span>
-        <span class="badge text-bg-secondary"><%= @owner_requests.count %></span>
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Follow requests</div>
+          <div class="text-muted small">People who want to connect with you.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @owner_requests.count %>
+        </span>
       </div>
 
-      <div class="list-group list-group-flush">
+      <div>
         <% @owner_requests.each do |friendship| %>
-          <div class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <%= link_to friendship.requester.username,
-                      user_path(friendship.requester.username),
-                      class: "text-decoration-none fw-bold" %>
-                requested to follow you.
-
-                <% if friendship.requester.display_name.present? %>
-                  <div class="text-muted small">
-                    <%= friendship.requester.display_name %>
+          <div class="notification-row">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <div class="d-flex align-items-center gap-3 notification-copy">
+                <% if friendship.requester.avatar_image.attached? %>
+                  <%= image_tag friendship.requester.avatar_image,
+                        class: "rounded-circle notification-avatar" %>
+                <% else %>
+                  <div class="notification-avatar-fallback">
+                    <%= friendship.requester.username.first.upcase %>
                   </div>
                 <% end %>
+
+                <div>
+                  <div>
+                    <%= link_to friendship.requester.username,
+                          user_path(friendship.requester.username) %>
+                    requested to follow you.
+                  </div>
+
+                  <% if friendship.requester.display_name.present? %>
+                    <div class="text-muted small">
+                      <%= friendship.requester.display_name %>
+                    </div>
+                  <% end %>
+                </div>
               </div>
 
-              <div id="<%= dom_id(friendship, :notification_actions) %>" class="d-flex gap-2">
+              <div id="<%= dom_id(friendship, :notification_actions) %>" class="d-flex gap-2 flex-shrink-0">
                 <% if friendship.status == "pending" %>
                   <%= button_to "Accept",
                         user_friendship_path(friendship, format: :turbo_stream),
                         method: :patch,
                         params: { user_friendship: { status: "accepted" } },
-                        class: "btn btn-primary btn-sm" %>
+                        class: "btn btn-primary btn-sm rounded-pill px-3" %>
 
                   <%= button_to "Decline",
                         user_friendship_path(friendship, format: :turbo_stream),
                         method: :patch,
                         params: { user_friendship: { status: "declined" } },
-                        class: "btn btn-outline-secondary btn-sm" %>
+                        class: "btn btn-outline-secondary btn-sm rounded-pill px-3" %>
                 <% else %>
-                  <span class="btn btn-sm btn-outline-secondary disabled">
+                  <span class="btn btn-sm btn-outline-secondary disabled rounded-pill px-3">
                     <%= friendship.status.titleize %>
                   </span>
                 <% end %>
@@ -80,52 +104,64 @@
         <% end %>
 
         <% if @owner_requests.empty? %>
-          <div class="list-group-item text-muted">
+          <div class="notification-row text-muted">
             No owner requests.
           </div>
         <% end %>
       </div>
     </div>
 
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Pet requests</span>
-        <span class="badge text-bg-secondary"><%= @pet_requests.count %></span>
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Pet requests</div>
+          <div class="text-muted small">Pets asking to become friends.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @pet_requests.count %>
+        </span>
       </div>
 
-      <div class="list-group list-group-flush">
+      <div>
         <% @pet_requests.each do |friendship| %>
-          <div class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <%= link_to friendship.requester_pet.name,
-                      pet_path(friendship.requester_pet),
-                      class: "text-decoration-none fw-bold" %>
-                wants to be friends with
-                <%= link_to friendship.receiver_pet.name,
-                      pet_path(friendship.receiver_pet),
-                      class: "text-decoration-none fw-bold" %>.
+          <div class="notification-row">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <div class="d-flex align-items-center gap-3 notification-copy">
+                <div class="notification-icon">
+                  <i class="fa-solid fa-paw"></i>
+                </div>
 
-                <div class="text-muted small">
-                  requested by <%= friendship.requested_by_user.username %>
+                <div>
+                  <div>
+                    <%= link_to friendship.requester_pet.name,
+                          pet_path(friendship.requester_pet) %>
+                    wants to be friends with
+                    <%= link_to friendship.receiver_pet.name,
+                          pet_path(friendship.receiver_pet) %>.
+                  </div>
+
+                  <div class="text-muted small">
+                    Requested by <%= friendship.requested_by_user.username %>
+                  </div>
                 </div>
               </div>
 
-              <div id="<%= dom_id(friendship, :notification_actions) %>" class="d-flex gap-2">
+              <div id="<%= dom_id(friendship, :notification_actions) %>" class="d-flex gap-2 flex-shrink-0">
                 <% if friendship.status == "pending" %>
                   <%= button_to "Accept",
                         pet_friendship_path(friendship, format: :turbo_stream),
                         method: :patch,
                         params: { pet_friendship: { status: "accepted" } },
-                        class: "btn btn-primary btn-sm" %>
+                        class: "btn btn-primary btn-sm rounded-pill px-3" %>
 
                   <%= button_to "Decline",
                         pet_friendship_path(friendship, format: :turbo_stream),
                         method: :patch,
                         params: { pet_friendship: { status: "declined" } },
-                        class: "btn btn-outline-secondary btn-sm" %>
+                        class: "btn btn-outline-secondary btn-sm rounded-pill px-3" %>
                 <% else %>
-                  <span class="btn btn-sm btn-outline-secondary disabled">
+                  <span class="btn btn-sm btn-outline-secondary disabled rounded-pill px-3">
                     <%= friendship.status.titleize %>
                   </span>
                 <% end %>
@@ -135,74 +171,86 @@
         <% end %>
 
         <% if @pet_requests.empty? %>
-          <div class="list-group-item text-muted">
+          <div class="notification-row text-muted">
             No pet requests.
           </div>
         <% end %>
       </div>
     </div>
 
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Walk invitations</span>
-        <span class="badge text-bg-secondary"><%= @walk_invitations.count %></span>
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Walk invitations</div>
+          <div class="text-muted small">Walks you were invited to join.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @walk_invitations.count %>
+        </span>
       </div>
 
-      <div class="list-group list-group-flush">
+      <div>
         <% @walk_invitations.each do |invitation| %>
           <% walk_event = invitation.walk_event %>
 
-          <div class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <%= link_to walk_event.title,
-                      walk_event_path(walk_event),
-                      class: "text-decoration-none fw-bold" %>
+          <div class="notification-row">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <div class="d-flex align-items-center gap-3 notification-copy">
+                <div class="notification-icon">
+                  <i class="fa-solid fa-person-walking"></i>
+                </div>
 
-                <span class="text-muted">
-                  invitation from
-                </span>
+                <div>
+                  <div>
+                    <%= link_to walk_event.title,
+                          walk_event_path(walk_event) %>
 
-                <%= link_to walk_event.host_user.username,
-                      user_path(walk_event.host_user.username),
-                      class: "text-decoration-none fw-bold" %>
+                    <span class="text-muted">
+                      invitation from
+                    </span>
 
-                <% if walk_event.start_time.present? || walk_event.location_name.present? %>
-                  <div class="text-muted small">
-                    <% if walk_event.start_time.present? %>
-                      <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") %>
-                    <% end %>
-
-                    <% if walk_event.start_time.present? && walk_event.location_name.present? %>
-                      ·
-                    <% end %>
-
-                    <% if walk_event.location_name.present? %>
-                      <%= walk_event.location_name %>
-                    <% end %>
+                    <%= link_to walk_event.host_user.username,
+                          user_path(walk_event.host_user.username) %>
                   </div>
-                <% end %>
+
+                  <% if walk_event.start_time.present? || walk_event.location_name.present? %>
+                    <div class="text-muted small">
+                      <% if walk_event.start_time.present? %>
+                        <%= walk_event.start_time.strftime("%b %-d, %-I:%M %p") %>
+                      <% end %>
+
+                      <% if walk_event.start_time.present? && walk_event.location_name.present? %>
+                        ·
+                      <% end %>
+
+                      <% if walk_event.location_name.present? %>
+                        <%= walk_event.location_name %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
               </div>
 
-              <div id="<%= dom_id(invitation, :notification_actions) %>" class="d-flex gap-2">
+              <div id="<%= dom_id(invitation, :notification_actions) %>" class="d-flex gap-2 flex-shrink-0">
                 <%= button_to "Accept",
                       accept_walk_participant_path(invitation, format: :turbo_stream),
                       method: :patch,
                       params: { return_to: notifications_path },
-                      class: "btn btn-primary btn-sm" %>
+                      class: "btn btn-primary btn-sm rounded-pill px-3" %>
 
                 <%= button_to "Decline",
                       decline_walk_participant_path(invitation, format: :turbo_stream),
                       method: :patch,
                       params: { return_to: notifications_path },
-                      class: "btn btn-outline-secondary btn-sm" %>
+                      class: "btn btn-outline-secondary btn-sm rounded-pill px-3" %>
               </div>
             </div>
           </div>
         <% end %>
 
         <% if @walk_invitations.empty? %>
-          <div class="list-group-item text-muted">
+          <div class="notification-row text-muted">
             No walk invitations.
           </div>
         <% end %>
@@ -211,29 +259,83 @@
   </div>
 
   <div class="tab-pane fade" id="activity-pane" role="tabpanel">
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Likes on your posts</span>
-        <span class="badge text-bg-secondary"><%= @post_likes.count %></span>
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Mentions</div>
+          <div class="text-muted small">Posts where someone mentioned you or your pet.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @post_mentions.count %>
+        </span>
       </div>
 
-      <div class="list-group list-group-flush">
+      <div>
+        <% @post_mentions.each do |mention| %>
+          <%= link_to post_path(mention.post, return_to: notifications_path),
+            class: "notification-row d-block text-decoration-none text-dark" do %>
+            <div class="d-flex align-items-center gap-3">
+              <% if mention.mentioner.avatar_image.attached? %>
+                <%= image_tag mention.mentioner.avatar_image,
+                  class: "rounded-circle notification-avatar" %>
+              <% else %>
+                <div class="notification-avatar-fallback">
+                  <%= mention.mentioner.username.first.upcase %>
+                </div>
+              <% end %>
+
+              <div class="notification-copy">
+                <span class="fw-bold"><%= mention.mentioner.username %></span>
+
+                <% if mention.mentioned_pet.present? %>
+                  mentioned <span class="fw-bold"><%= mention.mentioned_pet.name %></span> in a post.
+                <% else %>
+                  mentioned you in a post.
+                <% end %>
+
+                <div class="text-muted small">
+                  <%= time_ago_in_words(mention.created_at) %> ago
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if @post_mentions.empty? %>
+          <div class="notification-row text-muted">
+            No mentions yet.
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Likes on your posts</div>
+          <div class="text-muted small">Recent appreciation from other users.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @post_likes.count %>
+        </span>
+      </div>
+
+      <div>
         <% @post_likes.each do |like| %>
-          <%= link_to post_path(like.post),
-                class: "list-group-item list-group-item-action" do %>
-            <div class="d-flex align-items-center">
+          <%= link_to post_path(like.post, return_to: notifications_path),
+                class: "notification-row d-block text-decoration-none text-dark" do %>
+            <div class="d-flex align-items-center gap-3">
               <% if like.fan.avatar_image.attached? %>
                 <%= image_tag like.fan.avatar_image,
-                      class: "rounded-circle me-3",
-                      style: "width: 44px; height: 44px; object-fit: cover;" %>
+                      class: "rounded-circle notification-avatar" %>
               <% else %>
-                <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center me-3"
-                     style="width: 44px; height: 44px;">
+                <div class="notification-avatar-fallback">
                   <%= like.fan.username.first.upcase %>
                 </div>
               <% end %>
 
-              <div>
+              <div class="notification-copy">
                 <span class="fw-bold"><%= like.fan.username %></span>
                 liked your post.
 
@@ -246,42 +348,59 @@
         <% end %>
 
         <% if @post_likes.empty? %>
-          <div class="list-group-item text-muted">
+          <div class="notification-row text-muted">
             No likes yet.
           </div>
         <% end %>
       </div>
     </div>
 
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Comments on your posts</span>
-        <span class="badge text-bg-secondary"><%= @post_comments.count %></span>
+    <div class="card section-card mb-4">
+      <div class="section-card-header d-flex justify-content-between align-items-center">
+        <div>
+          <div class="section-card-title">Comments on your posts</div>
+          <div class="text-muted small">Recent replies to your posts.</div>
+        </div>
+
+        <span class="badge text-bg-secondary rounded-pill">
+          <%= @post_comments.count %>
+        </span>
       </div>
 
-      <div class="list-group list-group-flush">
+      <div>
         <% @post_comments.each do |comment| %>
-          <%= link_to post_path(comment.post),
-                class: "list-group-item list-group-item-action" do %>
-            <div>
-              <div>
-                <span class="fw-bold"><%= comment.author.username %></span>
-                commented on your post.
-              </div>
+          <%= link_to post_path(comment.post, return_to: notifications_path),
+                class: "notification-row d-block text-decoration-none text-dark" do %>
+            <div class="d-flex align-items-start gap-3">
+              <% if comment.author.avatar_image.attached? %>
+                <%= image_tag comment.author.avatar_image,
+                      class: "rounded-circle notification-avatar" %>
+              <% else %>
+                <div class="notification-avatar-fallback">
+                  <%= comment.author.username.first.upcase %>
+                </div>
+              <% end %>
 
-              <div class="text-muted small mb-1">
-                <%= time_ago_in_words(comment.created_at) %> ago
-              </div>
+              <div class="notification-copy">
+                <div>
+                  <span class="fw-bold"><%= comment.author.username %></span>
+                  commented on your post.
+                </div>
 
-              <div>
-                <%= truncate(comment.body, length: 90) %>
+                <div class="text-muted small mb-1">
+                  <%= time_ago_in_words(comment.created_at) %> ago
+                </div>
+
+                <div>
+                  <%= truncate(comment.body, length: 90) %>
+                </div>
               </div>
             </div>
           <% end %>
         <% end %>
 
         <% if @post_comments.empty? %>
-          <div class="list-group-item text-muted">
+          <div class="notification-row text-muted">
             No comments yet.
           </div>
         <% end %>

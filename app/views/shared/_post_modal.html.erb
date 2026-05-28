@@ -1,14 +1,19 @@
 <div class="modal fade" id="new_post_modal" tabindex="-1" aria-labelledby="newPostModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="newPostModalLabel">New post</h1>
+        <div>
+          <div class="page-kicker">Share a moment</div>
+          <h1 class="modal-title fs-5" id="newPostModalLabel">
+            New post
+          </h1>
+        </div>
 
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <div class="modal-body">
-        <%= render "posts/form", post: current_user.posts.build %>
+        <%= render "posts/form", post: current_user.posts.build, modal: true %>
       </div>
     </div>
   </div>

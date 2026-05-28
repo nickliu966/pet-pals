@@ -1,5 +1,5 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @posts = preload_post_feed_associations(
@@ -168,7 +168,7 @@ class PostsController < ApplicationController
   end
 
   def visibility_only_update?(permitted_params)
-    permitted_params.keys.map(&:to_s).sort == ["visibility"]
+    permitted_params.keys.map(&:to_s).sort == [ "visibility" ]
   end
 
   def safe_post_return_to
@@ -191,7 +191,7 @@ class PostsController < ApplicationController
                     :google_place_id,
                     :visibility,
                     :walk_event_id,
-                    photos: [],
+                    photos: []
                   ])
   end
 

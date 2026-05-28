@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card mb-3">
   <div class="card-body">
     <h5 class="card-title">Quick actions</h5>
 
@@ -17,5 +17,92 @@
         Add pet
       </button>
     </div>
+  </div>
+</div>
+
+<div class="card sidebar-suggestions-card">
+  <div class="card-body">
+    <div class="page-kicker mb-1">Discover more</div>
+    <h5 class="card-title mb-3">Suggested follows</h5>
+
+    <% if @suggested_users.present? && @suggested_users.any? %>
+      <div class="sidebar-suggestion-section">
+        <div class="sidebar-suggestion-label">Owners</div>
+
+        <div class="vstack gap-2">
+          <% @suggested_users.each do |user| %>
+            <%= link_to user_path(user.username),
+                  class: "sidebar-suggestion-item" do %>
+              <div class="d-flex align-items-center gap-2 min-width-0">
+                <% if user.avatar_image.attached? %>
+                  <%= image_tag user.avatar_image,
+                        class: "sidebar-suggestion-avatar flex-shrink-0" %>
+                <% else %>
+                  <span class="sidebar-suggestion-avatar-fallback flex-shrink-0">
+                    <%= user.username.first.upcase %>
+                  </span>
+                <% end %>
+
+                <div class="min-width-0">
+                  <div class="fw-bold text-truncate">
+                    <%= user.username %>
+                  </div>
+
+                  <div class="text-muted small text-truncate">
+                    <%= pluralize(user.try(:suggestion_posts_count).to_i, "post") %>
+                  </div>
+                </div>
+              </div>
+
+              <span class="text-muted small flex-shrink-0">
+                <i class="fa-solid fa-chevron-right"></i>
+              </span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @suggested_pets.present? && @suggested_pets.any? %>
+      <div class="sidebar-suggestion-section">
+        <div class="sidebar-suggestion-label">Pets</div>
+
+        <div class="vstack gap-2">
+          <% @suggested_pets.each do |pet| %>
+            <%= link_to pet_path(pet),
+                  class: "sidebar-suggestion-item" do %>
+              <div class="d-flex align-items-center gap-2 min-width-0">
+                <% if pet.image.attached? %>
+                  <%= image_tag pet.image,
+                        class: "sidebar-suggestion-avatar flex-shrink-0" %>
+                <% elsif pet.image_url.present? %>
+                  <%= image_tag pet.image_url,
+                        class: "sidebar-suggestion-avatar flex-shrink-0" %>
+                <% else %>
+                  <span class="sidebar-suggestion-avatar-fallback flex-shrink-0">
+                    <i class="fa-solid fa-paw"></i>
+                  </span>
+                <% end %>
+
+                <div class="min-width-0">
+                  <div class="fw-bold text-truncate">
+                    <%= pet.name %>
+                  </div>
+
+                  <div class="text-muted small text-truncate">
+                    <%= pet.species.presence || "Pet" %>
+                    · <%= pet.user.username %>
+                  </div>
+                </div>
+              </div>
+
+              <span class="text-muted small flex-shrink-0">
+                <i class="fa-solid fa-chevron-right"></i>
+              </span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>
