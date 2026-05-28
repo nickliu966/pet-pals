@@ -148,11 +148,6 @@ class User < ApplicationRecord
     profile_banner.purge_later
   end
 
-  def friends_with?(other_user)
-    owner_friends.exists?(id: other_user.id) ||
-      friended_by_users.exists?(id: other_user.id)
-  end
-
   def following_users
     User.where(
       id: sent_user_friendships

@@ -10,6 +10,12 @@ class UserFriendshipsController < ApplicationController
   def create
     receiver = User.find(user_friendship_params.fetch(:receiver_id))
 
+    if receiver == current_user
+      redirect_to user_path(current_user.username),
+                  alert: "You cannot follow yourself."
+      return
+    end
+
     @user_friendship =
       current_user.sent_user_friendships.find_or_initialize_by(
         receiver: receiver,
@@ -20,6 +26,8 @@ class UserFriendshipsController < ApplicationController
       else
         "accepted"
       end
+
+    @user_friendship.accepted_at = Time.current if @user_friendship.accepted?
 
     respond_to do |format|
       if @user_friendship.save
@@ -41,11 +49,23 @@ class UserFriendshipsController < ApplicationController
   def update
     authorize! @user_friendship
 
+    if user_friendship_params[:status] == "accepted"
+      @user_friendship.accepted_at = Time.current
+    end
+
     respond_to do |format|
       if @user_friendship.update(user_friendship_params)
+        notice = if @user_friendship.accepted?
+            "Follow request accepted."
+          elsif @user_friendship.declined?
+            "Follow request declined."
+          else
+            "Follow request updated."
+          end
+
         format.html do
           redirect_back fallback_location: user_friendships_path,
-                        notice: "Friend request was successfully updated."
+                        notice: notice
         end
 
         format.json { render :show, status: :ok, location: @user_friendship }
@@ -64,10 +84,25 @@ class UserFriendshipsController < ApplicationController
   def destroy
     authorize! @user_friendship
 
+    receiver = @user_friendship.receiver
+    requester = @user_friendship.requester
+
+    notice = if @user_friendship.pending?
+        "Follow request cancelled."
+      elsif requester == current_user
+        "You unfollowed #{receiver.username}."
+      else
+        "Follower removed."
+      end
+
     @user_friendship.destroy!
 
     respond_to do |format|
-      format.html { redirect_back fallback_location: root_url, notice: "Friendship was successfully destroyed." }
+      format.html do
+        redirect_back fallback_location: user_path(receiver.username),
+                      notice: notice
+      end
+
       format.json { head :no_content }
     end
   end
