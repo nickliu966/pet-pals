@@ -53,12 +53,12 @@ class Post < ApplicationRecord
     everyone: "everyone",
     user_friends_only: "user_friends_only",
     pet_friends_only: "pet_friends_only",
-    friends_of_either: "friends_of_either",
+    friends_of_either: "friends_of_either"
   }
 
   validate :walk_event_must_be_available_to_user
 
-  after_commit :sync_mentions, on: [:create, :update]
+  after_commit :sync_mentions, on: [ :create, :update ]
 
   scope :default_order, -> { order(created_at: :desc) }
 
@@ -94,12 +94,12 @@ class Post < ApplicationRecord
 
     post_ids +=
       where(user_id: friend_user_ids)
-        .where(visibility: ["user_friends_only", "friends_of_either"])
+        .where(visibility: [ "user_friends_only", "friends_of_either" ])
         .pluck(:id)
 
     post_ids +=
       where(pet_id: pet_friend_ids.uniq)
-        .where(visibility: ["pet_friends_only", "friends_of_either"])
+        .where(visibility: [ "pet_friends_only", "friends_of_either" ])
         .pluck(:id)
 
     where(id: post_ids.uniq)

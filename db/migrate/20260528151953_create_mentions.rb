@@ -20,7 +20,7 @@ class CreateMentions < ActiveRecord::Migration[8.0]
     end
 
     add_index :mentions,
-              [:post_id, :recipient_id, :mentioned_pet_id, :mention_text],
+              [ :post_id, :recipient_id, :mentioned_pet_id, :mention_text ],
               unique: true,
               name: "index_mentions_on_post_recipient_pet_and_text"
   end

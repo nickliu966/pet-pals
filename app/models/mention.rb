@@ -11,21 +11,6 @@
 #  post_id          :bigint           not null
 #  recipient_id     :bigint           not null
 #
-# Indexes
-#
-#  index_mentions_on_mentioned_pet_id             (mentioned_pet_id)
-#  index_mentions_on_mentioner_id                 (mentioner_id)
-#  index_mentions_on_post_id                      (post_id)
-#  index_mentions_on_post_recipient_pet_and_text  (post_id,recipient_id,mentioned_pet_id,mention_text) UNIQUE
-#  index_mentions_on_recipient_id                 (recipient_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (mentioned_pet_id => pets.id)
-#  fk_rails_...  (mentioner_id => users.id)
-#  fk_rails_...  (post_id => posts.id)
-#  fk_rails_...  (recipient_id => users.id)
-#
 class Mention < ApplicationRecord
   belongs_to :post
   belongs_to :mentioner, class_name: "User"
@@ -64,34 +49,45 @@ class Mention < ApplicationRecord
     user_mention_tokens = mentioned_users.keys
     pet_tokens = tokens - user_mention_tokens
 
-    attrs = []
+    attrs = user_mentions_for(post, mentioned_users)
 
-    mentioned_users.each do |token, user|
-      attrs << {
+    attrs.concat(pet_mentions_for(post, pet_tokens)) if pet_tokens.any?
+
+    attrs.uniq { |attrs_for_mention| key_for_attrs(attrs_for_mention) }
+  end
+
+  def self.user_mentions_for(post, mentioned_users)
+    mentioned_users.map do |token, user|
+      {
         post: post,
         mentioner: post.user,
         recipient: user,
-        mention_text: token,
+        mention_text: token
       }
     end
+  end
 
-    if pet_tokens.any?
+  def self.pet_mentions_for(post, pet_tokens)
+    pets_by_name =
       Pet
         .includes(:user)
         .where("LOWER(pets.name) IN (?)", pet_tokens)
         .where.not(user_id: post.user_id)
-        .find_each do |pet|
-          attrs << {
-            post: post,
-            mentioner: post.user,
-            recipient: pet.user,
-            mentioned_pet: pet,
-            mention_text: pet.name,
-          }
-        end
-    end
+        .group_by { |pet| pet.name.downcase }
 
-    attrs.uniq { |attrs_for_mention| key_for_attrs(attrs_for_mention) }
+    pets_by_name.each_with_object([]) do |(token, pets), attrs|
+      next unless pets.one?
+
+      pet = pets.first
+
+      attrs << {
+        post: post,
+        mentioner: post.user,
+        recipient: pet.user,
+        mentioned_pet: pet,
+        mention_text: token
+      }
+    end
   end
 
   def self.extract_tokens(text)
@@ -106,7 +102,7 @@ class Mention < ApplicationRecord
     [
       attrs.fetch(:recipient).id,
       attrs[:mentioned_pet]&.id,
-      attrs.fetch(:mention_text).to_s.downcase,
+      attrs.fetch(:mention_text).to_s.downcase
     ]
   end
 
@@ -114,7 +110,7 @@ class Mention < ApplicationRecord
     [
       mention.recipient_id,
       mention.mentioned_pet_id,
-      mention.mention_text.to_s.downcase,
+      mention.mention_text.to_s.downcase
     ]
   end
 end

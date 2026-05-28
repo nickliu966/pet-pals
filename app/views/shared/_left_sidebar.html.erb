@@ -62,6 +62,7 @@
     <% post_mention_count =
         Mention.where(recipient: current_user)
                 .where.not(mentioner: current_user)
+                .where(post: Post.visible_to(current_user))
                 .where("created_at > ?", notifications_read_at)
                 .count %>
 

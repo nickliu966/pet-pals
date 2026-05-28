@@ -12,9 +12,9 @@ class ApplicationController < ActionController::Base
 
   def set_sidebar_suggestions
     excluded_user_ids =
-      [current_user.id] +
+      [ current_user.id ] +
       current_user.sent_user_friendships
-                  .where(status: ["pending", "accepted"])
+                  .where(status: [ "pending", "accepted" ])
                   .pluck(:receiver_id)
 
     @suggested_users =
@@ -31,11 +31,11 @@ class ApplicationController < ActionController::Base
     connected_pet_ids =
       PetFriendship
         .where(requester_pet_id: user_pet_ids)
-        .where(status: ["pending", "accepted"])
+        .where(status: [ "pending", "accepted" ])
         .pluck(:receiver_pet_id) +
       PetFriendship
         .where(receiver_pet_id: user_pet_ids)
-        .where(status: ["pending", "accepted"])
+        .where(status: [ "pending", "accepted" ])
         .pluck(:requester_pet_id)
 
     excluded_pet_ids = (user_pet_ids + connected_pet_ids).compact.uniq
@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(
       :sign_up,
-      keys: [:username],
+      keys: [ :username ],
     )
 
     devise_parameter_sanitizer.permit(
@@ -69,7 +69,7 @@ class ApplicationController < ActionController::Base
         :website,
         :private,
         :avatar_image,
-        :profile_banner,
+        :profile_banner
       ],
     )
   end
