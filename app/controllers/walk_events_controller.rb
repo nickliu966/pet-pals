@@ -14,10 +14,28 @@ class WalkEventsController < ApplicationController
       )
     end
 
-    @walk_events = walk_events.order(start_time: :asc)
+    @walk_events =
+      preload_walk_event_card_associations(
+        walk_events.order(start_time: :asc)
+      ).to_a
   end
 
   def show
+    @walk_event =
+      WalkEvent
+        .includes(
+          :host_user,
+          :host_pet,
+          walk_participants: [:user, :pet],
+          posts: [
+            :user,
+            :pet,
+            :walk_event,
+            { images_attachments: :blob },
+            { comments: :author },
+          ],
+        )
+        .find(@walk_event.id)
   end
 
   def new
@@ -84,9 +102,10 @@ class WalkEventsController < ApplicationController
       current_user.hosted_walk_events.pluck(:id) +
       current_user.joined_walk_events.pluck(:id)
 
-    @walk_events = WalkEvent
-      .where(id: walk_event_ids.uniq)
-      .order(start_time: :asc)
+    @walk_events =
+      preload_walk_event_card_associations(
+        WalkEvent.where(id: walk_event_ids.uniq).order(start_time: :asc)
+      )
   end
 
   def invite_participant
@@ -109,6 +128,14 @@ class WalkEventsController < ApplicationController
   end
 
   private
+
+  def preload_walk_event_card_associations(walk_events)
+    walk_events.includes(
+      :host_user,
+      :host_pet,
+      walk_participants: [:user, :pet],
+    )
+  end
 
   def nearby_filter?
     params[:near_me] == "1" &&
