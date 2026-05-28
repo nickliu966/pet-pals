@@ -1,9 +1,7 @@
 <% content_for :title, "Walks" %>
 
-<% nearby_results_frame_id = "walk_events_frame" %>
-
 <% content_for :right_sidebar do %>
-  <%= render "shared/nearby_filter", frame_id: nearby_results_frame_id %>
+  <%= render "shared/nearby_filter" %>
 <% end %>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -37,15 +35,29 @@
   </div>
 </div>
 
-<%= turbo_frame_tag nearby_results_frame_id do %>
-  <% if @walk_events.any? %>
+<% if @walk_events.any? %>
+  <div class="vstack gap-3">
     <%= render partial: "walk_events/walk_event",
           collection: @walk_events,
           as: :walk_event,
           locals: { render_edit_modal: false } %>
-  <% else %>
-    <p class="text-muted">
-      No walks found.
-    </p>
-  <% end %>
+  </div>
+<% else %>
+  <div class="card my-3">
+    <div class="card-body text-center text-muted">
+      <% if params[:near_me] == "1" && params[:radius_miles].present? %>
+        <h5 class="card-title">No nearby walks found</h5>
+        <p class="mb-0">
+          There are no visible walk events within
+          <%= pluralize(params[:radius_miles].to_i, "mile") %>
+          of your current location.
+        </p>
+      <% else %>
+        <h5 class="card-title">No walks found</h5>
+        <p class="mb-0">
+          Visible walk events will appear here.
+        </p>
+      <% end %>
+    </div>
+  </div>
 <% end %>
