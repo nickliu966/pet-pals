@@ -1,10 +1,10 @@
 <% content_for :title, "Search" %>
 
 <div class="mb-4">
-  <div class="page-kicker">Find people</div>
+  <div class="page-kicker">Find people and pets</div>
   <h1 class="page-title mb-1">Search</h1>
   <p class="page-subtitle mb-0">
-    Look up owners by username or display name.
+    Look up owners, pets, breeds, or species.
   </p>
 </div>
 
@@ -18,7 +18,7 @@
 
         <%= form.search_field :username_or_display_name_cont,
               class: "form-control",
-              placeholder: "Search owners by username or name" %>
+              placeholder: "Search owners or pets" %>
 
         <%= form.button class: "btn btn-primary px-4", name: nil do %>
           Search
@@ -34,7 +34,7 @@
 </div>
 
 <% if @users.any? %>
-  <div class="vstack gap-3">
+  <div class="vstack gap-3 mb-4">
     <% @users.each do |user| %>
       <%= link_to user_path(user.username),
             class: "owner-card d-flex align-items-center justify-content-between gap-3" do %>
@@ -68,14 +68,71 @@
     <% end %>
   </div>
 <% else %>
-  <div class="empty-state">
+  <div class="empty-state mb-4">
     <div class="empty-state-icon">
       <i class="fa-solid fa-user-group"></i>
     </div>
 
-    <h5 class="mb-1">No users found</h5>
+    <h5 class="mb-1">No owners found</h5>
     <p class="text-muted mb-0">
       Try a different username or display name.
+    </p>
+  </div>
+<% end %>
+
+<div class="mb-3 mt-4">
+  <div class="page-kicker">Pet results</div>
+  <h2 class="page-title fs-4 mb-0">Pets</h2>
+</div>
+
+<% if @pets.any? %>
+  <div class="vstack gap-3">
+    <% @pets.each do |pet| %>
+      <%= link_to pet_path(pet),
+            class: "owner-card d-flex align-items-center justify-content-between gap-3" do %>
+        <div class="d-flex align-items-center gap-3 min-width-0">
+          <% if pet.image.attached? %>
+            <%= image_tag pet.image,
+                  class: "rounded-circle owner-card-avatar flex-shrink-0" %>
+          <% elsif pet.image_url.present? %>
+            <%= image_tag pet.image_url,
+                  class: "rounded-circle owner-card-avatar flex-shrink-0" %>
+          <% else %>
+            <div class="owner-card-avatar-fallback flex-shrink-0">
+              <i class="fa-solid fa-paw"></i>
+            </div>
+          <% end %>
+
+          <div class="min-width-0">
+            <div class="fw-bold text-truncate">
+              <%= pet.name %>
+            </div>
+
+            <div class="text-muted small text-truncate">
+              <% if pet.species.present? || pet.breed.present? %>
+                <%= [pet.species, pet.breed].compact_blank.join(" · ") %>
+                ·
+              <% end %>
+              owned by <%= pet.user.username %>
+            </div>
+          </div>
+        </div>
+
+        <span class="text-muted">
+          <i class="fa-solid fa-chevron-right"></i>
+        </span>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fa-solid fa-paw"></i>
+    </div>
+
+    <h5 class="mb-1">No pets found</h5>
+    <p class="text-muted mb-0">
+      Try a pet name, breed, or species.
     </p>
   </div>
 <% end %>

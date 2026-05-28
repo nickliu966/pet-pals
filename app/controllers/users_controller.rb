@@ -2,7 +2,22 @@ class UsersController < ApplicationController
   before_action :set_user, only: %i[show posts pets friends followers follows update]
 
   def index
+    search_term = params.dig(:q, :username_or_display_name_cont).to_s.strip
+
     @users = @q.result(distinct: true).where.not(id: current_user.id)
+
+    @pets =
+      if search_term.present?
+        Pet
+          .includes(:user)
+          .where(
+            "pets.name ILIKE :query OR pets.species ILIKE :query OR pets.breed ILIKE :query",
+            query: "%#{search_term}%"
+          )
+          .order(:name)
+      else
+        Pet.includes(:user).order(created_at: :desc).limit(10)
+      end
   end
 
   def show
@@ -87,7 +102,7 @@ class UsersController < ApplicationController
         :website,
         :private,
         :avatar_image,
-        :profile_banner
+        :profile_banner,
       ],
     )
   end
