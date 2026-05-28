@@ -1,6 +1,7 @@
 <% host_participants = walk_event.walk_participants.select { |participant| participant.user == walk_event.host_user } %>
 <% host_pets = host_participants.map(&:pet).compact %>
 <% show_view_button = local_assigns.fetch(:show_view_button, true) %>
+<% render_edit_modal = local_assigns.fetch(:render_edit_modal, true) %>
 
 <div id="<%= dom_id(walk_event) %>" class="card mb-3">
   <div class="card-body">
@@ -53,8 +54,8 @@
         </div>
 
         <%= link_to walk_event_path(walk_event, return_to: request.fullpath),
-            class: "text-decoration-none" do %>
-            <%= render "walk_events/participant_count", walk_event: walk_event %>
+              class: "text-decoration-none" do %>
+          <%= render "walk_events/participant_count", walk_event: walk_event %>
         <% end %>
       </div>
 
@@ -76,20 +77,26 @@
             <% end %>
 
             <div class="dropdown-menu dropdown-menu-end p-0 walk-actions-menu">
-              <button type="button"
-          class="dropdown-item py-2"
-          data-bs-toggle="modal"
-          data-bs-target="#<%= dom_id(walk_event, :form_modal) %>">
-                Edit
-              </button>
+              <% if render_edit_modal %>
+                <button type="button"
+                        class="dropdown-item py-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#<%= dom_id(walk_event, :form_modal) %>">
+                  Edit
+                </button>
+              <% else %>
+                <%= link_to "Edit",
+                      edit_walk_event_path(walk_event, return_to: "#{request.fullpath}##{dom_id(walk_event)}"),
+                      class: "dropdown-item py-2" %>
+              <% end %>
 
               <div class="dropdown-divider m-0"></div>
 
               <div class="px-2 py-2 border-bottom">
                 <%= form_with model: walk_event,
-          url: walk_event_path(walk_event),
-          method: :patch,
-          local: true do |form| %>
+                      url: walk_event_path(walk_event),
+                      method: :patch,
+                      local: true do |form| %>
 
                   <%= hidden_field_tag :return_to, "#{request.fullpath}##{dom_id(walk_event)}" %>
 
@@ -116,9 +123,9 @@
               </div>
 
               <%= button_to "Delete",
-                  walk_event_path(walk_event),
-                  method: :delete,
-                  class: "dropdown-item text-danger rounded-0 py-2" %>
+                    walk_event_path(walk_event),
+                    method: :delete,
+                    class: "dropdown-item text-danger rounded-0 py-2" %>
             </div>
           </div>
         <% elsif show_view_button %>
@@ -131,7 +138,7 @@
   </div>
 </div>
 
-<% if allowed_to?(:edit?, walk_event) %>
+<% if render_edit_modal && allowed_to?(:edit?, walk_event) %>
   <% content_for :modals do %>
     <%= render "shared/form_modal",
           record: walk_event,
