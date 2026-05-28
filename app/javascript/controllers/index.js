@@ -13,3 +13,6 @@ application.register("modal", ModalController)
 
 import NearbyFilterController from "controllers/nearby_filter_controller"
 application.register("nearby-filter", NearbyFilterController)
+
+import ImageLoadingController from "controllers/image_loading_controller"
+application.register("image-loading", ImageLoadingController)

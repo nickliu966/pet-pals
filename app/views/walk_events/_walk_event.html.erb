@@ -2,6 +2,12 @@
 <% host_pets = host_participants.map(&:pet).compact %>
 <% show_view_button = local_assigns.fetch(:show_view_button, true) %>
 <% render_edit_modal = local_assigns.fetch(:render_edit_modal, true) %>
+<% walk_location_url =
+     if walk_event.latitude.present? && walk_event.longitude.present?
+       "https://www.google.com/maps/search/?api=1&query=#{walk_event.latitude},#{walk_event.longitude}"
+     elsif walk_event.location_name.present?
+       "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(walk_event.location_name)}"
+     end %>
 
 <div id="<%= dom_id(walk_event) %>" class="card mb-3">
   <div class="card-body">
@@ -39,9 +45,20 @@
         <% end %>
 
         <div class="text-muted small mb-2">
-          <% if walk_event.location_name.present? %>
-            <i class="fa-solid fa-location-dot"></i>
-            <%= walk_event.location_name %>
+          <% if walk_event.location_name.present? && walk_location_url.present? %>
+            <%= link_to walk_location_url,
+                  target: "_blank",
+                  rel: "noopener",
+                  class: "walk-meta-chip text-decoration-none",
+                  title: "Open location in Google Maps" do %>
+              <i class="fa-solid fa-location-dot"></i>
+              <%= walk_event.location_name %>
+            <% end %>
+          <% elsif walk_event.location_name.present? %>
+            <span class="walk-meta-chip">
+              <i class="fa-solid fa-location-dot"></i>
+              <%= walk_event.location_name %>
+            </span>
           <% end %>
 
           <% if walk_event.start_time.present? %>

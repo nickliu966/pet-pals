@@ -1,13 +1,33 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
-  <div class="container">
-    <%= link_to "PetPals", root_path, class: "navbar-brand fw-bold" %>
+<nav class="navbar navbar-expand-lg sticky-top app-navbar">
+  <div class="app-shell-container navbar-inner">
+    <%= link_to root_path, class: "navbar-brand pet-brand fw-bold d-flex align-items-center gap-2" do %>
+      <span class="pet-logo-mark">
+        <i class="fa-solid fa-paw"></i>
+      </span>
+      <span>PetPals</span>
+    <% end %>
 
     <% if user_signed_in? %>
-      <div class="navbar-nav ms-auto align-items-center">
-        <%= link_to "Home", root_path, class: "nav-link" %>
-        <%= link_to "Feed", feed_path, class: "nav-link" %>
-        <%= link_to "Walks", walk_events_path, class: "nav-link" %>
-        <%= link_to "Network", network_path, class: "nav-link" %>
+      <div class="navbar-nav ms-auto align-items-center gap-1">
+        <%= link_to root_path, class: "nav-link app-nav-link #{'active' if current_page?(root_path) || current_page?(discover_path)}" do %>
+          <i class="fa-solid fa-compass me-1"></i>
+          Discover
+        <% end %>
+
+        <%= link_to feed_path, class: "nav-link app-nav-link #{'active' if current_page?(feed_path)}" do %>
+          <i class="fa-solid fa-house me-1"></i>
+          Feed
+        <% end %>
+
+        <%= link_to walk_events_path, class: "nav-link app-nav-link #{'active' if current_page?(walk_events_path)}" do %>
+          <i class="fa-solid fa-person-walking me-1"></i>
+          Walks
+        <% end %>
+
+        <%= link_to network_path, class: "nav-link app-nav-link #{'active' if current_page?(network_path)}" do %>
+          <i class="fa-solid fa-user-group me-1"></i>
+          Network
+        <% end %>
       </div>
     <% end %>
   </div>

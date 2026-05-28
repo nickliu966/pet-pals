@@ -1,11 +1,29 @@
 <% content_for :title, "Feed" %>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="mb-4">
+  <div class="page-kicker">Your circle</div>
+  <h1 class="page-title mb-1">Feed</h1>
+  <p class="page-subtitle mb-0">
+    New posts from people and pets you follow.
+  </p>
+</div>
 
+<% if @posts.any? %>
   <ul id="feed" class="list-group list-group-flush">
     <%= render partial: "posts/post",
-      collection: @posts,
-      layout: "layouts/list_group",
-      locals: { render_edit_modal: false } %>
+          collection: @posts,
+          layout: "layouts/list_group",
+          locals: { render_edit_modal: false } %>
   </ul>
-</div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fa-solid fa-paw"></i>
+    </div>
+    <h5 class="mb-1">Your feed is quiet</h5>
+    <p class="text-muted mb-3">
+      Follow more people or pets to start seeing posts here.
+    </p>
+    <%= link_to "Explore discover", discover_path, class: "btn btn-primary rounded-pill" %>
+  </div>
+<% end %>

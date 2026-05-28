@@ -1,5 +1,5 @@
 <% if local_assigns[:post].present? %>
-  <li id="<%= dom_id(post, :list_item) %>" class="list-group-item list-group-action-item">
+  <li id="<%= dom_id(post, :list_item) %>" class="list-group-item list-group-action-item post-card-item">
     <%= yield %>
   </li>
 <% else %>

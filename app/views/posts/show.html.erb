@@ -1,6 +1,23 @@
+<% return_to = params[:return_to].presence %>
+<% came_from_notifications = return_to == notifications_path %>
+
+<% back_path =
+     if came_from_notifications
+       notifications_path
+     else
+       posts_path
+     end %>
+
+<% back_label =
+     if came_from_notifications
+       "← Back to notifications"
+     else
+       "← Back to home"
+     end %>
+
 <div class="fs-5 border-bottom mb-3">
-  <%= link_to posts_path, class: "text-decoration-none" do %>
-    ← Back to home
+  <%= link_to back_path, class: "text-decoration-none" do %>
+    <%= back_label %>
   <% end %>
 </div>
 
