@@ -176,38 +176,51 @@ class WalkEvent < ApplicationRecord
   end
 
   def self.visible_to(user)
+    following_user_ids =
+      UserFriendship
+        .where(requester: user, status: "accepted")
+        .pluck(:receiver_id)
+
+    follower_user_ids =
+      UserFriendship
+        .where(receiver: user, status: "accepted")
+        .pluck(:requester_id)
+
+    friend_user_ids = following_user_ids & follower_user_ids
+
+    user_pet_ids = user.pets.pluck(:id)
+
+    pet_friend_ids =
+      PetFriendship
+        .accepted
+        .where(requester_pet_id: user_pet_ids)
+        .pluck(:receiver_pet_id) +
+      PetFriendship
+        .accepted
+        .where(receiver_pet_id: user_pet_ids)
+        .pluck(:requester_pet_id)
+
     walk_event_ids = []
 
-    # Public walks
     walk_event_ids += where(visibility: "everyone").pluck(:id)
 
-    # Walks I host
     walk_event_ids += where(host_user: user).pluck(:id)
 
-    # Walks I am invited to / joined / attended
-    walk_event_ids += WalkParticipant
-      .where(user: user)
-      .where.not(status: "cancelled")
-      .pluck(:walk_event_id)
+    walk_event_ids +=
+      WalkParticipant
+        .where(user: user)
+        .where.not(status: "cancelled")
+        .pluck(:walk_event_id)
 
-    # Walks hosted by my owner friends
-    owner_friends = (user.owner_friends + user.friended_by_users).uniq
+    walk_event_ids +=
+      where(host_user_id: friend_user_ids)
+        .where(visibility: ["user_friends_only", "friends_of_either"])
+        .pluck(:id)
 
-    walk_event_ids += where(host_user: owner_friends)
-      .where(visibility: ["user_friends_only", "friends_of_either"])
-      .pluck(:id)
-
-    # Walks hosted by my pet friends
-    pet_friends = []
-
-    user.pets.each do |pet|
-      pet_friends += pet.pet_friends
-      pet_friends += pet.friended_by_pets
-    end
-
-    walk_event_ids += where(host_pet: pet_friends.uniq)
-      .where(visibility: ["pet_friends_only", "friends_of_either"])
-      .pluck(:id)
+    walk_event_ids +=
+      where(host_pet_id: pet_friend_ids.uniq)
+        .where(visibility: ["pet_friends_only", "friends_of_either"])
+        .pluck(:id)
 
     where(id: walk_event_ids.uniq)
   end
