@@ -95,7 +95,7 @@ namespace :demo_images do
       "sarah" => "avatars/sarah_avatar.jpg",
       "emily" => "avatars/emily_avatar.jpg",
       "bob" => "avatars/bob_avatar.jpg",
-      "carol" => "avatars/carol_avatar.jpg",
+      "carol" => "avatars/carol_avatar.jpg"
     }.each do |username, image_path|
       attach_one.call(users[username], :avatar_image, image_path)
     end
@@ -108,7 +108,7 @@ namespace :demo_images do
       "sarah" => "banners/sarah_banner.jpg",
       "emily" => "banners/emily_banner.jpg",
       "bob" => "banners/bob_banner.jpg",
-      "carol" => "banners/carol_banner.jpg",
+      "carol" => "banners/carol_banner.jpg"
     }.each do |username, image_path|
       attach_one.call(users[username], :profile_banner, image_path)
     end
@@ -121,7 +121,7 @@ namespace :demo_images do
       "Coco" => "pets/coco_corgi.jpg",
       "Biscuit" => "pets/biscuit_poodle.jpg",
       "Luna" => "pets/luna_husky.jpg",
-      "Milo" => "pets/milo_tabby.jpg",
+      "Milo" => "pets/milo_tabby.jpg"
     }.each do |pet_name, image_path|
       attach_one.call(pets[pet_name], :image, image_path)
     end
@@ -139,8 +139,8 @@ namespace :demo_images do
         longitude: -87.619,
         created_at: 2.hours.ago,
         images: [
-          "posts/max_fetch_ball.jpg",
-        ],
+          "posts/max_fetch_ball.jpg"
+        ]
       },
       {
         username: "alice",
@@ -152,8 +152,8 @@ namespace :demo_images do
         longitude: -87.619,
         created_at: 5.hours.ago,
         images: [
-          "posts/dogs_picnic_park.jpg",
-        ],
+          "posts/dogs_picnic_park.jpg"
+        ]
       },
       {
         username: "sarah",
@@ -165,8 +165,8 @@ namespace :demo_images do
         longitude: -87.575,
         created_at: 1.day.ago,
         images: [
-          "posts/coco_sunset_walk.jpg",
-        ],
+          "posts/coco_sunset_walk.jpg"
+        ]
       },
       {
         username: "sarah",
@@ -178,8 +178,8 @@ namespace :demo_images do
         longitude: -87.619,
         created_at: 2.days.ago,
         images: [
-          "posts/coco_meets_dog.jpg",
-        ],
+          "posts/coco_meets_dog.jpg"
+        ]
       },
       {
         username: "nick",
@@ -191,8 +191,8 @@ namespace :demo_images do
         longitude: -87.590,
         created_at: 2.days.ago + 2.hours,
         images: [
-          "posts/mochi_window.jpg",
-        ],
+          "posts/mochi_window.jpg"
+        ]
       },
       {
         username: "emily",
@@ -204,8 +204,8 @@ namespace :demo_images do
         longitude: -87.599,
         created_at: 3.days.ago,
         images: [
-          "posts/biscuit_small_dog_friends.jpg",
-        ],
+          "posts/biscuit_small_dog_friends.jpg"
+        ]
       },
       {
         username: "bob",
@@ -217,8 +217,8 @@ namespace :demo_images do
         longitude: -87.580,
         created_at: 3.days.ago + 3.hours,
         images: [
-          "posts/luna_morning_walk.jpg",
-        ],
+          "posts/luna_morning_walk.jpg"
+        ]
       },
       {
         username: "carol",
@@ -230,8 +230,8 @@ namespace :demo_images do
         longitude: -87.590,
         created_at: 4.days.ago,
         images: [
-          "posts/milo_watching_window.jpg",
-        ],
+          "posts/milo_watching_window.jpg"
+        ]
       },
       {
         username: "nick",
@@ -243,8 +243,8 @@ namespace :demo_images do
         longitude: -87.580,
         created_at: 4.days.ago + 4.hours,
         images: [
-          "posts/ducks_pond.jpg",
-        ],
+          "posts/ducks_pond.jpg"
+        ]
       },
       {
         username: "alice",
@@ -256,8 +256,8 @@ namespace :demo_images do
         longitude: -87.619,
         created_at: 5.days.ago,
         images: [
-          "posts/geese_crossing_path.jpg",
-        ],
+          "posts/geese_crossing_path.jpg"
+        ]
       },
       {
         username: "carol",
@@ -269,8 +269,8 @@ namespace :demo_images do
         longitude: -87.590,
         created_at: 5.days.ago + 5.hours,
         images: [
-          "posts/cat_on_fence.jpg",
-        ],
+          "posts/cat_on_fence.jpg"
+        ]
       },
       {
         username: "emily",
@@ -282,9 +282,9 @@ namespace :demo_images do
         longitude: -87.599,
         created_at: 6.days.ago,
         images: [
-          "posts/bird_near_bench.jpg",
-        ],
-      },
+          "posts/bird_near_bench.jpg"
+        ]
+      }
     ]
 
     demo_bodies = demo_posts.map { |post_attrs| post_attrs.fetch(:body) }
@@ -326,12 +326,12 @@ namespace :demo_images do
     end
 
     comment_templates = [
-      ["sarah", "This feels like peak park energy."],
-      ["nick", "The geese own that path now."],
-      ["alice", "Coco looks extremely proud of herself."],
-      ["emily", "Biscuit would like the quiet version of this meetup."],
-      ["carol", "Milo approves from a safe distance."],
-      ["bob", "Early walks are still undefeated."],
+      [ "sarah", "This feels like peak park energy." ],
+      [ "nick", "The geese own that path now." ],
+      [ "alice", "Coco looks extremely proud of herself." ],
+      [ "emily", "Biscuit would like the quiet version of this meetup." ],
+      [ "carol", "Milo approves from a safe distance." ],
+      [ "bob", "Early walks are still undefeated." ]
     ]
 
     created_posts.each_with_index do |post, index|

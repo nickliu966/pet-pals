@@ -112,7 +112,7 @@ class User < ApplicationRecord
     uniqueness: true,
     format: {
       with: /\A[\w_\.]+\z/i,
-      message: "can only contain letters, numbers, periods, and underscores",
+      message: "can only contain letters, numbers, periods, and underscores"
     }
 
   validates :website, url: { allow_blank: true }
@@ -127,7 +127,7 @@ class User < ApplicationRecord
       "username",
       "display_name",
       "city",
-      "bio",
+      "bio"
     ]
   end
 

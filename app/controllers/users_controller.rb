@@ -87,7 +87,7 @@ class UsersController < ApplicationController
         :website,
         :private,
         :avatar_image,
-        :profile_banner,
+        :profile_banner
       ],
     )
   end

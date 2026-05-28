@@ -39,8 +39,8 @@ RSpec.describe "User follow requests", type: :request do
         post user_friendships_path,
              params: {
                user_friendship: {
-                 receiver_id: bob.id,
-               },
+                 receiver_id: bob.id
+               }
              }
       }.to change(UserFriendship, :count).by(1)
 
@@ -64,8 +64,8 @@ RSpec.describe "User follow requests", type: :request do
         post user_friendships_path,
              params: {
                user_friendship: {
-                 receiver_id: private_bob.id,
-               },
+                 receiver_id: private_bob.id
+               }
              }
       }.to change(UserFriendship, :count).by(1)
 
@@ -87,8 +87,8 @@ RSpec.describe "User follow requests", type: :request do
         post user_friendships_path,
              params: {
                user_friendship: {
-                 receiver_id: alice.id,
-               },
+                 receiver_id: alice.id
+               }
              }
       }.not_to change(UserFriendship, :count)
 
@@ -105,8 +105,8 @@ RSpec.describe "User follow requests", type: :request do
         post user_friendships_path,
              params: {
                user_friendship: {
-                 receiver_id: bob.id,
-               },
+                 receiver_id: bob.id
+               }
              }
       }.not_to change(UserFriendship, :count)
 
@@ -129,11 +129,11 @@ RSpec.describe "User follow requests", type: :request do
       patch user_friendship_path(follow_request),
             params: {
               user_friendship: {
-                status: "accepted",
-              },
+                status: "accepted"
+              }
             },
             headers: {
-              "HTTP_REFERER" => user_friendships_path,
+              "HTTP_REFERER" => user_friendships_path
             }
 
       expect(response).to redirect_to(user_friendships_path)
@@ -150,11 +150,11 @@ RSpec.describe "User follow requests", type: :request do
       patch user_friendship_path(follow_request),
             params: {
               user_friendship: {
-                status: "declined",
-              },
+                status: "declined"
+              }
             },
             headers: {
-              "HTTP_REFERER" => user_friendships_path,
+              "HTTP_REFERER" => user_friendships_path
             }
 
       expect(response).to redirect_to(user_friendships_path)
@@ -170,11 +170,11 @@ RSpec.describe "User follow requests", type: :request do
       patch user_friendship_path(follow_request),
             params: {
               user_friendship: {
-                status: "accepted",
-              },
+                status: "accepted"
+              }
             },
             headers: {
-              "HTTP_REFERER" => user_friendships_path,
+              "HTTP_REFERER" => user_friendships_path
             }
 
       expect(response).to redirect_to(user_friendships_path)
@@ -188,11 +188,11 @@ RSpec.describe "User follow requests", type: :request do
       patch user_friendship_path(follow_request),
             params: {
               user_friendship: {
-                status: "accepted",
-              },
+                status: "accepted"
+              }
             },
             headers: {
-              "HTTP_REFERER" => user_friendships_path,
+              "HTTP_REFERER" => user_friendships_path
             }
 
       expect(response).to redirect_to(user_friendships_path)
@@ -214,7 +214,7 @@ RSpec.describe "User follow requests", type: :request do
       expect {
         delete user_friendship_path(friendship),
                headers: {
-                 "HTTP_REFERER" => user_path(bob.username),
+                 "HTTP_REFERER" => user_path(bob.username)
                }
       }.to change(UserFriendship, :count).by(-1)
 
@@ -229,7 +229,7 @@ RSpec.describe "User follow requests", type: :request do
       expect {
         delete user_friendship_path(request),
                headers: {
-                 "HTTP_REFERER" => user_path(bob.username),
+                 "HTTP_REFERER" => user_path(bob.username)
                }
       }.to change(UserFriendship, :count).by(-1)
 
@@ -244,7 +244,7 @@ RSpec.describe "User follow requests", type: :request do
       expect {
         delete user_friendship_path(friendship),
                headers: {
-                 "HTTP_REFERER" => followers_path(bob.username),
+                 "HTTP_REFERER" => followers_path(bob.username)
                }
       }.to change(UserFriendship, :count).by(-1)
 
@@ -259,7 +259,7 @@ RSpec.describe "User follow requests", type: :request do
       expect {
         delete user_friendship_path(relationship),
                headers: {
-                 "HTTP_REFERER" => user_path(bob.username),
+                 "HTTP_REFERER" => user_path(bob.username)
                }
       }.not_to change(UserFriendship, :count)
 

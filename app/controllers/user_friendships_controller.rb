@@ -1,5 +1,5 @@
 class UserFriendshipsController < ApplicationController
-  before_action :set_user_friendship, only: [:update, :destroy]
+  before_action :set_user_friendship, only: [ :update, :destroy ]
 
   def index
     @received_requests = current_user.received_user_friendships.pending
@@ -23,9 +23,9 @@ class UserFriendshipsController < ApplicationController
 
     @user_friendship.status = if receiver.private?
         "pending"
-      else
+    else
         "accepted"
-      end
+    end
 
     @user_friendship.accepted_at = Time.current if @user_friendship.accepted?
 
@@ -33,9 +33,9 @@ class UserFriendshipsController < ApplicationController
       if @user_friendship.save
         notice = if @user_friendship.pending?
             "Follow request sent."
-          else
+        else
             "You are now following #{receiver.username}."
-          end
+        end
 
         format.html { redirect_to user_path(receiver.username), notice: notice }
         format.json { render :show, status: :created, location: @user_friendship }
@@ -57,11 +57,11 @@ class UserFriendshipsController < ApplicationController
       if @user_friendship.update(user_friendship_params)
         notice = if @user_friendship.accepted?
             "Follow request accepted."
-          elsif @user_friendship.declined?
+        elsif @user_friendship.declined?
             "Follow request declined."
-          else
+        else
             "Follow request updated."
-          end
+        end
 
         format.html do
           redirect_back fallback_location: user_friendships_path,
@@ -89,11 +89,11 @@ class UserFriendshipsController < ApplicationController
 
     notice = if @user_friendship.pending?
         "Follow request cancelled."
-      elsif requester == current_user
+    elsif requester == current_user
         "You unfollowed #{receiver.username}."
-      else
+    else
         "Follower removed."
-      end
+    end
 
     @user_friendship.destroy!
 
@@ -114,6 +114,6 @@ class UserFriendshipsController < ApplicationController
   end
 
   def user_friendship_params
-    params.expect(user_friendship: [:receiver_id, :status])
+    params.expect(user_friendship: [ :receiver_id, :status ])
   end
 end

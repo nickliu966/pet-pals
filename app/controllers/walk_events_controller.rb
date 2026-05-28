@@ -1,5 +1,5 @@
 class WalkEventsController < ApplicationController
-  before_action :set_walk_event, only: [:show, :edit, :update, :destroy]
+  before_action :set_walk_event, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @q = WalkEvent.visible_to(current_user).ransack(params[:q])
@@ -26,13 +26,13 @@ class WalkEventsController < ApplicationController
         .includes(
           :host_user,
           :host_pet,
-          walk_participants: [:user, :pet],
+          walk_participants: [ :user, :pet ],
           posts: [
             :user,
             :pet,
             :walk_event,
             { images_attachments: :blob },
-            { comments: :author },
+            { comments: :author }
           ],
         )
         .find(@walk_event.id)
@@ -132,7 +132,7 @@ class WalkEventsController < ApplicationController
     walk_events.includes(
       :host_user,
       :host_pet,
-      walk_participants: [:user, :pet],
+      walk_participants: [ :user, :pet ],
     )
   end
 
@@ -202,7 +202,7 @@ class WalkEventsController < ApplicationController
                     :duration_minutes,
                     :visibility,
                     :max_participants,
-                    :status,
+                    :status
                   ])
   end
 end
