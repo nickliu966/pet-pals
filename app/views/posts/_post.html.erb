@@ -11,13 +11,19 @@
          post.comments.default_order
        end %>
 
-  <% collection_position = defined?(post_counter) ? post_counter : 0 %>
-  <% priority_image = local_assigns.fetch(:priority_image, collection_position < 3) %>
-  <% primary_image_loading = priority_image ? "eager" : "lazy" %>
-  <% primary_image_fetchpriority = priority_image ? "high" : "low" %>
+  <% post_position =
+       if defined?(post_counter)
+         post_counter
+       else
+         0
+       end %>
+
+  <% priority_image = local_assigns.fetch(:priority_image, post_position < 3) %>
+  <% image_loading = priority_image ? "eager" : "lazy" %>
+  <% image_fetchpriority = priority_image ? "high" : "low" %>
 
   <% if post.respond_to?(:video) && post.video.attached? %>
-    <div class="post-media">
+    <div class="post-media is-loaded">
       <%= video_tag post.video,
             controls: true,
             class: "post-media-asset",
@@ -29,17 +35,17 @@
       <% if post_images.one? %>
         <%= image_tag post_images.first,
               class: "post-media-asset",
-              loading: primary_image_loading,
-              fetchpriority: primary_image_fetchpriority,
+              loading: image_loading,
+              fetchpriority: image_fetchpriority,
               decoding: "async",
               data: { action: "load->image-loading#loaded" } %>
       <% else %>
         <div id="postImages<%= post.id %>" class="carousel slide">
           <div class="carousel-inner">
             <% post_images.each_with_index do |image, index| %>
-              <div class="carousel-item <%= "active" if index == 0 %>">
-                <% slide_priority = priority_image && index.zero? %>
+              <% slide_priority = priority_image && index.zero? %>
 
+              <div class="carousel-item <%= "active" if index == 0 %>">
                 <%= image_tag image,
                       class: "d-block post-media-asset",
                       loading: slide_priority ? "eager" : "lazy",
@@ -71,17 +77,18 @@
     <div class="post-media" data-controller="image-loading">
       <%= image_tag post.image,
             class: "post-media-asset",
-            loading: primary_image_loading,
-            fetchpriority: primary_image_fetchpriority,
+            loading: image_loading,
+            fetchpriority: image_fetchpriority,
             decoding: "async",
             data: { action: "load->image-loading#loaded" } %>
     </div>
 
   <% elsif post.image_url.present? %>
+    <div class="post-media" data-controller="image-loading">
       <%= image_tag post.image_url,
             class: "post-media-asset",
-            loading: primary_image_loading,
-            fetchpriority: primary_image_fetchpriority,
+            loading: image_loading,
+            fetchpriority: image_fetchpriority,
             decoding: "async",
             data: { action: "load->image-loading#loaded" } %>
     </div>
@@ -129,6 +136,7 @@
                 <%= link_to post.location_name,
                       "https://www.google.com/maps/search/?api=1&query=#{post.latitude},#{post.longitude}",
                       target: "_blank",
+                      rel: "noopener",
                       class: "post-context-pill" %>
               <% else %>
                 <span class="post-context-pill">
