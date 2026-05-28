@@ -350,8 +350,13 @@ namespace :demo_images do
   end
 end
 
-desc "Fill sample data and attach local demo images"
+desc "Fill sample data, remove generic image URLs, and attach local demo images"
 task sample_data_with_images: :environment do
   Rake::Task["sample_data"].invoke
+
+  puts "Removing generic sample image URLs..."
+  Post.update_all(image_url: nil)
+  Pet.update_all(image_url: nil)
+
   Rake::Task["demo_images:attach"].invoke
 end
