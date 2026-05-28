@@ -11,6 +11,11 @@
          post.comments.default_order
        end %>
 
+  <% collection_position = defined?(post_counter) ? post_counter : 0 %>
+  <% priority_image = local_assigns.fetch(:priority_image, collection_position < 3) %>
+  <% primary_image_loading = priority_image ? "eager" : "lazy" %>
+  <% primary_image_fetchpriority = priority_image ? "high" : "low" %>
+
   <% if post.respond_to?(:video) && post.video.attached? %>
     <div class="post-media">
       <%= video_tag post.video,
@@ -20,18 +25,26 @@
     </div>
 
   <% elsif post_images.any? %>
-  <div class="post-media" data-controller="image-loading">
-    <% if post_images.one? %>
-      <%= image_tag post_images.first,
-            class: "post-media-asset",
-            data: { action: "load->image-loading#loaded" } %>
+    <div class="post-media" data-controller="image-loading">
+      <% if post_images.one? %>
+        <%= image_tag post_images.first,
+              class: "post-media-asset",
+              loading: primary_image_loading,
+              fetchpriority: primary_image_fetchpriority,
+              decoding: "async",
+              data: { action: "load->image-loading#loaded" } %>
       <% else %>
         <div id="postImages<%= post.id %>" class="carousel slide">
           <div class="carousel-inner">
             <% post_images.each_with_index do |image, index| %>
               <div class="carousel-item <%= "active" if index == 0 %>">
+                <% slide_priority = priority_image && index.zero? %>
+
                 <%= image_tag image,
                       class: "d-block post-media-asset",
+                      loading: slide_priority ? "eager" : "lazy",
+                      fetchpriority: slide_priority ? "high" : "low",
+                      decoding: "async",
                       data: { action: "load->image-loading#loaded" } %>
               </div>
             <% end %>
@@ -58,13 +71,18 @@
     <div class="post-media" data-controller="image-loading">
       <%= image_tag post.image,
             class: "post-media-asset",
+            loading: primary_image_loading,
+            fetchpriority: primary_image_fetchpriority,
+            decoding: "async",
             data: { action: "load->image-loading#loaded" } %>
     </div>
 
   <% elsif post.image_url.present? %>
-    <div class="post-media" data-controller="image-loading">
       <%= image_tag post.image_url,
             class: "post-media-asset",
+            loading: primary_image_loading,
+            fetchpriority: primary_image_fetchpriority,
+            decoding: "async",
             data: { action: "load->image-loading#loaded" } %>
     </div>
   <% end %>
