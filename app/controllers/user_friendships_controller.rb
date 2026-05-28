@@ -10,14 +10,26 @@ class UserFriendshipsController < ApplicationController
   def create
     receiver = User.find(user_friendship_params.fetch(:receiver_id))
 
-    @user_friendship = UserFriendship.new(user_friendship_params)
-    @user_friendship.requester = current_user
-    @user_friendship.receiver = receiver
-    @user_friendship.status = "pending"
+    @user_friendship =
+      current_user.sent_user_friendships.find_or_initialize_by(
+        receiver: receiver,
+      )
+
+    @user_friendship.status = if receiver.private?
+        "pending"
+      else
+        "accepted"
+      end
 
     respond_to do |format|
       if @user_friendship.save
-        format.html { redirect_to user_path(receiver.username), notice: "Friend request sent." }
+        notice = if @user_friendship.pending?
+            "Follow request sent."
+          else
+            "You are now following #{receiver.username}."
+          end
+
+        format.html { redirect_to user_path(receiver.username), notice: notice }
         format.json { render :show, status: :created, location: @user_friendship }
       else
         format.html { redirect_to user_path(receiver.username), alert: @user_friendship.errors.full_messages.to_sentence }
