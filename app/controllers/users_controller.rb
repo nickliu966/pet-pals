@@ -36,20 +36,21 @@ class UsersController < ApplicationController
   end
 
   def friends
-    @followers = @user.friended_by_users
-    @following = @user.owner_friends
+    authorize! @user, to: :show?
+
+    @friends = @user.mutual_friends.order(:username)
   end
 
   def followers
-    authorize! @user, to: :view_private_content?
+    authorize! @user, to: :show?
 
-    @followers = @user.friended_by_users
+    @followers = @user.follower_users.order(:username)
   end
 
   def follows
-    authorize! @user, to: :view_private_content?
+    authorize! @user, to: :show?
 
-    @follows = @user.owner_friends
+    @follows = @user.following_users.order(:username)
   end
 
   private
